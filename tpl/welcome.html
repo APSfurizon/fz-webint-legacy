@@ -67,7 +67,7 @@
 							{% else %}
 								<p><strong style="color:#060;">PAID</strong></p>
 							{% endif %}
-							{% if order.room_owner and person.code != order.code %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
+							{% if order.room_owner and person.code != order.code and (not order.room_confirmed) %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
 						</div>
 						
 						{% if person.status != 'paid' %}
