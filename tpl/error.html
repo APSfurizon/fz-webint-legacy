@@ -2,7 +2,7 @@
 {% block title %}Error {{exception.status_code}}{% endblock %}
 {% block main %}
 	<main class="container">
-		<h1>Oh no! Error {{exception.status_code}}</h1>
+		<h1>{{exception.status_code}}</h1>
 		<p>{{exception}}</p>
 	</main>
 {% endblock %}
