@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Welcome!{% endblock %}
+{% block main %}
+	<style>
+		.container {max-width:40em}
+	</style>
+	<main class="container">
+		<header>
+			<h1>Create a new room</h1>
+		</header>
+		{% if error %}
+			<p class="notice">{{error}}</p>
+		{% endif %}
+		<p>Give a name to your room. This name will be public and shown in the room list, so nothing offensive! :)</p>
+		<form method="POST">
+			<label for="name">Room name</label>
+			<input type="text" name="name" placeholder="{{order.name}}'s room" required minlength="4" maxlength="64" />
+			<input type="submit" value="Create room" />
+		</form>
+	</main>
+
+{% endblock %}

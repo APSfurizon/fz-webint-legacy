@@ -1,0 +1,228 @@
+{% extends "base.html" %}
+{% block title %}{{order.name}}'s Booking{% endblock %}
+{% block main %}
+	<style>
+		.container {max-width:40em}
+	</style>
+	<main class="container">
+		<header>
+			<h1>{{order.name}}'s Booking</h1>
+		</header>
+		
+		<!-- Payment section -->
+		<section>
+			<h2>Payment</h2>
+			{% if order.status == 'pending' %}
+				<p class="notice">⚠️ Your order is still pending due to incomplete payment. You will not be able to reserve a room for now. However, you will be able to create one with your friends and confirm it once all attendants have completed the order!</p>
+				<p>If you wish to <strong>change payment method, check payment instructions or complete a failed payment</strong> please access the payment area.</p>
+
+			{% elif order.status == 'paid' %}
+				<p class="notice" style="background:#050;">✅ Your order has been completed and approved! See you at furizon!</p>
+			{% endif %}
+			<table>
+				<tr>
+					<td>Reference ID</td>
+					<td>{{order.code}}</td>
+				</tr>
+				<tr>
+					<td>Order total</td>
+					<td>{{order.data['total']}}€ by {{'Credit card' if order.data['payment_provider'] == 'stripe' else 'Bank Transfer'}}</td>
+				</tr>
+			</table>
+			{% if order.status == 'paid' %}
+				<p style="text-align:right;"><a href="/manage/download_ticket?name=BEYOND-{{order.code}}.pdf" role="button">Download ticket</a></p>
+			{% else %}
+				<a href="{{order.url}}"><button>Payment area</button></a>
+			{% endif %}	
+		</section>
+		
+		<!-- Room section -->
+		<section>
+			<h2>Your room {% if room_members %}- {{room_members[0].ans('room_name')}}{% endif %}</h2>
+			
+			{# Show alert if room owner has wrong people inside #}
+			{% if order.room_owner and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %}
+				<p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are 0 rooms of this size available. Add or remove people until you reach the size of an available room.</p>
+			{% endif %}
+			
+			{# Show alert if room was not confirmed #}
+			{% if order.room_id and not order.room_confirmed %}
+				<p class="notice">⚠️ Your room hasn't been confirmed yet. Unconfirmed rooms are subject to changes by the staff as we optimize for hotel capacity.</p>
+			{% endif %}
+			
+			{# Show notice if the room is confirmed #}
+			{% if order.room_confirmed %}
+				<p class="notice" style="background:#060">✅ Your room has been confirmed</p>
+			{% endif %}
+			
+			{# Show roommates if room is set #}
+			{% if order.room_id %}
+				<div class="grid people" style="padding-bottom:1em;">
+					{% set room = namespace(forbidden=false) %}
+					{% for person in room_members %}
+						<div>
+							<img class="propic" src="{{person.ans('propic') or '/res/avatar.jpg'}}" />
+							<h3>{{person.ans('fursona_name')}}</h3>
+							{% if person.code == order.room_id %}<p><strong>ROOM OWNER</strong></p>{% endif %}
+							<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}}{{' · Fursuiter' if person.ans('is_fursuiter') != 'No'}}</p>
+							{% if person.status == 'pending' %}
+								<p><strong style="color:red;">UNPAID</strong></p>
+							{% else %}
+								<p><strong style="color:#060;">PAID</strong></p>
+							{% endif %}
+							{% if order.room_owner and person.code != order.code %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
+						</div>
+						
+						{% if person.status != 'paid' %}
+							{% set room.forbidden = True %}
+						{% endif %}
+					{% endfor %}
+					
+					{% if order.room_id == order.code and not order.room_confirmed and len(room_members) < 5 %}
+						<div>
+							<a href="javascript:document.getElementById('modal-roominvite').setAttribute('open', 'true');">
+								<img class="propic" src="/res/new.png" />
+								<h3>Invite</h3>
+								<p>Get room code</p>
+							</a>
+						</div>
+					{% endif %}
+				</div>
+			{% elif order.pending_room %}
+				<p>You have have asked to join the room of another member. Wait for them to confirm or reject your request.</p>
+				<a role="button" href="/manage/room/cancel_request">Cancel pending join request</a>
+			{% else %}
+				<p class="notice">🎲 If you don't join a room or create your one within the room deadline, we will randomly put you into a room with free spots.</p>
+				<p>To join a room, ask somebody to send you their room code.</p>
+				<p class="grid">
+					<a role="button" href="/manage/room/create">Create a room</a>
+					<a role="button" href="javascript:document.getElementById('modal-joinroom').setAttribute('open', 'true');">Join a room</a>
+				</p>
+			{% endif %}
+			
+			{% if order.room_owner %}
+				{% if quota.get_left(len(room_members)) == 0 %}
+					<p class="notice">⚠️ There are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}, therefore you will not be able to confirm this room. Please add or remove people until you reach an available room.</p>
+				{% elif room.forbidden %}
+					<p class="notice">⚠️ There are roommates who still didn't pay for the order, therefore you will not be able to confirm this room. Please ask them to pay or kick them out from your room.</p>
+				{% endif %}
+			{% endif %}
+			
+			{% if order.room_owner %}
+				<p class="grid">
+					{% if len(room_members) == 1 %}
+						<a href="/manage/room/delete" role="button">Delete room</a>	
+					{% endif %}	
+					
+					{% if not order.room_confirmed %}
+						<a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
+					{% endif %}
+				</p>
+			{% endif %}
+			
+			{# Pending roommates #}
+			{% if pending_roommates %}
+				<h4>Pending roommates</h4>
+				<p>These people have asked to join your room.</p>
+				<table>
+					{% for person in pending_roommates %}
+						<tr>
+							<td><img style="max-height:2em" class="propic" src="{{person.ans('propic') or '/res/avatar.jpg'}}" /></td>
+							<td>{{person.name}}</td>
+							{% if person.status == 'pending' %}
+								<td><strong style="color:red;">UNPAID</strong></td>
+							{% else %}
+								<td><strong style="color:#060;">PAID</strong></td>
+							{% endif %}
+							<td><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
+							<td><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
+						</tr>
+					</div>
+						
+					{% if person.status != 'paid' %}
+						{% set room.forbidden = True %}
+					{% endif %}
+				{% endfor %}
+				</table>
+			{% endif %}
+			
+			{# Room availability is always shown #}
+			<h4>Room availability</h4>
+			<table>
+				{% for q in quota.data['results'] if 'Room' in q['name'] %}
+					<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
+						<td>{{q['name']}}</td>
+						<td>{{q['available_number']}} left</td>
+					</tr>
+				{% endfor %}
+			</table>
+	</main>
+
+	{% if order.room_owner and not order.room_confirmed %}
+		<!-- Room Invite dialog -->
+		<dialog id="modal-roominvite">
+			<article>
+				<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+				<h3>Invite your friends!</h3>
+				<label for="code">Reference Code</label>
+				<input name="code" type="text" onclick="select()" value="{{order.code}}" readonly />
+				<label for="room_secret">Room PIN</label>
+				<input name="room_secret" type="password" onclick="select()" onmouseover="this.type = 'text';" value="{{order.ans('room_secret')}}" readonly />
+				<p>Send your Ticket ID and room PIN to other attendants you want in your room.</p>
+				<p>If you want to change the room PIN, use the "Reset PIN" button to change the secret code.</p>
+				<footer>
+					<a href="javascript:document.getElementById('modal-roominvite').removeAttribute('open')" role="button" class="secondary">Close</a>
+					<a href="/manage/room/renew_secret" role="button">Reset PIN</a>
+				</footer>
+			</article>
+		</dialog>
+		
+		<dialog id="modal-roomconfirm">
+			<article>
+				<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+				<h3>Confirm this room</h3>
+				<p>Confirming the room is the only way to guarantee that you will stay with your friends.</p>
+				<p>Confirmed room cannot be changed. You will not be able to add or remove roommates, or change to another size.</p>
+				<p>In case somebody from your room decides to not participate, they will be replaced with a random person, or your room size will be changed.</p>
+				
+				<h4>Your room</h4>
+				<table>
+					<tr>
+						<td>Room type</td>
+						<td><strong>{{[None,'Single','Double','Triple','Quadruple','Quintuple'][len(room_members)]}} Room</strong></td>
+					</tr>
+					<tr>
+						<td>Rooms left of this type</td>
+						<td><strong>{{quota.get_left(len(room_members))}}</strong></td>
+					</tr>
+				</table>
+				<footer>
+					<a href="javascript:document.getElementById('modal-roomconfirm').removeAttribute('open')" role="button" class="secondary">Close</a>
+					<a href="/manage/room/confirm" role="button">Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
+				</footer>
+			</article>
+		</dialog>
+		
+				
+	{% endif %}
+	
+	
+	{% if not order.room_id %}
+		<form method="post" action="/manage/room/join">
+			<dialog id="modal-joinroom">
+				<article>
+					<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+					<h3>Join a room!</h3>
+					<label for="code">Reference Code</label>
+					<input name="code" placeholder="XXXXXX" type="text" value="" />
+					<label for="room_secret">Room pin</label>
+					<input name="room_secret" placeholder="00000" type="text" value="" />
+					<footer>
+						<input type="submit" value="Send request" />
+					</footer>
+				</article>
+			</dialog>
+		</form>
+	{% endif %}
+	
+{% endblock %}
