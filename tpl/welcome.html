@@ -57,7 +57,7 @@
 				<div class="grid people" style="padding-bottom:1em;">
 					{% set room = namespace(forbidden=false) %}
 					{% for person in room_members %}
-						<div>
+						<div style="margin-bottom: 1em;">
 							<img class="propic" src="{{person.ans('propic') or '/res/avatar.jpg'}}" />
 							<h3>{{person.ans('fursona_name')}}</h3>
 							{% if person.code == order.room_id %}<p><strong>ROOM OWNER</strong></p>{% endif %}
