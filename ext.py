@@ -3,6 +3,7 @@ from sanic import Request, exceptions
 import httpx
 import re
 from config import *
+from os.path import join
 
 @dataclass
 class Order:
@@ -56,7 +57,7 @@ class Order:
 		if (not found) and (new_answer is not None):
 			
 			async with httpx.AsyncClient() as client:
-				res = await client.get('https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/questions/', headers=headers)
+				res = await client.get(join(base_url, 'questions/'), headers=headers)
 				res = res.json()
 
 			for r in res['results']:
@@ -72,7 +73,7 @@ class Order:
 			
 	async def send_answers(self):
 		async with httpx.AsyncClient() as client:
-			res = await client.patch(f'https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orderpositions/{self.position_id}/', headers=headers, json={'answers': self.answers})
+			res = await client.patch(join(base_url, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
 
 @dataclass
 class Quotas:
@@ -93,7 +94,7 @@ class Quotas:
 
 async def get_quotas(request: Request=None):
 	async with httpx.AsyncClient() as client:
-		res = await client.get(f"https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/quotas/?order=id&with_availability=true", headers=headers)
+		res = await client.get(join(base_url, 'quotas/?order=id&with_availability=true'), headers=headers)
 		res = res.json()
 		
 		return Quotas(res)
@@ -107,7 +108,7 @@ async def get_order(request: Request=None, code=None, secret=None, insecure=Fals
 	if re.match('^[A-Z0-9]{5}$', code or '') and (secret is None or re.match('^[a-z0-9]{16,}$', secret)):
 		print('Trying to get a session from stored', code, secret)
 		async with httpx.AsyncClient() as client:
-			res = await client.get(f"https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orders/{code}/", headers=headers)
+			res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
 			if res.status_code != 200:
 				if request:
 					raise exceptions.Forbidden("Your session has expired due to order deletion or change! Please check your E-Mail for more info.")

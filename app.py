@@ -5,6 +5,7 @@ from time import time
 import httpx
 import re
 import json
+from os.path import join
 from ext import *
 from config import *
 
@@ -44,7 +45,7 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 
 	if not order:
 		async with httpx.AsyncClient() as client:
-			res = await client.get(f"https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orders/{code}/", headers=headers)
+			res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
 			if res.status_code != 200:
 				raise exceptions.NotFound("This order code does not exist. Check that your order wasn't deleted, or the link is correct.")
 			
@@ -63,8 +64,6 @@ async def welcome(request, order: Order, quota: Quotas):
 
 	pending_roommates = []
 	if order.pending_roommates:
-		print('Oleee')
-		print(order.ans('pending_roommates'))
 		for pr in order.pending_roommates:
 			if not pr: continue
 			print(pr)
@@ -102,7 +101,7 @@ async def download_ticket(request, order: Order, quota: Quotas):
 		raise exceptions.Forbidden("You are not allowed to download this ticket.")
 		
 	async with httpx.AsyncClient() as client:
-		res = await client.get(f"https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orders/{order.code}/download/pdf/", headers=headers)
+		res = await client.get(join(base_url, f"orders/{order.code}/download/pdf/"), headers=headers)
 		if res.status_code != 200:
 			raise exceptions.FileNotFound("Your ticket hasn't been generated yet. Please try later!")
 		

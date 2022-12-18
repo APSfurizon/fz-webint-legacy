@@ -252,9 +252,6 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		await rm.edit_answer('pending_roommates', None)
 		await rm.edit_answer('pending_room', None)
 	
-	print(room_members)
-	print(len(room_members))
-	
 	thing = {
 		'order': order.code,
 		'addon_to': order.position_positionid,
@@ -263,12 +260,7 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 	}
 	
 	async with httpx.AsyncClient() as client:
-		res = await client.post("https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orderpositions/", headers=headers, json=thing)
-		
-		print(thing)
-		print(res.json())
-		
-		print(res.status_code)
+		res = await client.post(join(base_url, "orderpositions/"), headers=headers, json=thing)
 		
 		if res.status_code != 201:
 			raise exceptions.BadRequest("Something has gone wrong! Please contact support immediately")
