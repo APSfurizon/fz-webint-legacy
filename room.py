@@ -264,6 +264,16 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		
 		if res.status_code != 201:
 			raise exceptions.BadRequest("Something has gone wrong! Please contact support immediately")
+			
+		for rm in room_members:
+			if rm.code == order.code: continue
+			thing = {
+				'order': rm.code,
+				'addon_to': rm.position_positionid,
+				'item': 42,
+				'variation': ([None, 21, 22, 23, 24, 25])[len(room_members)]
+			}
+			res = await client.post(join(base_url, "orderpositions/"), headers=headers, json=thing)			
 	
 	for rm in room_members:
 		await rm.send_answers()

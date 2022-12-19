@@ -16,8 +16,9 @@ app.ext.add_dependency(Order, get_order)
 app.ext.add_dependency(Quotas, get_quotas)
 
 from room import bp as room_bp
+from propic import bp as propic_bp
 
-app.blueprint([room_bp,])
+app.blueprint([room_bp,propic_bp])
 
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
