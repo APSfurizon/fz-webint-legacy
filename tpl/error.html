@@ -4,5 +4,9 @@
 	<main class="container">
 		<h1>{{exception.status_code}}</h1>
 		<p>{{exception}}</p>
+		{% if exception.status_code == 409 %}
+			<p>Retrying in 1 second...</p>
+			<meta http-equiv="refresh" content="1">
+		{% endif %}
 	</main>
 {% endblock %}
