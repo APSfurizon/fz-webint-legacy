@@ -66,10 +66,7 @@ async def welcome(request, order: Order, quota: Quotas):
 	if order.pending_roommates:
 		for pr in order.pending_roommates:
 			if not pr: continue
-			print(pr)
 			pending_roommates.append(await get_order(code=pr, insecure=True))
-			
-	print(pending_roommates)
 
 	room_members = []
 	if order.room_id:
@@ -92,7 +89,7 @@ async def welcome(request, order: Order, quota: Quotas):
 
 
 @app.route("/manage/download_ticket")
-async def download_ticket(request, order: Order, quota: Quotas):
+async def download_ticket(request, order: Order):
 
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
@@ -102,11 +99,11 @@ async def download_ticket(request, order: Order, quota: Quotas):
 		
 	async with httpx.AsyncClient() as client:
 		res = await client.get(join(base_url, f"orders/{order.code}/download/pdf/"), headers=headers)
-		if res.status_code != 200:
-			raise exceptions.FileNotFound("Your ticket hasn't been generated yet. Please try later!")
-		
-		return raw(res.content, content_type='application/pdf')
-		print(res.content)
+	
+	if res.status_code != 200:
+		raise exceptions.SanicException("Your ticket is still being generated. Please try again later!", status_code=res.status_code)
+
+	return raw(res.content, content_type='application/pdf')
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0", port=8188, dev=True)
