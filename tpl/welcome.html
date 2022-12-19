@@ -49,7 +49,7 @@
 			
 			{# Show notice if the room is confirmed #}
 			{% if order.room_confirmed %}
-				<p class="notice" style="background:#060">✅ Your room has been confirmed</p>
+				<p class="notice" style="background:#060">✅ Your <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room has been confirmed</p>
 			{% endif %}
 			
 			{# Show roommates if room is set #}
@@ -58,14 +58,12 @@
 					{% set room = namespace(forbidden=false) %}
 					{% for person in room_members %}
 						<div style="margin-bottom: 1em;">
-							<img class="propic" src="{{person.ans('propic') or '/res/avatar.jpg'}}" />
+							<img class="propic" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
 							<h3>{{person.ans('fursona_name')}}</h3>
-							{% if person.code == order.room_id %}<p><strong>ROOM OWNER</strong></p>{% endif %}
-							<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}}{{' · Fursuiter' if person.ans('is_fursuiter') != 'No'}}</p>
+							{% if person.code == order.room_id %}<p><strong style="color:#c6f">ROOM OWNER</strong></p>{% endif %}
+							<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}} {{'Fursuiter' if person.ans('is_fursuiter') != 'No'}}</p>
 							{% if person.status == 'pending' %}
 								<p><strong style="color:red;">UNPAID</strong></p>
-							{% else %}
-								<p><strong style="color:#060;">PAID</strong></p>
 							{% endif %}
 							{% if order.room_owner and person.code != order.code and (not order.room_confirmed) %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
 						</div>
@@ -107,7 +105,7 @@
 			
 			{% if order.room_owner %}
 				<p class="grid">
-					{% if len(room_members) == 1 %}
+					{% if len(room_members) == 1 and not order.room_confirmed %}
 						<a href="/manage/room/delete" role="button">Delete room</a>	
 					{% endif %}	
 					
@@ -124,15 +122,13 @@
 				<table>
 					{% for person in pending_roommates %}
 						<tr>
-							<td><img style="max-height:2em" class="propic" src="{{person.ans('propic') or '/res/avatar.jpg'}}" /></td>
+							<td style="width:4em;"><img style="width:2em" class="propic" src="/res/propic/{{person.ans('propic') or 'default.png'}}" /></td>
 							<td>{{person.name}}</td>
 							{% if person.status == 'pending' %}
 								<td><strong style="color:red;">UNPAID</strong></td>
-							{% else %}
-								<td><strong style="color:#060;">PAID</strong></td>
 							{% endif %}
-							<td><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
-							<td><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
+							<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
+							<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
 						</tr>
 					</div>
 						
@@ -144,15 +140,58 @@
 			{% endif %}
 			
 			{# Room availability is always shown #}
-			<h4>Room availability</h4>
-			<table>
-				{% for q in quota.data['results'] if 'Room' in q['name'] %}
-					<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
-						<td>{{q['name']}}</td>
-						<td>{{q['available_number']}} left</td>
-					</tr>
-				{% endfor %}
-			</table>
+			{% if not order.room_confirmed %}
+				<h4>Room availability</h4>
+				<table>
+					{% for q in quota.data['results'] if 'Room' in q['name'] %}
+						<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
+							<td>{{q['name']}}</td>
+							<td>{{q['available_number']}} left</td>
+						</tr>
+					{% endfor %}
+				</table>
+			{% endif %}
+		</section>
+		
+		<section id="badge">
+			{# Badge is always shown #}
+			<h2>Badge</h2>
+			{% if not order.ans('propic') %}
+				<p class="notice">⚠️ One or more badge pictures are missing! This will cause you badge to be empty, so make sure to upload something before the deadline!</p>
+			{% endif %}
+			<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
+				<div class="grid" style="text-align:center;margin-bottom:1em;">
+					<div>
+						{% if not order.ans('propic') %}
+							<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
+						{% else %}
+							<img src="/res/propic/{{order.ans('propic')}}" style="width: 10em;height:10em;" class="propic" />
+						{% endif %}
+						<p>Normal Badge</p>
+					</div>
+					{% if order.ans('is_fursuiter') %}
+						<div>
+							{% if not order.ans('propic_fursuiter') %}
+								<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
+							{% else %}
+								<img src="/res/propic/{{order.ans('propic_fursuiter')}}" style="width: 10em;height:10em;" class="propic" />
+							{% endif %}
+							<p>Fursuit Badge</p>
+						</div>
+					{% endif %}
+				</div>
+				<p><em>Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png</p>
+				<div class="grid">
+					{% if order.ans('propic') %}
+						<input type="submit" name="submit" value="Delete main image" />
+					{% endif %}
+					{% if order.ans('propic_fursuiter') %}
+						<input type="submit" name="submit" value="Delete fursuit image" />
+					{% endif %}
+					<input type="submit" value="Upload" />
+				</div>
+			</form>
+		</section>
 	</main>
 
 	{% if order.room_owner and not order.room_confirmed %}
