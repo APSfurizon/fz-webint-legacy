@@ -106,7 +106,7 @@ async def get_order(request: Request=None, code=None, secret=None, insecure=Fals
 		secret = request.cookies.get("foxo_secret")
 	
 	if re.match('^[A-Z0-9]{5}$', code or '') and (secret is None or re.match('^[a-z0-9]{16,}$', secret)):
-		print('Trying to get a session from stored', code, secret)
+		print('Fetching', code, 'with secret', secret)
 		async with httpx.AsyncClient() as client:
 			res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
 			if res.status_code != 200:
