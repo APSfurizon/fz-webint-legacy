@@ -142,7 +142,7 @@ async def renew_secret(request, order: Order):
 	return redirect('/manage/welcome')
 	
 @bp.route("/cancel_request")
-async def renew_secret(request, order: Order):
+async def cancel_request(request, order: Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 
@@ -161,7 +161,7 @@ async def renew_secret(request, order: Order):
 	return redirect('/manage/welcome')
 	
 @bp.route("/approve/<code>")
-async def reject_roomreq(request, code, order: Order):
+async def approve_roomreq(request, code, order: Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 		
@@ -186,6 +186,30 @@ async def reject_roomreq(request, code, order: Order):
 	await order.edit_answer('pending_roommates', (','.join([x for x in order.pending_roommates if x != pending_member.code]) or None))
 	
 	await pending_member.send_answers()
+	await order.send_answers()
+	
+	return redirect('/manage/welcome')
+	
+@bp.route("/leave")
+async def leave_room(request, order: Order):
+	if not order:
+		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+
+	if not order.room_id:
+		raise exceptions.BadRequest("You cannot leave a room without being in it.")
+
+	if order.room_confirmed:
+		raise exceptions.BadRequest("You cannot leave a confirmed room.")
+		
+	if order.room_id == order.code:
+		raise exceptions.BadRequest("You cannot leave your own room.")
+
+	room_owner = await get_order(code=order.room_id, insecure=True)
+	
+	await room_owner.edit_answer('room_members', (','.join([x for x in room_owner.room_members if x != order.code]) or None))
+	await order.edit_answer('room_id', None)
+		
+	await room_owner.send_answers()
 	await order.send_answers()
 	
 	return redirect('/manage/welcome')

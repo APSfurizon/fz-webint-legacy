@@ -4,6 +4,7 @@
 	<main class="container">
 		<header>
 			<h1>{{order.name}}'s Booking</h1>
+			<p class="notice" style="background:#0066AA;">ℹ️ If you haven't done it yet, <a href="https://t.me/+H-vcfRyHQAxkODk8">click here to join our chat on Telegram!</a></p>
 		</header>
 		
 		<!-- Payment section -->
@@ -99,12 +100,12 @@
 				{% if quota.get_left(len(room_members)) == 0 %}
 					<p class="notice">⚠️ There are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}, therefore you will not be able to confirm this room. Please add or remove people until you reach an available room.</p>
 				{% elif room.forbidden %}
-					<p class="notice">⚠️ There are roommates who still didn't pay for the order, therefore you will not be able to confirm this room. Please ask them to pay or kick them out from your room.</p>
+					<p class="notice">⚠️ There are roommates for which a payment was not received yet, you will be able to confirm this room only once all payments are completed.</p>
 				{% endif %}
 			{% endif %}
 			
-			{% if order.room_owner %}
-				<p class="grid">
+			<p class="grid">
+				{% if order.room_owner %}
 					{% if len(room_members) == 1 and not order.room_confirmed %}
 						<a href="/manage/room/delete" role="button">Delete room</a>	
 					{% endif %}	
@@ -112,8 +113,12 @@
 					{% if not order.room_confirmed %}
 						<a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
 					{% endif %}
-				</p>
-			{% endif %}
+				{% else %}
+					{% if order.room_id and not order.room_confirmed %}
+						<a href="/manage/room/leave" role="button">Leave room</a>	
+					{% endif %}
+				{% endif %}	
+			</p>
 			
 			{# Pending roommates #}
 			{% if pending_roommates %}
