@@ -31,6 +31,19 @@ async def upload_propic(request, order: Order):
 		
 		try:
 			img = Image.open(BytesIO(body[0].body))
+			
+			with open(f"res/propic/{fn}_{order.code}_original", "wb") as f:
+				f.write(body[0].body)
+						
+			width, height = img.size
+			aspect_ratio = width/height
+			if aspect_ratio > 1:
+				crop_amount = (width - height) / 2
+				img = img.crop((crop_amount, 0, width - crop_amount, height))
+			elif aspect_ratio < 1:
+				crop_amount = (height - width) / 2
+				img = img.crop((0, crop_amount, width, height - crop_amount))
+				
 			img = img.convert('RGB')
 			img.thumbnail((512,512))
 			img.save(f"res/propic/{fn}_{order.code}_{h}.jpg")
