@@ -48,7 +48,6 @@ async def upload_propic(request, order: Order):
 			img.thumbnail((512,512))
 			img.save(f"res/propic/{fn}_{order.code}_{h}.jpg")
 		except:
-			raise
 			raise exceptions.BadRequest("The image you uploaded is not valid.")
 		else:
 			await order.edit_answer(fn, f"{fn}_{order.code}_{h}.jpg")
