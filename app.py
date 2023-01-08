@@ -8,6 +8,8 @@ import json
 from os.path import join
 from ext import *
 from config import *
+from aztec_code_generator import AztecCode
+from io import BytesIO
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -37,6 +39,36 @@ async def main_start(*_):
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(int=int)
 	app.ctx.tpl.globals.update(len=len)
+	
+	app.ctx.order_cache = {}
+
+@app.route("/manage/barcode/<code>")
+async def gen_barcode(request, code):
+	aa = AztecCode(code).image(module_size=8, border=2)
+	img = BytesIO()
+	aa.save(img, format='PNG')
+
+	return raw(img.getvalue(), content_type="image/png")
+	
+@app.route("/manage/nosecount")
+async def nose_count(request, order: Order):
+	p = 0
+	orders = {}
+	async with httpx.AsyncClient() as client:
+		while 1:
+			p += 1
+			res = await client.get(join(base_url, f"orders/?include_canceled_positions=false&page={p}"), headers=headers)
+		
+			if res.status_code == 404: break
+		
+			data = res.json()
+			for o in data['results']:
+				orders[o['code']] = Order(o)
+				
+	orders = {key:value for key,value in sorted(orders.items(), key=lambda x: len(x[1].room_members), reverse=True)}
+
+	tpl = app.ctx.tpl.get_template('nosecount.html')
+	return html(tpl.render(orders=orders, order=order))
 
 @app.route("/furizon/beyond/order/<code>/<secret>/open/<secret2>")
 async def redirect_explore(request, code, secret, order: Order, secret2=None):
@@ -84,6 +116,11 @@ async def welcome(request, order: Order, quota: Quotas):
 				room_members.append(order)
 			else:
 				room_members.append(await get_order(code=member_id, insecure=True))
+				
+	room_sizes = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
+	for o in order:
+		room_sizes[len(o.room_members)] += 1
+		
 
 	tpl = app.ctx.tpl.get_template('welcome.html')
 	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates))
@@ -101,10 +138,16 @@ async def download_ticket(request, order: Order):
 	async with httpx.AsyncClient() as client:
 		res = await client.get(join(base_url, f"orders/{order.code}/download/pdf/"), headers=headers)
 	
-	if res.status_code != 200:
+	if res.status_code == 409:
 		raise exceptions.SanicException("Your ticket is still being generated. Please try again later!", status_code=res.status_code)
+	elif res.status_code == 403:
+		raise exceptions.SanicException("You can download your ticket only after the order has been confirmed and paid. Try later!", status_code=400)
 
 	return raw(res.content, content_type='application/pdf')
+	
+@app.route("/manage/logout")
+async def logour(request):
+	raise exceptions.Forbidden("You have been logged out.", status_code=403)
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=8188, dev=True)
+	app.run(host="0.0.0.0", port=8188, dev=DEV_MODE)
