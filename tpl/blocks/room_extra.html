@@ -1,0 +1,66 @@
+{% if order.room_owner and not order.room_confirmed %}
+	<!-- Room Invite dialog -->
+	<dialog id="modal-roominvite">
+		<article>
+			<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+			<h3>Invite your friends!</h3>
+			<label for="code">Reference Code</label>
+			<input name="code" type="text" onclick="select()" value="{{order.code}}" readonly />
+			<label for="room_secret">Room PIN</label>
+			<input name="room_secret" type="password" onclick="select()" onmouseover="this.type = 'text';" value="{{order.ans('room_secret')}}" readonly />
+			<p>Send your Ticket ID and room PIN to other attendants you want in your room.</p>
+			<p>If you want to change the room PIN, use the "Reset PIN" button to change the secret code.</p>
+			<footer>
+				<a href="javascript:document.getElementById('modal-roominvite').removeAttribute('open')" role="button">Close</a>
+				<a href="/manage/room/renew_secret" role="button">Reset PIN</a>
+			</footer>
+		</article>
+	</dialog>
+	
+	<dialog id="modal-roomconfirm">
+		<article>
+			<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+			<h3>Confirm this room</h3>
+			<p>Confirming the room is the only way to guarantee that you will stay with your friends.</p>
+			<p>Confirmed room cannot be changed. You will not be able to add or remove roommates, or change to another size.</p>
+			<p>In case somebody from your room decides to not participate, they will be replaced with a random person, or your room size will be changed.</p>
+			
+			<h4>Your room</h4>
+			<table>
+				<tr>
+					<td>Room type</td>
+					<td><strong>{{[None,'Single','Double','Triple','Quadruple','Quintuple'][len(room_members)]}} Room</strong></td>
+				</tr>
+				<tr>
+					<td>Rooms left of this type</td>
+					<td><strong>{{quota.get_left(len(room_members))}}</strong></td>
+				</tr>
+			</table>
+			<footer>
+				<a href="javascript:document.getElementById('modal-roomconfirm').removeAttribute('open')" role="button">Close</a>
+				<a href="/manage/room/confirm" role="button">Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
+			</footer>
+		</article>
+	</dialog>
+	
+			
+{% endif %}
+
+
+{% if not order.room_id %}
+	<form method="post" action="/manage/room/join">
+		<dialog id="modal-joinroom">
+			<article>
+				<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+				<h3>Join a room!</h3>
+				<label for="code">Reference Code</label>
+				<input name="code" placeholder="XXXXXX" type="text" value="" />
+				<label for="room_secret">Room pin</label>
+				<input name="room_secret" placeholder="00000" type="text" value="" />
+				<footer>
+					<input type="submit" value="Send request" />
+				</footer>
+			</article>
+		</dialog>
+	</form>
+{% endif %}

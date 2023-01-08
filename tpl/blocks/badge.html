@@ -1,0 +1,47 @@
+<details id="badge">
+	<summary role="button"><img src="/res/icons/badge.svg" class="icon"/>Badge Customization {% if not order.ans('propic') %}<span class="status">⚠️</span>{% endif %}</summary>
+	{# Badge is always shown #}
+	<h2>Badge</h2>
+	{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
+		<p class="notice">⚠️ One or more badge pictures are missing! This will cause you badge to be empty, so make sure to upload something before the deadline!</p>
+		<p class="notice">⚠️ Photos must be suitable for any audience. Any inappropriate picture will be removed by the staff</p>
+	{% endif %}
+	<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
+		<div class="grid" style="text-align:center;margin-bottom:1em;">
+			<div>
+				{% if not order.ans('propic') %}
+					<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
+				{% else %}
+					<div class="propic-container">
+						<img src="/res/propic/{{order.ans('propic')}}" class="propic" />
+					</div>
+				{% endif %}
+				<p>Normal Badge</p>
+			</div>
+			{% if order.ans('is_fursuiter') != 'No' %}
+				<div>
+					{% if not order.ans('propic_fursuiter') %}
+						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
+					{% else %}
+						<div class="propic-container">
+							<img src="/res/propic/{{order.ans('propic_fursuiter')}}" class="propic" />
+						</div>
+					{% endif %}
+					<p>Fursuit Badge</p>
+				</div>
+			{% endif %}
+		</div>
+		<p><em>Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png</em></p>
+		<div class="grid">
+			{% if order.ans('propic') %}
+				<input type="submit" name="submit" value="Delete main image" />
+			{% endif %}
+			{% if order.ans('propic_fursuiter') %}
+				<input type="submit" name="submit" value="Delete fursuit image" />
+			{% endif %}
+			{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
+				<input type="submit" value="Upload" />
+			{% endif %}
+		</div>
+	</form>
+</details>

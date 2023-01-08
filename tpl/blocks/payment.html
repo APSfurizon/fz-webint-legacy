@@ -1,0 +1,26 @@
+<details id="payment">
+	<summary role="button"><img src="/res/icons/payment.svg" class="icon"/> {% if order.status != 'paid' %}<span class="status">⚠️</span>{% endif %} Payment</summary>
+	{% if order.status == 'pending' %}
+		<p class="notice">Your order is still pending due to incomplete payment. You will not be able to reserve a room for now. However, you will be able to create one with your friends and confirm it once all attendants have completed the order!</p>
+		<p>If you wish to <strong>change payment method, check payment instructions or complete a failed payment</strong> please access the payment area.</p>
+
+	{% elif order.status == 'paid' %}
+		<p class="notice" style="background:#050;">✅ Your order has been completed and approved! See you at furizon!</p>
+	{% endif %}
+	<table>
+		<tr>
+			<td>Reference ID</td>
+			<td>{{order.code}}</td>
+		</tr>
+		<tr>
+			<td>Order total</td>
+			<td>{{order.data['total']}}€ by {{'Credit card' if order.data['payment_provider'] == 'stripe' else 'Bank Transfer'}}</td>
+		</tr>
+	</table>
+	{% if order.status == 'paid' and order.room_confirmed %}
+		<p style="text-align:right;"><a href="/manage/download_ticket?name=BEYOND-{{order.code}}.pdf" role="button">Download ticket</a></p>
+	{% endif %}
+	{% if order.status != 'paid' %}
+		<a href="{{order.url}}"><button>Payment area</button></a>
+	{% endif %}	
+</details>
