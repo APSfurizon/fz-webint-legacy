@@ -3,14 +3,24 @@
 	<head>
 		<meta charset="utf-8" />
 		<title>{% block title %}{% endblock %}</title>
-		<meta name="viewport" content="width=300rem" />
+		<meta name="viewport" content="width=400rem" />
+		<meta name="supported-color-schemes" content="light dark">
 		<link rel="stylesheet" href="/res/pico.min.css">
 		<style>
-			.propic {border-radius:0.7em;}
-			.people img {max-width:6em;}
+			
+			.propic-container {max-width:6em;margin:0 auto;}
+			.propic-container img {display:block;}
+			.propic {width:100%;border-radius:0.4em;margin:0 auto;border:4px solid #546e7a;}
+			
+			.propic-flag {max-width:2em;margin-top:-1em;margin-left:auto;transform:translateX(0.7em);margin-right:0em;border-radius:2px;}
+			.propic-super {border:4px solid #fb8c00;}
+			.propic-normal {border:4px solid #8e24aa;}
+			
 			.people div {text-align:center;}
-			.people h3, .people p {margin:0;}
+			.people h3, .people p, .people h5 {margin:0;}
 			.people {grid-auto-flow:row;}
+			.people img {display:block;}
+			
 			mark {background:#0f0;}
 			h1 img {max-height:1.4em;}
 			.notice {padding:0.8em;border-radius:3px;background:#e53935;color:#eee;}
@@ -22,9 +32,47 @@
 			td > input[type=file] {margin:0;padding:0;}
 			section {margin-bottom:3em;}
 			@media (min-width: 500px) {body .grid {grid-template-columns: repeat(auto-fit, minmax(0%, 1fr));}}
+			details {margin-bottom:0;}
+			header img {display:block;margin: 0 auto;}
+			
+			summary[role=button] {background:var(--primary-focus);color:var(--contrast);}
+			summary img, td img {height:1.2em;width:2em;box-sizing: border-box;}
+
+			@media only screen and (prefers-color-scheme: dark) {
+				.icon {filter: invert(1);}
+			}
+			
+			#topbar {justify-content: normal;padding:0 0.5em;background:var(--card-background-color);}
+			#topbar a {display:inline-block;padding:0 1em;line-height:2em;margin:0;}
+			
+			/*@media screen and (min-width: 576px) { .grid.people {  grid-template-columns: repeat(4, 1fr) }
+			@media screen and (max-width: 576px) { .grid.people {  grid-template-columns: repeat(2, 1fr) }
+			*/
+			
+			body .grid.people { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important }
+			.status {float:right;}
 		</style>
 	</head>
 	<body>
+		<nav id="topbar">
+			{% if order %}
+				<a href="/manage/welcome">Your Booking</a>
+			{% endif %}
+			<a href="/manage/nosecount">Nose Count</a>
+			<a style="float:right;" href="/manage/logout">Logout</a>
+		</nav>
 		{% block main %}{% endblock %}
+		
+		<script type="text/javascript">
+			document.addEventListener("DOMContentLoaded", function(event) {
+			  var anchor = window.location.hash;
+			  if (anchor) {
+				var element = document.querySelector(anchor);
+				if (element && element.tagName === "DETAILS") {
+				  element.setAttribute("open", "");
+				}
+			  }
+			});
+		</script>
 	</body>
 </html>

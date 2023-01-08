@@ -3,271 +3,124 @@
 {% block main %}
 	<main class="container">
 		<header>
-			<h1>{{order.name}}'s Booking</h1>
-			<p class="notice" style="background:#0066AA;">ℹ️ If you haven't done it yet, <a href="https://t.me/+H-vcfRyHQAxkODk8">click here to join our chat on Telegram!</a></p>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
 		</header>
 		
-		<!-- Payment section -->
-		<section>
-			<h2>Payment</h2>
-			{% if order.status == 'pending' %}
-				<p class="notice">⚠️ Your order is still pending due to incomplete payment. You will not be able to reserve a room for now. However, you will be able to create one with your friends and confirm it once all attendants have completed the order!</p>
-				<p>If you wish to <strong>change payment method, check payment instructions or complete a failed payment</strong> please access the payment area.</p>
-
-			{% elif order.status == 'paid' %}
-				<p class="notice" style="background:#050;">✅ Your order has been completed and approved! See you at furizon!</p>
-			{% endif %}
+		<p>From here, you can easily manage all aspects of your booking, including composing your hotel room, designing your badge, and updating your payment information. Simply use the buttons below to navigate between the different sections.</p>
+		<p>Buttons marked with ⚠️ require your attention</p>
+		
+		<p>If you have any questions or issues while using this page, please don't hesitate to contact us for assistance. We look forward to seeing you at Furizon Beyond!</p>
+		<hr />
+		<h2 id="info">Useful information</h2>
+		<table>
+			<tr>
+				<th>Where?</th>
+				<td>
+					<a href="geo:46.29115,11.45731"><img src="/res/icons/location.svg" class="icon" />Park Hotel Sacro Cuore · Cavalese (TN)</a>
+				</td>
+			</tr>
+			<tr>
+				<th>When?</th>
+				<td>30 May → 3 June 2023</td>
+			</tr>
+			<tr>
+				<th>Your ticket</th>
+				<td>
+					<img src="/res/icons/qr.svg" class="icon" />
+					<a href="javascript:document.getElementById('modal-barcode').setAttribute('open', 'true');">Show Check-in Barcode ({{order.code}})</a>
+					{% if order.status == 'paid' and order.room_confirmed %}
+						<br />
+						<img src="/res/icons/pdf.svg" class="icon" />
+						<a href="/manage/download_ticket?name=BEYOND-{{order.code}}.pdf" target="_blank">Download ticket PDF</a>
+					{% endif %}
+				</td>
+			</tr>
+		</table>
+		
+		<h2>Manage your booking</h2>
+		{% include 'blocks/payment.html' %}
+		{% include 'blocks/room.html' %}
+		{% include 'blocks/badge.html' %}
+		<!--<details id="security">
+			<summary role="button"><img src="/res/icons/lock.svg" class="icon" />Notifications & 2FA <span class="status">⚠️</span></summary>
+			<p>To receive updates and to keep your private area safer, you can associate your booking to your Telegram account.</p>
+			<a href="https://t.me/FurizonBot?start=aooooooooooo"><img style="display:block;margin:0 auto;" src="/res/icons/login_with_telegram.png" /></a>
+		</details>-->
+		
+		<details id="barcard">
+			<summary role="button"><img src="/res/icons/bar.svg" class="icon" />Barcard</summary>
+			<p>This year's badges will be NFC-enabled and serve as a digital barcard, allowing you to load 'drinks' onto your badge and use it to purchase beverages at the bar without the need for physical cash or the risk of losing a paper barcard. The barcard system will be enabled closer to the convention, so you will have the opportunity to load your badge in advance and enjoy a convenient, cashless experience at the event. Keep an eye out for updates on when the system will be live and available for use.</p>
+		</details>
+		
+		<h2>Get to know others</h2>
+		<details id="attendees">
+			<summary role="button"><img src="/res/icons/users.svg" class="icon" />Attendee list</summary>
+			<p>If you want to find out where your friends are staying at the convention, just click this link to see a list of all attendees and their assigned rooms. You'll be able to see which rooms are already occupied and by whom, so you can easily plan meet-ups with your friends.</p>
+			<a href="/manage/nosecount" role="button">Nose count</a>
+		</details>
+		<!--<details id="stats">
+			<summary role="button"><img src="/res/icons/stats.svg" class="icon" />Statistics</summary>
+			<p>We know that furries love numbers and statistics, which is why we've added even more statistical tracking to this year's convention. Keep an eye out for updates on all the interesting data we'll be collecting throughout the event.</p>
+			<a href="/manage/statistics" role="button">See statistics</a>
+		</details>-->
+		<!--<details id="roommates">
+			<summary role="button"><img src="/res/icons/roommates.svg" class="icon" />Roommate search</summary>
+		</details>-->
+		<details id="telegram">
+			<summary role="button"><img src="/res/icons/telegram.svg" class="icon" />Group Chat & Channels</summary>
+			<p>We encourage you to join these groups and participate in the conversations so you can stay in the loop and connect with other attendees. To join the groups, simply click on the links provided down below!</p>
 			<table>
 				<tr>
-					<td>Reference ID</td>
-					<td>{{order.code}}</td>
+					<td>Noticeboard</td>
+					<td><a href="https://t.me/APSFurizon">@APSFurizon</a></td>
 				</tr>
 				<tr>
-					<td>Order total</td>
-					<td>{{order.data['total']}}€ by {{'Credit card' if order.data['payment_provider'] == 'stripe' else 'Bank Transfer'}}</td>
+					<td>Group Chat</td>
+					<td><a href="https://t.me/+H-vcfRyHQAxkODk8">https://t.me/+H-vcfRyHQAxkODk8</a></td>
 				</tr>
 			</table>
-			{% if order.status == 'paid' and order.room_confirmed %}
-				<p style="text-align:right;"><a href="/manage/download_ticket?name=BEYOND-{{order.code}}.pdf" role="button">Download ticket</a></p>
-			{% endif %}
-			{% if order.status != 'paid' %}
-				<a href="{{order.url}}"><button>Payment area</button></a>
-			{% endif %}	
-		</section>
-		
-		<!-- Room section -->
-		<section>
-			<h2>Your room {% if room_members %}- {{room_members[0].ans('room_name')}}{% endif %}</h2>
-			
-			{# Show alert if room owner has wrong people inside #}
-			{% if order.room_owner and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %}
-				<p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are 0 rooms of this size available. Add or remove people until you reach the size of an available room.</p>
-			{% endif %}
-			
-			{# Show alert if room was not confirmed #}
-			{% if order.room_id and not order.room_confirmed %}
-				<p class="notice">⚠️ Your room hasn't been confirmed yet. Unconfirmed rooms are subject to changes by the staff as we optimize for hotel capacity.</p>
-			{% endif %}
-			
-			{# Show notice if the room is confirmed #}
-			{% if order.room_confirmed %}
-				<p class="notice" style="background:#060">✅ Your <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room has been confirmed</p>
-			{% endif %}
-			
-			{# Show roommates if room is set #}
-			{% if order.room_id %}
-				<div class="grid people" style="padding-bottom:1em;">
-					{% set room = namespace(forbidden=false) %}
-					{% for person in room_members %}
-						<div style="margin-bottom: 1em;">
-							<img class="propic" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
-							<h3>{{person.ans('fursona_name')}}</h3>
-							{% if person.code == order.room_id %}<p><strong style="color:#c6f">ROOM OWNER</strong></p>{% endif %}
-							<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}} {{'Fursuiter' if person.ans('is_fursuiter') != 'No'}}</p>
-							{% if person.status == 'pending' %}
-								<p><strong style="color:red;">UNPAID</strong></p>
-							{% endif %}
-							{% if order.room_owner and person.code != order.code and (not order.room_confirmed) %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
-						</div>
-						
-						{% if person.status != 'paid' %}
-							{% set room.forbidden = True %}
-						{% endif %}
-					{% endfor %}
-					
-					{% if order.room_id == order.code and not order.room_confirmed and len(room_members) < 5 %}
-						<div>
-							<a href="javascript:document.getElementById('modal-roominvite').setAttribute('open', 'true');">
-								<img class="propic" src="/res/new.png" />
-								<h3>Invite</h3>
-								<p>Get room code</p>
-							</a>
-						</div>
-					{% endif %}
-				</div>
-			{% elif order.pending_room %}
-				<p>You have have asked to join the room of another member. Wait for them to confirm or reject your request.</p>
-				<a role="button" href="/manage/room/cancel_request">Cancel pending join request</a>
-			{% else %}
-				<p class="notice">🎲 If you don't join a room or create your one within the room deadline, we will randomly put you into a room with free spots.</p>
-				<p>To join a room, ask somebody to send you their room code.</p>
-				<p class="grid">
-					<a role="button" href="/manage/room/create">Create a room</a>
-					<a role="button" href="javascript:document.getElementById('modal-joinroom').setAttribute('open', 'true');">Join a room</a>
-				</p>
-			{% endif %}
-			
-			{% if order.room_owner %}
-				{% if quota.get_left(len(room_members)) == 0 %}
-					<p class="notice">⚠️ There are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}, therefore you will not be able to confirm this room. Please add or remove people until you reach an available room.</p>
-				{% elif room.forbidden %}
-					<p class="notice">⚠️ There are roommates for which a payment was not received yet, you will be able to confirm this room only once all payments are completed.</p>
-				{% endif %}
-			{% endif %}
-			
-			<p class="grid">
-				{% if order.room_owner %}
-					{% if len(room_members) == 1 and not order.room_confirmed %}
-						<a href="/manage/room/delete" role="button">Delete room</a>	
-					{% endif %}	
-					
-					{% if not order.room_confirmed %}
-						<a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
-					{% endif %}
-				{% else %}
-					{% if order.room_id and not order.room_confirmed %}
-						<a href="/manage/room/leave" role="button">Leave room</a>	
-					{% endif %}
-				{% endif %}	
-			</p>
-			
-			{# Pending roommates #}
-			{% if pending_roommates %}
-				<h4>Pending roommates</h4>
-				<p>These people have asked to join your room.</p>
-				<table>
-					{% for person in pending_roommates %}
-						<tr>
-							<td style="width:4em;"><img style="width:2em" class="propic" src="/res/propic/{{person.ans('propic') or 'default.png'}}" /></td>
-							<td>{{person.name}}</td>
-							{% if person.status == 'pending' %}
-								<td><strong style="color:red;">UNPAID</strong></td>
-							{% endif %}
-							<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
-							<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
-						</tr>
-					</div>
-						
-					{% if person.status != 'paid' %}
-						{% set room.forbidden = True %}
-					{% endif %}
-				{% endfor %}
-				</table>
-			{% endif %}
-			
-			{# Room availability is always shown #}
-			{% if not order.room_confirmed %}
-				<h4>Room availability</h4>
-				<table>
-					{% for q in quota.data['results'] if 'Room' in q['name'] %}
-						<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
-							<td>{{q['name']}}</td>
-							<td>{{q['available_number']}} left</td>
-						</tr>
-					{% endfor %}
-				</table>
-			{% endif %}
-		</section>
-		
-		<section id="badge">
-			{# Badge is always shown #}
-			<h2>Badge</h2>
-			{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
-				<p class="notice">⚠️ One or more badge pictures are missing! This will cause you badge to be empty, so make sure to upload something before the deadline!</p>
-				<p class="notice">⚠️ Photos must be suitable for any audience. Any inappropriate pictures will be removed by the staff</p>
-			{% endif %}
-			<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
-				<div class="grid" style="text-align:center;margin-bottom:1em;">
-					<div>
-						{% if not order.ans('propic') %}
-							<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
-						{% else %}
-							<img src="/res/propic/{{order.ans('propic')}}" style="width: 10em;height:10em;" class="propic" />
-						{% endif %}
-						<p>Normal Badge</p>
-					</div>
-					{% if order.ans('is_fursuiter') != 'No' %}
-						<div>
-							{% if not order.ans('propic_fursuiter') %}
-								<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
-							{% else %}
-								<img src="/res/propic/{{order.ans('propic_fursuiter')}}" style="width: 10em;height:10em;" class="propic" />
-							{% endif %}
-							<p>Fursuit Badge</p>
-						</div>
-					{% endif %}
-				</div>
-				<p><em>Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png</p>
-				<div class="grid">
-					{% if order.ans('propic') %}
-						<input type="submit" name="submit" value="Delete main image" />
-					{% endif %}
-					{% if order.ans('propic_fursuiter') %}
-						<input type="submit" name="submit" value="Delete fursuit image" />
-					{% endif %}
-					{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
-						<input type="submit" value="Upload" />
-					{% endif %}
-				</div>
-			</form>
-		</section>
-	</main>
+		</details>
 
-	{% if order.room_owner and not order.room_confirmed %}
-		<!-- Room Invite dialog -->
-		<dialog id="modal-roominvite">
-			<article>
-				<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
-				<h3>Invite your friends!</h3>
-				<label for="code">Reference Code</label>
-				<input name="code" type="text" onclick="select()" value="{{order.code}}" readonly />
-				<label for="room_secret">Room PIN</label>
-				<input name="room_secret" type="password" onclick="select()" onmouseover="this.type = 'text';" value="{{order.ans('room_secret')}}" readonly />
-				<p>Send your Ticket ID and room PIN to other attendants you want in your room.</p>
-				<p>If you want to change the room PIN, use the "Reset PIN" button to change the secret code.</p>
-				<footer>
-					<a href="javascript:document.getElementById('modal-roominvite').removeAttribute('open')" role="button" class="secondary">Close</a>
-					<a href="/manage/room/renew_secret" role="button">Reset PIN</a>
-				</footer>
-			</article>
-		</dialog>
+		<!--
+		<details id="carpooling" open>
+			<summary role="button"><img src="/res/icons/car.svg" class="icon" />Carpooling</summary>
+			<p>We want to make it easy for attendees to find and offer carpooling options. If you have seats available in your car, you can use our carpooling system to offer rides to other attendees. And if you need a ride, you can search for leftover seats in cars that are already heading to the convention. This is a great way to save money on gas and reduce your carbon footprint, while also getting to know other attendees and making new friends.</p>
+			<table>
+				<tr>
+					<td>Noticeboard</td>
+					<td><a href="https://t.me/APSFurizon">@APSFurizon</a></td>
+				</tr>
+				<tr>
+					<td>Group Chat</td>
+					<td><a href="https://t.me/+H-vcfRyHQAxkODk8">https://t.me/+H-vcfRyHQAxkODk8</a></td>
+				</tr>
+			</table>
+		</details>
 		
-		<dialog id="modal-roomconfirm">
-			<article>
-				<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
-				<h3>Confirm this room</h3>
-				<p>Confirming the room is the only way to guarantee that you will stay with your friends.</p>
-				<p>Confirmed room cannot be changed. You will not be able to add or remove roommates, or change to another size.</p>
-				<p>In case somebody from your room decides to not participate, they will be replaced with a random person, or your room size will be changed.</p>
-				
-				<h4>Your room</h4>
-				<table>
-					<tr>
-						<td>Room type</td>
-						<td><strong>{{[None,'Single','Double','Triple','Quadruple','Quintuple'][len(room_members)]}} Room</strong></td>
-					</tr>
-					<tr>
-						<td>Rooms left of this type</td>
-						<td><strong>{{quota.get_left(len(room_members))}}</strong></td>
-					</tr>
-				</table>
-				<footer>
-					<a href="javascript:document.getElementById('modal-roomconfirm').removeAttribute('open')" role="button" class="secondary">Close</a>
-					<a href="/manage/room/confirm" role="button">Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
-				</footer>
-			</article>
-		</dialog>
-		
-				
-	{% endif %}
+		<h2>All about the Convention</h2>
+		<details id="fursuiters">
+			<summary role="button"><img src="/res/icons/mask.svg" class="icon" />Services for Fursuiters</summary>
+		</details>
+		<details id="badge">
+			<summary role="button">Roommate search</summary>
+		</details>
+		<details id="badge">
+			<summary role="button">Group Chat & Summary</summary>
+		</details>
+	</main> -->
+
+	{% include 'blocks/room_extra.html' %}
 	
 	
-	{% if not order.room_id %}
-		<form method="post" action="/manage/room/join">
-			<dialog id="modal-joinroom">
-				<article>
-					<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
-					<h3>Join a room!</h3>
-					<label for="code">Reference Code</label>
-					<input name="code" placeholder="XXXXXX" type="text" value="" />
-					<label for="room_secret">Room pin</label>
-					<input name="room_secret" placeholder="00000" type="text" value="" />
-					<footer>
-						<input type="submit" value="Send request" />
-					</footer>
-				</article>
-			</dialog>
-		</form>
-	{% endif %}
+	<dialog id="modal-barcode">
+		<article>
+			<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+			<img src="/manage/barcode/{{order.barcode}}" style="max-width:20em;margin:0 auto;display:block;" class="icon" />
+			<p style="text-align:center;font-family:monospace;">{{order.code}}</p>
+		</article>
+	</dialog>
 	
 {% endblock %}
