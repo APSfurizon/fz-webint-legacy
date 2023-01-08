@@ -4,6 +4,7 @@ import httpx
 import re
 from config import *
 from os.path import join
+import json
 
 @dataclass
 class Order:
@@ -11,18 +12,35 @@ class Order:
 		self.data = data
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
 		self.code = data['code']
+		self.has_card = False
+		self.sponsorship = None
 		
 		for p in self.data['positions']:
-			if p['item'] not in [16, 38]:
-				continue		
+			if p['item'] in [16, 38]:
+				self.position_id = p['id']
+				self.position_positionid = p['positionid']
+				self.answers = p['answers']
+				self.barcode = p['secret']
 
-			self.position_id = p['id']
-			self.position_positionid = p['positionid']
-			self.answers = p['answers']
+			if p['item'] == 17:
+				self.has_card = True
+				
+			if p['item'] == 19:
+				self.sponsorship = 'normal' if p['variation'] == 13 else 'super'
+				
+			if p['country']:
+				self.country = p['country']
 
+		self.shirt_size = self.ans('shirt_size')
+		self.birth_date = self.ans('birth_date')
+		self.is_artist = True if self.ans('is_artist') != 'No' else False
+		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
+		self.is_allergic = True if self.ans('is_allergic') != 'No' else False
+		self.birth_date = self.ans('birth_date')
 		self.name = self.ans('fursona_name')
 		self.room_id = self.ans('room_id')
 		self.room_confirmed = self.ans('room_confirmed')
+		self.room_name = self.ans('room_name')
 		self.pending_room = self.ans('pending_room')
 		self.pending_roommates = self.ans('pending_roommates').split(',') if self.ans('pending_roommates') else []
 		self.room_members = self.ans('room_members').split(',') if self.ans('room_members') else []
@@ -33,11 +51,12 @@ class Order:
 		return self.data[var]
 
 	def ans(self, name):
-		for a in self.answers:
-			if a['question_identifier'] == name:
-				if a['answer'] in ['True', 'False']:
-					return bool(a['answer'] == 'True')
-				return a['answer']
+		for p in self.data['positions']:
+			for a in p['answers']:
+				if a['question_identifier'] == name:
+					if a['answer'] in ['True', 'False']:
+						return bool(a['answer'] == 'True')
+					return a['answer']
 		return None
 		
 	async def edit_answer(self, name, new_answer):
@@ -107,6 +126,7 @@ async def get_order(request: Request=None, code=None, secret=None, insecure=Fals
 	
 	if re.match('^[A-Z0-9]{5}$', code or '') and (secret is None or re.match('^[a-z0-9]{16,}$', secret)):
 		print('Fetching', code, 'with secret', secret)
+
 		async with httpx.AsyncClient() as client:
 			res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
 			if res.status_code != 200:
@@ -114,6 +134,9 @@ async def get_order(request: Request=None, code=None, secret=None, insecure=Fals
 					raise exceptions.Forbidden("Your session has expired due to order deletion or change! Please check your E-Mail for more info.")
 			
 			res = res.json()
+		
+			if request and res:
+				request.app.ctx.order_cache = {}
 		
 			if res['status'] in ['c', 'e']:
 				if request:

@@ -115,12 +115,7 @@ async def welcome(request, order: Order, quota: Quotas):
 			if member_id == order.code:
 				room_members.append(order)
 			else:
-				room_members.append(await get_order(code=member_id, insecure=True))
-				
-	room_sizes = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0}
-	for o in order:
-		room_sizes[len(o.room_members)] += 1
-		
+				room_members.append(await get_order(code=member_id, insecure=True))		
 
 	tpl = app.ctx.tpl.get_template('welcome.html')
 	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates))

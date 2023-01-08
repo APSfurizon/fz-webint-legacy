@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Furizon 2023 Nosecount{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<p>Welcome to the nosecount page! Here you can see all of the available rooms at the convention, as well as the occupants currently staying in each room. Use this page to find your friends and plan your meet-ups.</p>
+		{% for o in orders.values() %}
+			{% if o.code == o.room_id and o.room_confirmed %}
+				<h4 style="margin-top:1em;">{{o.room_name}}</h4>
+				<div class="grid people" style="padding-bottom:1em;">
+					{% for m in o.room_members %}
+						{% with person = orders[m] %}
+							<div style="margin-bottom: 1em;">
+								<div class="propic-container">
+									<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
+									<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+								</div>
+								<h5>{{person.ans('fursona_name')}}</h5>
+							</div>
+						{% endwith %}
+					{% endfor %}
+				</div>
+			{% endif %}
+		{% endfor %}
+		
+		<hr />
+		<h1>Unconfirmed rooms</h1>
+		<p>These unconfirmed rooms are still being organized and may be subject to change. These rooms may also have openings for additional roommates. If you are interested in sharing a room, you can use this page to find potential roommates</p>
+		{% for o in orders.values() %}
+			{% if o.code == o.room_id and not o.room_confirmed and len(o.room_members) > 1 %}
+				<h3>{% if o.room_confirmed %}🔒{% endif %}{{o.room_name}}</h3>
+				<div class="grid people" style="padding-bottom:1em;">
+					{% for m in o.room_members %}
+						{% with person = orders[m] %}
+							<div style="margin-bottom: 1em;">
+								<div class="propic-container">
+									<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
+									<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+								</div>
+								<h5>{{person.ans('fursona_name')}}</h5>
+							</div>
+						{% endwith %}
+					{% endfor %}
+				</div>
+			{% endif %}
+		{% endfor %}
+		
+		<hr />
+		<h1>Roomless furs</h1>
+		<p>These furs have not yet secured a room for the convention. If you see your name on this list, please make sure to secure a room before the deadline to avoid being placed in a random room. If you are looking for a roommate or have an open spot in your room, you can use this page to find and connect with other furries who are also looking for housing 🎲</p>
+		<div class="grid people" style="padding-bottom:1em;">
+			{% for person in orders.values() %}
+				{% if (not person.room_id or len(person.room_members) == 1) and (not person.room_confirmed) %}
+					<div style="margin-bottom: 1em;">
+						<div class="propic-container">
+							<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
+							<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+						</div>
+						<h5>{{person.ans('fursona_name')}}</h5>
+					</div>
+				{% endif %}
+			{% endfor %}
+		</div>
+	
+{% endblock %}
