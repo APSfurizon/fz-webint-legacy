@@ -2,3 +2,4 @@ sanic
 sanic-ext
 httpx
 Pillow
+aztec_code_generator
