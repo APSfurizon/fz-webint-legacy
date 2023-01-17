@@ -11,7 +11,7 @@ from time import time
 class Order:
 	def __init__(self, data):
 	
-		self.time = time
+		self.time = time()
 		self.data = data
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
 		self.code = data['code']
@@ -198,10 +198,10 @@ class OrderManager:
 				if res.status_code != 200:
 					if request:
 						raise exceptions.Forbidden("Your session has expired due to order deletion or change! Please check your E-Mail for more info.")
-				else:
-					self.remove_cache(code)
-					return None
-				
+					else:
+						self.remove_cache(code)
+						return None
+
 				res = res.json()
 			
 				if res['status'] in ['c', 'e']:
