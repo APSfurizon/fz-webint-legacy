@@ -19,8 +19,9 @@ app.ext.add_dependency(Quotas, get_quotas)
 
 from room import bp as room_bp
 from propic import bp as propic_bp
+from export import bp as export_bp
 
-app.blueprint([room_bp,propic_bp])
+app.blueprint([room_bp,propic_bp,export_bp])
 
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
@@ -35,12 +36,12 @@ async def clear_session(request, exception):
 @app.before_server_start
 async def main_start(*_):
 	print(">>>>>> main_start <<<<<<")
+	
+	app.ctx.om = OrderManager()
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(int=int)
 	app.ctx.tpl.globals.update(len=len)
-	
-	app.ctx.order_cache = {}
 
 @app.route("/manage/barcode/<code>")
 async def gen_barcode(request, code):
@@ -49,23 +50,24 @@ async def gen_barcode(request, code):
 	aa.save(img, format='PNG')
 
 	return raw(img.getvalue(), content_type="image/png")
+
+@app.route("/manage/cache")
+async def cache_status(request):
+	return
 	
+
+@app.route("/manage/stats")
+async def stats(request, order: Order):
+
+	with open('res/stats.json') as f:
+		stats = json.load(f)
+
+	tpl = app.ctx.tpl.get_template('stats.html')
+	return html(tpl.render(order=order, stats=stats))
+
 @app.route("/manage/nosecount")
 async def nose_count(request, order: Order):
-	p = 0
-	orders = {}
-	async with httpx.AsyncClient() as client:
-		while 1:
-			p += 1
-			res = await client.get(join(base_url, f"orders/?include_canceled_positions=false&page={p}"), headers=headers)
-		
-			if res.status_code == 404: break
-		
-			data = res.json()
-			for o in data['results']:
-				orders[o['code']] = Order(o)
-				
-	orders = {key:value for key,value in sorted(orders.items(), key=lambda x: len(x[1].room_members), reverse=True)}
+	orders = {key:value for key,value in sorted(app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e']}
 
 	tpl = app.ctx.tpl.get_template('nosecount.html')
 	return html(tpl.render(orders=orders, order=order))
@@ -99,12 +101,12 @@ async def welcome(request, order: Order, quota: Quotas):
 	if order.pending_roommates:
 		for pr in order.pending_roommates:
 			if not pr: continue
-			pending_roommates.append(await get_order(code=pr, insecure=True))
+			pending_roommates.append(await app.ctx.om.get_order(code=pr, cached=True))
 
 	room_members = []
 	if order.room_id:
 		if order.room_id != order.code:
-			room_owner = await get_order(code=order.room_id, insecure=True)
+			room_owner = await app.ctx.om.get_order(code=order.room_id, cached=True)
 		else:
 			room_owner = order
 			
@@ -115,7 +117,7 @@ async def welcome(request, order: Order, quota: Quotas):
 			if member_id == order.code:
 				room_members.append(order)
 			else:
-				room_members.append(await get_order(code=member_id, insecure=True))		
+				room_members.append(await app.ctx.om.get_order(code=member_id, cached=True))		
 
 	tpl = app.ctx.tpl.get_template('welcome.html')
 	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates))
