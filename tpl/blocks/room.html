@@ -44,9 +44,11 @@
 			{% if order.room_id == order.code and not order.room_confirmed and len(room_members) < 5 %}
 				<div>
 					<a href="javascript:document.getElementById('modal-roominvite').setAttribute('open', 'true');">
-						<img class="propic" src="/res/new.png" />
-						<h3>Invite</h3>
-						<p>Get room code</p>
+						<div class="propic-container">
+							<img class="propic" src="/res/new.png" />
+							<h3>Invite</h3>
+							<p>Get room code</p>
+						</div>
 					</a>
 				</div>
 			{% endif %}
@@ -92,7 +94,7 @@
 		<table>
 			{% for person in pending_roommates %}
 				<tr>
-					<td style="width:4em;"><img style="width:2em" class="propic" src="/res/propic/{{person.ans('propic') or 'default.png'}}" /></td>
+					<td style="width:4em;"><img style="width:2em;height:2em;" class="propic" src="/res/propic/{{person.ans('propic') or 'default.png'}}" /></td>
 					<td>{{person.name}}</td>
 					{% if person.status == 'pending' %}
 						<td><strong style="color:red;">UNPAID</strong></td>
