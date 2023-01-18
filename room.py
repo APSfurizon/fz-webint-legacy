@@ -77,7 +77,7 @@ async def join_room(request, order: Order):
 	if (not code) or (not room_secret):
 		raise exceptions.BadRequest("The code or pin you provided are not valid.")
 	
-	room_owner = await get_order(code=code, insecure=True)
+	room_owner = await request.app.ctx.om.get_order(code=code)
 	
 	if not room_owner:
 		raise exceptions.BadRequest("The code you provided is not valid.")
@@ -114,7 +114,7 @@ async def kick_member(request, code, order: Order):
 	if not order.room_owner:
 		raise exceptions.BadRequest("You cannot kick people if you're not the room owner")
 		
-	to_kick = await get_order(code=code, insecure=True)
+	to_kick = await request.app.ctx.om.get_order(code=code)
 	if to_kick.room_id != order.code:
 		raise exceptions.BadRequest("You cannot kick people of other rooms")
 		
@@ -149,7 +149,7 @@ async def cancel_request(request, order: Order):
 	if not order.pending_room:
 		raise exceptions.BadRequest("There is no pending room.")
 		
-	room_owner = await get_order(code=order.pending_room, insecure=True)
+	room_owner = await request.app.ctx.om.get_order(code=order.pending_room)
 	pending_roommates = room_owner.pending_roommates
 	if order.code in pending_roommates:
 		pending_roommates.remove(order.code)
@@ -171,7 +171,7 @@ async def approve_roomreq(request, code, order: Order):
 	if order.room_confirmed:
 		raise exceptions.BadRequest("You cannot accept people to a confirmed room.")
 
-	pending_member = await get_order(code=code, insecure=True)
+	pending_member = await request.app.ctx.om.get_order(code=code)
 
 	if pending_member.room_id:
 		raise exceptions.BadRequest("You cannot accept people who are in a room.")
@@ -204,7 +204,7 @@ async def leave_room(request, order: Order):
 	if order.room_id == order.code:
 		raise exceptions.BadRequest("You cannot leave your own room.")
 
-	room_owner = await get_order(code=order.room_id, insecure=True)
+	room_owner = await request.app.ctx.om.get_order(code=order.room_id)
 	
 	await room_owner.edit_answer('room_members', (','.join([x for x in room_owner.room_members if x != order.code]) or None))
 	await order.edit_answer('room_id', None)
@@ -225,7 +225,7 @@ async def reject_roomreq(request, code, order: Order):
 	if order.room_confirmed:
 		raise exceptions.BadRequest("You cannot reject people to a confirmed room.")
 
-	pending_member = await get_order(code=code, insecure=True)
+	pending_member = await request.app.ctx.om.get_order(code=code)
 
 	if pending_member.room_id:
 		raise exceptions.BadRequest("You cannot reject people who are in a room.")
@@ -260,7 +260,7 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		if m == order.code:
 			res = order
 		else:
-			res = await get_order(code=m, insecure=True)
+			res = await request.app.ctx.om.get_order(code=m)
 		
 		if res.room_id != order.code:
 			raise exceptions.BadRequest("Please contact support: some of the members in your room are actually somewhere else")	
