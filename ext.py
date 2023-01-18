@@ -179,6 +179,7 @@ class OrderManager:
 		
 					data = res.json()
 					for o in data['results']:
+						if o['status'] in ['c', 'e']: continue
 						self.add_cache(Order(o))
 
 		# If a cached order is needed, just get it if available
