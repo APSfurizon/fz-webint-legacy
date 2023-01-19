@@ -20,8 +20,9 @@ app.ext.add_dependency(Quotas, get_quotas)
 from room import bp as room_bp
 from propic import bp as propic_bp
 from export import bp as export_bp
+from stats import bp as stats_bp
 
-app.blueprint([room_bp,propic_bp,export_bp])
+app.blueprint([room_bp,propic_bp,export_bp,stats_bp])
 
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
@@ -50,27 +51,6 @@ async def gen_barcode(request, code):
 	aa.save(img, format='PNG')
 
 	return raw(img.getvalue(), content_type="image/png")
-
-@app.route("/manage/cache")
-async def cache_status(request):
-	return
-	
-
-@app.route("/manage/stats")
-async def stats(request, order: Order):
-
-	with open('res/stats.json') as f:
-		stats = json.load(f)
-
-	tpl = app.ctx.tpl.get_template('stats.html')
-	return html(tpl.render(order=order, stats=stats))
-
-@app.route("/manage/nosecount")
-async def nose_count(request, order: Order):
-	orders = {key:value for key,value in sorted(app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e']}
-
-	tpl = app.ctx.tpl.get_template('nosecount.html')
-	return html(tpl.render(orders=orders, order=order))
 
 @app.route("/furizon/beyond/order/<code>/<secret>/open/<secret2>")
 async def redirect_explore(request, code, secret, order: Order, secret2=None):
