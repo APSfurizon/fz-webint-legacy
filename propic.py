@@ -15,6 +15,9 @@ bp = Blueprint("propic", url_prefix="/manage/propic")
 async def upload_propic(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	
+	if order.propic_locked:
+		raise exceptions.BadRequest("You have been limited from further editing the propic.")
+	
 	if request.form.get('submit') == 'Delete main image':
 			await order.edit_answer('propic', None)
 			

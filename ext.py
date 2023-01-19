@@ -60,6 +60,7 @@ class Order:
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
 		self.is_allergic = True if self.ans('is_allergic') != 'No' else False
+		self.propic_locked = self.ans('propic_locked')
 		self.birth_date = self.ans('birth_date')
 		self.name = self.ans('fursona_name')
 		self.room_id = self.ans('room_id')
@@ -120,6 +121,7 @@ class Order:
 		async with httpx.AsyncClient() as client:
 			res = await client.patch(join(base_url, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
 		self.pending_update = False
+		self.time = -1
 
 @dataclass
 class Quotas:
@@ -183,7 +185,7 @@ class OrderManager:
 						self.add_cache(Order(o))
 
 		# If a cached order is needed, just get it if available
-		if code and cached and code in self.cache and time()-self.cache[code].time < 1800:
+		if code and cached and code in self.cache and time()-self.cache[code].time < 3600:
 			return self.cache[code]
 	
 		# If it's a request, ignore all the other parameters and just get the order of the requestor
