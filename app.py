@@ -71,6 +71,11 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 			response.cookies['foxo_secret'] = secret
 	return response
 
+@app.route("/manage/privacy")
+async def privacy(request):
+	tpl = app.ctx.tpl.get_template('privacy.html')
+	return html(tpl.render())
+
 @app.route("/manage/welcome")
 async def welcome(request, order: Order, quota: Quotas):
 

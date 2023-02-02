@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Furizon 2023 Nosecount{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<p class="notice" style="margin:2em 0;">⚠️ This privacy policy is a courtesy explanation of <a href="https://furizon.net/wp-content/uploads/2023/01/Regolamento-Furizon-Beyond-en-GB.pdf">the one you signed up when registering to the con</a></p>
+		<h1>Privacy policy of this private area</h1>
+		<p>We collect only the data that is needed by law and to make sure that your convention experience is up to your expectations. Keep reading to know why and how we collect this data.</p>
+
+		<h2>Personally identifiable information</h2>
+		<p>This includes data such as your name, address, phone number and other info you gave us during your signup process. This will be kept by us for the time as it's needed by law, and we might need to disclose it to third parties such as:</p>
+		<ul>
+			<li>Hotel Staff</li>
+			<li>Italian authorities</li>
+			<li>Bookkeeping and payment method providers</li>
+		</ul>
+		<p>No unlawful transmission will happen.</p>
+		
+		<h2>Website usage data</h2>
+		<p>For statistical and bugfix needs, we log the following info:</p>
+		<ul>
+			<li>List of pages you have visited within the website</li>
+			<li>First three octets of your ip address</li>
+			<li>List of status codes (404, 500, 403...) you encountered, and when you encountered them</li>
+		</ul>
+		<p>This info is collected through our first-party domain <em>y.foxo.me</em></p>
+				
+		<h2>Backups and export of data</h2>
+		<p>All data is stored in servers managed by Furizon APS, inside of facilities in the Italian territory. No data is exported outside of the italian territory. All communication uses end to end encryption.</p>
+		<p>To make sure data is safe, we make regular backups of it. These backups are encrypted at source and uploaded to zero-trust servers, so that data would remain safe even in case of a breach.</p>
+		
+		<h2>Statistics and nosecount</h2>
+		<p>For statistics and engagement reasons, we keep these two pages with aggregated or non-PII.</p>
+		<p>In this case, this individual data will be shared:</p>
+		<ul>
+			<li>Nick/Fursona name</li>
+			<li>Uploaded avatar</li>
+			<li>Room composition</li>
+			<li>Country of provenience</li>
+		</ul>
+		<p>Other info might be shared but only in anonymized and/or aggregated mode, and only if we are 100% sure this won't accidentally leak individualized info.</p>
+	</main>
+	
+{% endblock %}
