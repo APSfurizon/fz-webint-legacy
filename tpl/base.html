@@ -21,6 +21,8 @@
 			.people {grid-auto-flow:row;}
 			.people img {display:block;}
 			
+			main {min-height: 30em;}
+			
 			mark {background:#0f0;}
 			h1 img {max-height:1.4em;}
 			.notice {padding:0.8em;border-radius:3px;background:#e53935;color:#eee;}
@@ -42,15 +44,16 @@
 				.icon {filter: invert(1);}
 			}
 			
-			#topbar {justify-content: normal;padding:0 0.5em;background:var(--card-background-color);}
-			#topbar a {display:inline-block;padding:0 1em;line-height:2em;margin:0;}
-			
-			/*@media screen and (min-width: 576px) { .grid.people {  grid-template-columns: repeat(4, 1fr) }
-			@media screen and (max-width: 576px) { .grid.people {  grid-template-columns: repeat(2, 1fr) }
-			*/
-			
+			nav {justify-content: normal;padding:0 0.5em;background:var(--card-background-color);}
+			nav a {display:inline-block;padding:0 1em;line-height:2em;margin:0;white-space:nowrap}
+			nav img {height:1.2em;display:inline;vertical-align:middle;box-sizing: border-box;}
+						
 			body .grid.people { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)) !important }
 			.status {float:right;}
+			
+			footer {opacity:0.4;margin:0;padding:0;max-width:40em;text-align:center;transition:opacity .4s;}
+			footer:hover {opacity:1;}
+			footer img {height:1.3em;}
 		</style>
 		
 		<!-- Matomo -->
@@ -80,6 +83,7 @@
 				<a href="/manage/welcome">Your Booking</a>
 			{% endif %}
 			<a href="/manage/nosecount">Nose Count</a>
+			<a href="/manage/stats">Stats</a>
 			{% if order %}
 				<a style="float:right;" href="/manage/logout">Logout</a>
 			{% endif %}
@@ -97,5 +101,8 @@
 			  }
 			});
 		</script>
+		<footer>
+			Made in 🇮🇹 by <img src="/res/icons/silhouette.svg" class="icon" title="ACCBCAC" /> · <a href="/manage/privacy">Privacy</a>
+		</footer>
 	</body>
 </html>
