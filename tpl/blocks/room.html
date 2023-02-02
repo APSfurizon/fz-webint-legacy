@@ -112,15 +112,13 @@
 	{% endif %}
 	
 	{# Room availability is always shown #}
-	{% if not order.room_confirmed %}
-		<h4>Room availability</h4>
-		<table>
-			{% for q in quota.data['results'] if 'Room' in q['name'] %}
-				<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
-					<td>{{q['name']}}</td>
-					<td>{{q['available_number']}} left</td>
-				</tr>
-			{% endfor %}
-		</table>
-	{% endif %}
+	<h4>Room availability</h4>
+	<table>
+		{% for q in quota.data['results'] if 'Room' in q['name'] %}
+			<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
+				<td>{{q['name']}}</td>
+				<td>{{q['available_number']}} left</td>
+			</tr>
+		{% endfor %}
+	</table>
 </details>
