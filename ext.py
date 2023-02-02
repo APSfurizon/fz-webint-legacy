@@ -14,6 +14,10 @@ class Order:
 		self.time = time()
 		self.data = data
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
+		
+		if not len(self.data['positions']):
+			self.status = 'canceled'
+		
 		self.code = data['code']
 		self.pending_update = False
 		
@@ -181,7 +185,8 @@ class OrderManager:
 		
 					data = res.json()
 					for o in data['results']:
-						if o['status'] in ['c', 'e']: continue
+						o = Order(o)
+						if o.status in ['canceled', 'expired']: continue
 						self.add_cache(Order(o))
 
 		# If a cached order is needed, just get it if available
@@ -207,11 +212,11 @@ class OrderManager:
 
 				res = res.json()
 			
-				if res['status'] in ['c', 'e']:
+				order = Order(res)
+				if order.status in ['canceled', 'expired']:
 					if request:
 						raise exceptions.Forbidden(f"Your order has been deleted. Contact support with your order identifier ({res['code']}) for further info.")
 			
-				order = Order(res)
 				self.add_cache(order)
 			
 				if request and secret != res['secret']:

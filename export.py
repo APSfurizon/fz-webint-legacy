@@ -22,9 +22,9 @@ async def export_csv(request, order: Order):
 		if r.status_code == 404: break
 		
 		for r in r.json()['results']:
-			if r['status'] not in ['n', 'p']: continue
 		
 			o = Order(r)
+			if o.status not in ['pending', 'paid']: continue
 			orders[o.code] = o
 
 			ret += (';'.join(map(lambda x: str(x),
