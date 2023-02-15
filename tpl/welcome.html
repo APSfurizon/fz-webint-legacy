@@ -23,12 +23,31 @@
 				</td>
 			</tr>
 			<tr>
-				<th>When?</th>
-				<td>30 May → 3 June 2023</td>
+				<th>When {{'(convention)' if order.has_early or order.has_late else ''}}?</th>
+				<td>30 May → 3 June 2023</td></td>
 			</tr>
+			{% if order.has_early or order.has_late %}
+				<tr>
+					<th>When (check-in)?</th>
+					<td>
+						{{('29' if order.has_early else '30')|safe}} May → {{('4' if order.has_late else '3')|safe}} June 2023
+						{% if order.has_early %}
+							<span class="tag">EARLY</span>
+						{% endif %}
+						{% if order.has_late %}
+							<span class="tag">LATE</span><br />
+						{% endif %}
+					</td>
+				</tr>
+			{% endif %}
 			<tr>
 				<th>Your ticket</th>
 				<td>
+					{% if order.sponsorship %}
+						<img src="/res/icons/star.svg" class="icon" />
+						You are a {{'super' if order.sponsorship == 'super' else ''}}sponsor!
+						<br />
+					{% endif %}
 					<img src="/res/icons/qr.svg" class="icon" />
 					<a href="javascript:document.getElementById('modal-barcode').setAttribute('open', 'true');">Show Check-in Barcode ({{order.code}})</a>
 					{% if order.status == 'paid' and order.room_confirmed %}
