@@ -188,7 +188,7 @@ class OrderManager:
 					for o in data['results']:
 						o = Order(o)
 						if o.status in ['canceled', 'expired']:
-							self.remove_cache(order)
+							self.remove_cache(o.code)
 						else:
 							self.add_cache(Order(o))
 
@@ -217,7 +217,7 @@ class OrderManager:
 			
 				order = Order(res)
 				if order.status in ['canceled', 'expired']:
-					self.remove_cache(order)
+					self.remove_cache(order.code)
 					if request:
 						raise exceptions.Forbidden(f"Your order has been deleted. Contact support with your order identifier ({res['code']}) for further info.")
 				else:
