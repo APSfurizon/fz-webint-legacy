@@ -36,13 +36,13 @@ async def carpooling_update(request, order: Order):
 				error = "Offer or need form is not valid!"
 			elif len(val) > 1000 and field == 'message':
 				error = "The message cannot be longer than 1000 characters!"
-			elif val.count("\n") > 4:
-				error = "Please do not use more than 4 line breaks!"
+			elif val.count("\n") > 6:
+				error = "Please do not use more than 6 line breaks in the message!"
 			else:
 				payload[field] = val
 
-		order.carpooling_message = payload
 		if not error:
+			order.carpooling_message = payload
 			await order.edit_answer('carpooling_message', json.dumps(payload))
 
 	else:

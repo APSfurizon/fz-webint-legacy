@@ -34,7 +34,7 @@
 				<label for="offer_or_need">Are you offering or need a ride?</label>
 				<select name="offer_or_need" id="offer_or_need">
 					<option value="need" {{'selected' if order.carpooling_message.offer_or_need == 'need'}}>I'm looking for a ride</option>
-					<option value="offer" {{'selected' if order.carpooling_message.offer_or_need == 'need'}}>I'm offering a ride</option>
+					<option value="offer" {{'selected' if order.carpooling_message.offer_or_need == 'offer'}}>I'm offering a ride</option>
 				</select>				
 								
 				<label for="day_departure">
@@ -63,7 +63,7 @@
 			<blockquote>
 				<p style="margin-bottom:1em;"><strong>{{o.name}}</strong> {{'is offering' if o.carpooling_message.offer_or_need == 'offer' else 'needs'}} a trip from <strong>{{o.carpooling_message.from_location}}</strong> on the <strong>{{o.carpooling_message.day_departure[1:]}} of {{'May' if o.carpooling_message.day_departure[0] == 'm' else 'June'}}</strong>.</p>
 				<img class="propic propic-{{o.sponsorship}}" style="margin-top:0.5em;margin-right:1em;float:left;max-width:4em;" src="/res/propic/{{o.ans('propic') or 'default.png'}}" />
-				<span style="font-size:.8em;">{{o.carpooling_message.message}}</span>
+				<span style="font-size:.8em;">{{o.carpooling_message.message|escape|replace("\n", "<br />"|safe)}}</span>
 				<br clear="both" />
 			</blockquote>
 		{% endfor %}
