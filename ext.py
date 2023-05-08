@@ -65,6 +65,7 @@ class Order:
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
 		self.is_allergic = True if self.ans('is_allergic') != 'No' else False
 		self.propic_locked = self.ans('propic_locked')
+		self.carpooling_message = json.loads(self.ans('carpooling_message')) if self.ans('carpooling_message') else {}
 		self.birth_date = self.ans('birth_date')
 		self.name = self.ans('fursona_name')
 		self.room_id = self.ans('room_id')
@@ -186,8 +187,10 @@ class OrderManager:
 					data = res.json()
 					for o in data['results']:
 						o = Order(o)
-						if o.status in ['canceled', 'expired']: continue
-						self.add_cache(Order(o))
+						if o.status in ['canceled', 'expired']:
+							self.remove_cache(order)
+						else:
+							self.add_cache(Order(o))
 
 		# If a cached order is needed, just get it if available
 		if code and cached and code in self.cache and time()-self.cache[code].time < 3600:
@@ -214,10 +217,11 @@ class OrderManager:
 			
 				order = Order(res)
 				if order.status in ['canceled', 'expired']:
+					self.remove_cache(order)
 					if request:
 						raise exceptions.Forbidden(f"Your order has been deleted. Contact support with your order identifier ({res['code']}) for further info.")
-			
-				self.add_cache(order)
+				else:
+					self.add_cache(order)
 			
 				if request and secret != res['secret']:
 					raise exceptions.Forbidden("Your session has expired due to a token change. Please check your E-Mail for an updated link!")
