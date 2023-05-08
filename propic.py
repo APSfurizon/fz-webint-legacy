@@ -2,12 +2,13 @@ from sanic.response import html, redirect, text
 from sanic import Blueprint, exceptions
 from random import choice
 from ext import *
-from config import headers
+from config import headers, PROPIC_DEADLINE
 from PIL import Image
 from os.path import isfile
 from os import unlink
 from io import BytesIO
 from hashlib import sha224
+from time import time
 
 bp = Blueprint("propic", url_prefix="/manage/propic")
 
@@ -17,6 +18,9 @@ async def upload_propic(request, order: Order):
 	
 	if order.propic_locked:
 		raise exceptions.BadRequest("You have been limited from further editing the propic.")
+		
+	if time() > PROPIC_DEADLINE:
+		raise exceptions.BadRequest("You are beyond the file upload deadline. No more changes are allowed.")
 	
 	if request.form.get('submit') == 'Delete main image':
 			await order.edit_answer('propic', None)
