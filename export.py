@@ -8,12 +8,12 @@ bp = Blueprint("export", url_prefix="/manage/export")
 @bp.route("/export.csv")
 async def export_csv(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
-	if order.code != 'HWUC9': raise exceptions.Forbidden("Birichino :)")
+	if order.code not in ['HWUC9','9YKGJ']: raise exceptions.Forbidden("Birichino :)")
 
 	page = 0
 	orders = {}
 
-	ret = 'code;nome;cognome;nick;nazione;tessera;artista;fursuiter;sponsorship;early;late;shirt;roomsize;roommembers;payment;price\n'
+	ret = 'status;code;nome;cognome;nick;nazione;tessera;artista;fursuiter;sponsorship;early;late;shirt;roomsize;roommembers;payment;price;refunds;staff\n'
 
 	while 1:
 		page += 1
@@ -24,11 +24,11 @@ async def export_csv(request, order: Order):
 		for r in r.json()['results']:
 		
 			o = Order(r)
-			if o.status not in ['pending', 'paid']: continue
 			orders[o.code] = o
 
 			ret += (';'.join(map(lambda x: str(x),
 			[
+				o.status,
 				o.code,
 				o.first_name,
 				o.last_name,
@@ -44,7 +44,9 @@ async def export_csv(request, order: Order):
 				len(o.room_members),
 				','.join(o.room_members),
 				o.payment_provider,
-				o.total-o.fees
+				o.total-o.fees,
+				o.refunds,
+				o.ans('staff_role') or 'attendee',
 			]))) + "\n"
 
 	return text(ret)

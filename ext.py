@@ -25,6 +25,9 @@ class Order:
 		self.sponsorship = None
 		self.has_early = False
 		self.has_late = False
+		self.first_name = None
+		self.last_name = None
+		self.country = None
 		
 		for p in self.data['positions']:
 			if p['item'] in [16, 38]:
@@ -54,8 +57,12 @@ class Order:
 		
 		self.total = float(data['total'])
 		self.fees = 0
+		self.refunds = 0
 		for fee in data['fees']:
 			self.fees += float(fee['value'])
+			
+		for ref in data['refunds']:
+			self.refunds += float(ref['amount'])
 		
 		answers = ['payment_provider', 'shirt_size', 'birth_date', 'fursona_name', 'room_confirmed', 'room_id']
 		
