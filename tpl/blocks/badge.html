@@ -11,41 +11,47 @@
 	<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
 		<div class="grid" style="text-align:center;margin-bottom:1em;">
 			<div>
-				{% if not order.ans('propic') %}
+				{% if not order.ans('propic') and time() < PROPIC_DEADLINE %}
 					<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
 				{% else %}
 					<div class="propic-container">
-						<img src="/res/propic/{{order.ans('propic')}}" class="propic" />
+						<img src="/res/propic/{{order.ans('propic') or 'default.png'}}" class="propic" />
 					</div>
 				{% endif %}
 				<p>Normal Badge</p>
 			</div>
 			{% if order.ans('is_fursuiter') != 'No' %}
 				<div>
-					{% if not order.ans('propic_fursuiter') %}
+					{% if not order.ans('propic_fursuiter') and time() < PROPIC_DEADLINE %}
 						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
 					{% else %}
 						<div class="propic-container">
-							<img src="/res/propic/{{order.ans('propic_fursuiter')}}" class="propic" />
+							<img src="/res/propic/{{order.ans('propic_fursuiter') or 'default.png'}}" class="propic" />
 						</div>
 					{% endif %}
 					<p>Fursuit Badge</p>
 				</div>
 			{% endif %}
 		</div>
-		<p><em>
-			Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png<br />
-			Badge photos must clearly show the fursona/fursuit head.<br />Memes and low quality images will be removed and may limit your ability to upload pics in the future.
-		</em></p>
+		
+		{% if time() > PROPIC_DEADLINE %}
+		<p class="notice">⚠️ The deadline to upload pictures for the badge has expired. For last-minute changes, please contact the support over at <a href="mailto:info@furizon.net">info@furizon.net</a>. If your badge has been printed already, changing it will incur in a 2€ fee.</p>
+		{% else %}
+			<p><em>
+				Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png<br />
+				Badge photos must clearly show the fursona/fursuit head.<br />Memes and low quality images will be removed and may limit your ability to upload pics in the future.
+			</em></p>
+		{% endif %}
+		
 		<div class="grid">
 			{% if order.ans('propic') %}
-				<input type="submit" name="submit" value="Delete main image" />
+				<input type="submit" name="submit" value="Delete main image" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
 			{% endif %}
 			{% if order.ans('propic_fursuiter') %}
-				<input type="submit" name="submit" value="Delete fursuit image" />
+				<input type="submit" name="submit" value="Delete fursuit image" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
 			{% endif %}
 			{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
-				<input type="submit" value="Upload" />
+				<input type="submit" value="Upload" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
 			{% endif %}
 		</div>
 	</form>
