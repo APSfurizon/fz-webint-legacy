@@ -63,11 +63,6 @@
 		{% include 'blocks/payment.html' %}
 		{% include 'blocks/room.html' %}
 		{% include 'blocks/badge.html' %}
-		<!--<details id="security">
-			<summary role="button"><img src="/res/icons/lock.svg" class="icon" />Notifications & 2FA <span class="status">⚠️</span></summary>
-			<p>To receive updates and to keep your private area safer, you can associate your booking to your Telegram account.</p>
-			<a href="https://t.me/FurizonBot?start=aooooooooooo"><img style="display:block;margin:0 auto;" src="/res/icons/login_with_telegram.png" /></a>
-		</details>-->
 		
 		<details id="barcard">
 			<summary role="button"><img src="/res/icons/bar.svg" class="icon" />Barcard</summary>
@@ -80,14 +75,13 @@
 			<p>If you want to find out where your friends are staying at the convention, just click this link to see a list of all attendees and their assigned rooms. You'll be able to see which rooms are already occupied and by whom, so you can easily plan meet-ups with your friends.</p>
 			<a href="/manage/nosecount" role="button">Nose count</a>
 		</details>
-		<!--<details id="stats">
-			<summary role="button"><img src="/res/icons/stats.svg" class="icon" />Statistics</summary>
-			<p>We know that furries love numbers and statistics, which is why we've added even more statistical tracking to this year's convention. Keep an eye out for updates on all the interesting data we'll be collecting throughout the event.</p>
-			<a href="/manage/statistics" role="button">See statistics</a>
-		</details>-->
-		<!--<details id="roommates">
-			<summary role="button"><img src="/res/icons/roommates.svg" class="icon" />Roommate search</summary>
-		</details>-->
+		
+		<details id="carpooling">
+			<summary role="button"><img src="/res/icons/car.svg" class="icon" />Carpooling</summary>
+			<p>We want to make it easy for attendees to find and offer carpooling options. If you have seats available in your car, you can use our carpooling system to offer rides to other attendees. And if you need a ride, you can search for leftover seats in cars that are already heading to the convention. This is a great way to save money on gas and reduce your carbon footprint, while also getting to know other attendees and making new friends.</p>
+			<div class="grid"><a href="/manage/carpooling" role="button">Find or offer a trip</a></div>
+		</details>
+		
 		<details id="telegram">
 			<summary role="button"><img src="/res/icons/telegram.svg" class="icon" />Group Chat & Channels</summary>
 			<p>We encourage you to join these groups and participate in the conversations so you can stay in the loop and connect with other attendees. To join the groups, simply click on the links provided down below!</p>
@@ -102,34 +96,6 @@
 				</tr>
 			</table>
 		</details>
-
-		<!--
-		<details id="carpooling" open>
-			<summary role="button"><img src="/res/icons/car.svg" class="icon" />Carpooling</summary>
-			<p>We want to make it easy for attendees to find and offer carpooling options. If you have seats available in your car, you can use our carpooling system to offer rides to other attendees. And if you need a ride, you can search for leftover seats in cars that are already heading to the convention. This is a great way to save money on gas and reduce your carbon footprint, while also getting to know other attendees and making new friends.</p>
-			<table>
-				<tr>
-					<td>Noticeboard</td>
-					<td><a href="https://t.me/APSFurizon">@APSFurizon</a></td>
-				</tr>
-				<tr>
-					<td>Group Chat</td>
-					<td><a href="https://t.me/+H-vcfRyHQAxkODk8">https://t.me/+H-vcfRyHQAxkODk8</a></td>
-				</tr>
-			</table>
-		</details>
-		
-		<h2>All about the Convention</h2>
-		<details id="fursuiters">
-			<summary role="button"><img src="/res/icons/mask.svg" class="icon" />Services for Fursuiters</summary>
-		</details>
-		<details id="badge">
-			<summary role="button">Roommate search</summary>
-		</details>
-		<details id="badge">
-			<summary role="button">Group Chat & Summary</summary>
-		</details>
-	</main> -->
 
 	{% include 'blocks/room_extra.html' %}
 	

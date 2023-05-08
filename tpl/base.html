@@ -85,8 +85,11 @@
 				<a href="/manage/welcome">Your Booking</a>
 			{% endif %}
 			<a href="/manage/nosecount">Nose Count</a>
-			<a href="/manage/stats">Stats</a>
 			{% if order %}
+				<a href="/manage/carpooling">Carpooling</a>
+				{% if not order.room_confirmed %}
+					<a href="/manage/roommate_search">Roommate Search</a>
+				{% endif %}
 				<a style="float:right;" href="/manage/logout">Logout</a>
 			{% endif %}
 		</nav>
