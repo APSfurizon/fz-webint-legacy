@@ -21,6 +21,8 @@ class Order:
 		self.code = data['code']
 		self.pending_update = False
 		
+		self.email = data['email']
+		
 		self.has_card = False
 		self.sponsorship = None
 		self.has_early = False
@@ -83,6 +85,7 @@ class Order:
 		self.room_members = self.ans('room_members').split(',') if self.ans('room_members') else []
 		self.room_owner = (self.code == self.room_id)
 		self.room_secret = self.ans('room_secret')
+		self.app_token = self.ans('app_token')
 
 
 	def __getitem__(self, var):
@@ -181,7 +184,7 @@ class OrderManager:
 	async def get_order(self, request=None, code=None, secret=None, cached=False):
 	
 		# Fill the cache on first load
-		if not self.cache:
+		if not self.cache and FILL_CACHE:
 			p = 0
 			
 			async with httpx.AsyncClient() as client:

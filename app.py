@@ -29,18 +29,19 @@ app.blueprint([room_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp])
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
 	tpl = app.ctx.tpl.get_template('error.html')
-	response = html(tpl.render(exception=exception))
+	r = html(tpl.render(exception=exception))
 	
 	if exception.status_code == 403:
-		del response.cookies["foxo_code"]
-		del response.cookies["foxo_secret"]
-	return response
+		del r.cookies["foxo_code"]
+		del r.cookies["foxo_secret"]
+	return r
 
 @app.before_server_start
 async def main_start(*_):
 	print(">>>>>> main_start <<<<<<")
 	
 	app.ctx.om = OrderManager()
+	app.ctx.login_codes = {}
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
@@ -58,7 +59,7 @@ async def gen_barcode(request, code):
 @app.route("/furizon/beyond/order/<code>/<secret>/open/<secret2>")
 async def redirect_explore(request, code, secret, order: Order, secret2=None):
 
-	response = redirect(app.url_for("welcome"))
+	r = redirect(app.url_for("welcome"))
 	if order and order.code != code: order = None
 
 	if not order:
@@ -70,9 +71,9 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 			res = res.json()
 			if secret != res['secret']:
 				raise exceptions.Forbidden("The secret part of the url is not correct. Check your E-Mail for the correct link, or contact support!")
-			response.cookies['foxo_code'] = code
-			response.cookies['foxo_secret'] = secret
-	return response
+			r.cookies['foxo_code'] = code
+			r.cookies['foxo_secret'] = secret
+	return r
 
 @app.route("/manage/privacy")
 async def privacy(request):
