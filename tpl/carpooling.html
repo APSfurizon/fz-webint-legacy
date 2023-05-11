@@ -9,12 +9,13 @@
 			</picture>
 		</header>
 		<p>Welcome to the carpooling page! Here you can see all of the available seats of other people attending the con. Use the form below to report if you want to offer a ride yourself or are looking for one!</p>
+		<p class="notice" style="background:var(--primary);">ℹ️ Did you know? Now you can also <strong>offer</strong> rides and change the destination!</p>
 		<form action="" method="post">
 			{% if error %}
 				<p class="notice">⚠️ {{error}}</p>
 			{% endif %}
 			<section>
-				<label for="switch"><input type="checkbox" id="wants_carpool" name="wants_carpool" role="switch" onchange="document.getElementById('tripform').style.display = this.checked?'initial':'none';" {{'checked' if order.carpooling_message else ''}}> I need to carpool</label>
+				<label for="switch"><input type="checkbox" id="wants_carpool" name="wants_carpool" role="switch" onchange="document.getElementById('tripform').style.display = this.checked?'initial':'none';" {{'checked' if order.carpooling_message else ''}}> I want to offer or request a ride</label>
 			</section>
 
 			<div id="tripform" style="{{'display:none;' if not order.carpooling_message else ''}}">
@@ -25,8 +26,8 @@
 						<input type="text" id="from_location" name="from_location" placeholder="Example: Milan, Italy" value="{{order.carpooling_message.from_location}}" required>
 					</label>
 					<label for="to_location">
-						Arrival
-						<input type="text" id="to_location" name="to_location" value="Furizon, Cavalese" readonly>
+						Arrival (empty if to Furizon)
+						<input type="text" id="to_location" name="to_location" value="{{order.carpooling_message.to_location}}" placeholder="Furizon, Cavalese">
 					</label>
 				</div>
 				
@@ -61,7 +62,7 @@
 		{% endif %}
 		{% for o in orders %}
 			<blockquote>
-				<p style="margin-bottom:1em;"><strong>{{o.name}}</strong> {{'is offering' if o.carpooling_message.offer_or_need == 'offer' else 'needs'}} a trip from <strong>{{o.carpooling_message.from_location}}</strong> on the <strong>{{o.carpooling_message.day_departure[1:]}} of {{'May' if o.carpooling_message.day_departure[0] == 'm' else 'June'}}</strong>.</p>
+				<p style="margin-bottom:1em;"><strong>{{o.name}}</strong> {{'is offering' if o.carpooling_message.offer_or_need == 'offer' else 'needs'}} a trip from <strong>{{o.carpooling_message.from_location}}</strong> {% if o.carpooling_message.to_location %}to <strong>{{o.carpooling_message.to_location}}</strong>{% endif %} on the <strong>{{o.carpooling_message.day_departure[1:]}} of {{'May' if o.carpooling_message.day_departure[0] == 'm' else 'June'}}</strong>.</p>
 				<img class="propic propic-{{o.sponsorship}}" style="margin-top:0.5em;margin-right:1em;float:left;max-width:4em;" src="/res/propic/{{o.ans('propic') or 'default.png'}}" />
 				<span style="font-size:.8em;">{{o.carpooling_message.message|escape|replace("\n", "<br />"|safe)}}</span>
 				<br clear="both" />

@@ -28,7 +28,7 @@ async def carpooling_update(request, order: Order):
 		payload = {}
 		for field in ['from_location', 'offer_or_need', 'day_departure', 'message']:
 			val = request.form.get(field)
-			if not val:
+			if not val and field != 'to_location':
 				error = f"One of the forms contains invalid values. ({field})"
 			elif len(val) > 64 and field != 'message':
 				error = "One of the forms contains too long values."
@@ -40,6 +40,9 @@ async def carpooling_update(request, order: Order):
 				error = "Please do not use more than 6 line breaks in the message!"
 			else:
 				payload[field] = val
+				
+		if request.form.get('to_location'):
+			payload['to_location'] = request.form.get('to_location')
 
 		if not error:
 			order.carpooling_message = payload
