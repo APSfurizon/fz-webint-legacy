@@ -14,15 +14,17 @@
 				<h4 style="margin-top:1em;">{{o.room_name}}</h4>
 				<div class="grid people" style="padding-bottom:1em;">
 					{% for m in o.room_members %}
-						{% with person = orders[m] %}
-							<div style="margin-bottom: 1em;">
-								<div class="propic-container">
-									<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
-									<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+						{% if m in orders %}
+							{% with person = orders[m] %}
+								<div style="margin-bottom: 1em;">
+									<div class="propic-container">
+										<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
+										<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+									</div>
+									<h5>{{person.ans('fursona_name')}}</h5>
 								</div>
-								<h5>{{person.ans('fursona_name')}}</h5>
-							</div>
-						{% endwith %}
+							{% endwith %}
+						{% endif %}
 					{% endfor %}
 				</div>
 			{% endif %}
@@ -36,15 +38,17 @@
 				<h3>{% if o.room_confirmed %}🔒{% endif %}{{o.room_name}}</h3>
 				<div class="grid people" style="padding-bottom:1em;">
 					{% for m in o.room_members %}
-						{% with person = orders[m] %}
-							<div style="margin-bottom: 1em;">
-								<div class="propic-container">
-									<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
-									<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+						{% if m in orders %}
+							{% with person = orders[m] %}
+								<div style="margin-bottom: 1em;">
+									<div class="propic-container">
+										<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
+										<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+									</div>
+									<h5>{{person.ans('fursona_name')}}</h5>
 								</div>
-								<h5>{{person.ans('fursona_name')}}</h5>
-							</div>
-						{% endwith %}
+							{% endwith %}
+						{% endif %}
 					{% endfor %}
 				</div>
 			{% endif %}
