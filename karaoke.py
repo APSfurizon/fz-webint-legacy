@@ -14,6 +14,24 @@ import json
 
 bp = Blueprint("karaoke", url_prefix="/manage/karaoke")
 
+@bp.get("/admin")
+async def show_songs(request, order: Order):
+
+	if order.code not in ['9YKGJ', 'CMPQG']:
+		raise exceptions.Forbidden("Birichino")
+
+	orders = [x for x in request.app.ctx.om.cache.values() if x.karaoke_songs]
+
+	songs = []
+	for o in orders:
+		if not o.karaoke_songs: continue
+		
+		for song, data in o.karaoke_songs.items():
+			songs.append({'song': song, 'order': o, **data})
+
+	tpl = request.app.ctx.tpl.get_template('karaoke_admin.html')
+	return html(tpl.render(songs=songs))
+
 @bp.post("/add")
 async def add_song(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
