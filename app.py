@@ -19,12 +19,13 @@ app.ext.add_dependency(Quotas, get_quotas)
 
 from room import bp as room_bp
 from propic import bp as propic_bp
+from karaoke import bp as karaoke_bp
 from export import bp as export_bp
 from stats import bp as stats_bp
 from api import bp as api_bp
 from carpooling import bp as carpooling_bp
 
-app.blueprint([room_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp])
+app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp])
 
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):

@@ -1,0 +1,30 @@
+<details id="karaoke">
+	<summary role="button"><img src="/res/icons/microphone.svg" class="icon" />Karaoke & Contest</summary>
+	<p>Singing is the spirit of Karaoke! If you like doing it join us for some fun with your favourite songs!<br />You can still just come to the desk and ask for a song, but keep in mind we will always give priority to requests that came through the form. Also, special matters or difficult to find songs will only be honored by the form!</p>  
+	<h3>Participate in the contest!</h3>
+	<p>You can either decide to just sing, or let others vote you (anonymously) and try to win the prize! If you wish to send a song for the contest, make sure to toggle the appropriate option.</p>
+	{% if order.karaoke_songs %}
+		<h2>Your requests</h2>
+		<table>
+			<tr>
+				<th>Song name</th>
+				<th>Status</th>
+				<th style="width:1%;"></th>
+			</tr>
+				{% for song, data in order.karaoke_songs.items() %}
+					<tr>
+						<td>{% if data['contest'] %}🎵{% else %}🏆{% endif %} {{song}}</td>
+						<td>{% if data['approved'] %}<span style="color:#090;">Approved</span>{% elif data['approved'] is none %}<span style="color:#990;">Pending</span>{% else %}<span style="color:#900;">Rejected</span>{% endif %}</td>
+						<td>{% if data['approved'] is none %}<a role="button" href="karaoke/delete/{{song|urlencode}}">Delete</a>{% endif %}</td>
+					</tr>
+				{% endfor %}
+		</table>
+	{% endif %}
+	
+	<h3>Request a new song</h3>
+	<form method="POST" action="karaoke/add">
+		<input type="text" name="song" placeholder="Insert Artist - Title here..." />
+		<label style="margin-bottom:2em;" for="switch"><input type="checkbox" name="wants_contest" role="switch"> I want to partecipate in the contest</label>
+		<input type="submit" value="Submit" />
+	</form>
+</details>
