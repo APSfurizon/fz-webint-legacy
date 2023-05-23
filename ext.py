@@ -75,6 +75,8 @@ class Order:
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
 		self.is_allergic = True if self.ans('is_allergic') != 'No' else False
 		self.propic_locked = self.ans('propic_locked')
+		self.propic_fursuiter = self.ans('propic_fursuiter')
+		self.propic = self.ans('propic')
 		self.carpooling_message = json.loads(self.ans('carpooling_message')) if self.ans('carpooling_message') else {}
 		self.karaoke_songs = json.loads(self.ans('karaoke_songs')) if self.ans('karaoke_songs') else {}
 		self.birth_date = self.ans('birth_date')
