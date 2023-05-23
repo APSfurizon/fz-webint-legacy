@@ -29,28 +29,51 @@ async def api_members(request):
 			'propic_fursuiter': o.ans('propic_fursuiter'),
 			'staff_role': o.ans('staff_role'),
 			'country': o.country,
-			'is_checked_in': False
+			'is_checked_in': False,
+			'points': random.randint(0,50) if random.random() > 0.3 else 0
 		})
 		
 	return response.json(ret)
 	
+@bp.route("/leaderboard.json")
+async def api_leaderboard(request):
+	
+	ret = []
+	
+	for o in sorted(request.app.ctx.om.cache.values(), key=lambda x: len(x.room_members), reverse=True):
+		if o.status in ['c', 'e']: continue
+		
+		ret.append({
+			'code': o.code,
+			'propic': o.ans('propic'),
+			'points': random.randint(0,50) if random.random() > 0.3 else '???'
+		})
+		
+	return response.json(sorted(ret, key=lambda x: x['points'], reverse=True))
+	
 @bp.route("/events.json")
 async def show_events(request):
-
 	with sqlite3.connect('data/event.db') as db:
 		db.row_factory = sqlite3.Row
 		events = db.execute('SELECT * FROM event ORDER BY start ASC')
-		return response.json([dict(x) for x in events])
+
+		r = response.json([dict(x) for x in events])
+		r.headers["Access-Control-Allow-Origin"] = "*"
 		
+		return r
+
 @bp.route("/achievements.json")
 async def show_events(request):
-
-	code = request.args.get("code")
+	
+	if request.token:
+		user = await request.app.ctx.om.get_order(code=request.token[:5])
+		if not user or user.app_token != request.token[5:]:
+			return response.json({'ok': False, 'error': 'The token you have provided is not valid.'}, status=401)
 
 	with sqlite3.connect('data/achievement.db') as db:
 		db.row_factory = sqlite3.Row
-		events = db.execute('SELECT * FROM achievement ORDER BY ' + ('random() LIMIT 5' if code else 'points'))
-		return response.json([{'won_at': '2023-05-05T21:00Z' if code else None, **dict(x), 'about': 'This is instructions on how to win the field.'} for x in events])
+		events = db.execute('SELECT * FROM achievement ORDER BY points DESC')
+		return response.json([{'won_at': '2023-05-05T21:00Z' if request.token and random.random() < 0.2 else None, **dict(x), 'about': 'This is instructions on how to win the field.'} for x in events])
 
 @bp.get("/logout")
 async def logout(request):
@@ -58,18 +81,92 @@ async def logout(request):
 		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
 		
 	user = await request.app.ctx.om.get_order(code=request.token[:5])
-	if not user or user.api_token != request.token[5:]:
+	if not user or user.app_token != request.token[5:]:
 		return response.json({'ok': False, 'error': 'The token you have provided is not valid.'}, status=401)
 		
-	user.edit_answer('api_token', None)
+	await user.edit_answer('app_token', None)
 	await user.send_answers()
 	
 	return response.json({'ok': True, 'message': 'You have been logged out and this token has been destroyed.'})
-	print(request.token)
+
+@bp.get("/test")
+async def token_test(request):
+	if not request.token:
+		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
+		
+	user = await request.app.ctx.om.get_order(code=request.token[:5])
+	if not user or user.app_token != request.token[5:]:
+		return response.json({'ok': False, 'error': 'The token you have provided is not correct.'}, status=401)
+	
+	return response.json({'ok': True, 'message': 'This token is valid :)'})
+	
+@bp.get("/welcome")
+async def welcome_app(request):
+	if not request.token:
+		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
+		
+	o = await request.app.ctx.om.get_order(code=request.token[:5])
+	if not o or o.app_token != request.token[5:]:
+		return response.json({'ok': False, 'error': 'The token you have provided is not correct.'}, status=401)
+	
+	return response.json({
+		'code': o.code,
+		'sponsorship': o.sponsorship,
+		'is_fursuiter': o.is_fursuiter,
+		'name': o.name,
+		'has_early': o.has_early,
+		'has_late': o.has_late,
+		'propic': o.ans('propic'),
+		'propic_fursuiter': o.ans('propic_fursuiter'),
+		'staff_role': o.ans('staff_role'),
+		'country': o.country,
+		'is_checked_in': False,
+		'points': random.randint(0,50) if random.random() > 0.3 else 0,
+		'can_scan_nfc': o.can_scan_nfc,
+		'actual_room_id': o.actual_room_id,
+		'phone': '+3901234567890'
+	})
+	
+	
+	
+
+@bp.get("/scan/<nfc_id>")
+async def nfc_scan(request, nfc_id):
+	if not request.token:
+		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
+		
+	user = await request.app.ctx.om.get_order(code=request.token[:5])
+	if not user or user.app_token != request.token[5:]:
+		return response.json({'ok': False, 'error': 'The token you have provided is not correct.'}, status=401)
+		
+	if not user.can_scan_nfc:
+		return response.json({'ok': False, 'error': 'You cannot scan NFC at this time.'}, status=401)
+	
+	for o in request.app.ctx.om.cache:
+		if o.nfc_id == nfc_id:
+			return response.json({
+			'code': o.code,
+			'sponsorship': o.sponsorship,
+			'is_fursuiter': o.is_fursuiter,
+			'name': o.name,
+			'has_early': o.has_early,
+			'has_late': o.has_late,
+			'propic': o.ans('propic'),
+			'propic_fursuiter': o.ans('propic_fursuiter'),
+			'staff_role': o.ans('staff_role'),
+			'country': o.country,
+			'is_checked_in': False,
+			'points': random.randint(0,50) if random.random() > 0.3 else 0,
+			'comment': o.comment,
+			'actual_room_id': o.actual_room_id
+		})
+
+	return response.json({'ok': True, 'message': 'This NFC tag is not valid.'})
 
 @bp.get("/get_token/<code>/<login_code>")
 async def get_token_from_code(request, code, login_code):
 	if not code in request.app.ctx.login_codes:
+		print(request.app.ctx.login_codes)
 		return response.json({'ok': False, 'error': 'You need to reauthenticate. The code has expired.'}, status=401)
 		
 	if request.app.ctx.login_codes[code][1] == 0:
@@ -82,7 +179,7 @@ async def get_token_from_code(request, code, login_code):
 	
 	user = await request.app.ctx.om.get_order(code=code)
 	token = ''.join(random.choice(string.ascii_letters) for _ in range(48))
-	user.edit_answer('api_token', token)
+	await user.edit_answer('app_token', token)
 	await user.send_answers()
 	
 	return response.json({'ok': True, 'token': code+token})
@@ -94,8 +191,8 @@ async def get_token(request, code):
 	if not user:
 		return response.json({'ok': False, 'error': 'The user you have requested does not exist.'}, status=404)
 
-	if user.status != 'paid':
-		return response.json({'ok': False, 'error': 'This user is not allowed to login.'}, status=401)
+	if user.status in ['expired', 'canceled']:
+		return response.json({'ok': False, 'error': 'This user is not allowed to login because the order has been canceled.'}, status=401)
 
 	if not user.email:
 		return response.json({'ok': False, 'error': 'This user has not provided their email.'}, status=401)

@@ -69,12 +69,14 @@ class Order:
 		answers = ['payment_provider', 'shirt_size', 'birth_date', 'fursona_name', 'room_confirmed', 'room_id']
 		
 		self.payment_provider = data['payment_provider']
+		self.comment = data['comment']
 		self.shirt_size = self.ans('shirt_size')
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
 		self.is_allergic = True if self.ans('is_allergic') != 'No' else False
 		self.propic_locked = self.ans('propic_locked')
 		self.carpooling_message = json.loads(self.ans('carpooling_message')) if self.ans('carpooling_message') else {}
+		self.karaoke_songs = json.loads(self.ans('karaoke_songs')) if self.ans('karaoke_songs') else {}
 		self.birth_date = self.ans('birth_date')
 		self.name = self.ans('fursona_name')
 		self.room_id = self.ans('room_id')
@@ -86,7 +88,9 @@ class Order:
 		self.room_owner = (self.code == self.room_id)
 		self.room_secret = self.ans('room_secret')
 		self.app_token = self.ans('app_token')
-
+		self.nfc_id = self.ans('nfc_id')
+		self.can_scan_nfc = True if self.ans('can_scan_nfc') != 'No' else False
+		self.actual_room_id = self.ans('actual_room_id')
 
 	def __getitem__(self, var):
 		return self.data[var]
@@ -128,13 +132,21 @@ class Order:
 				self.answers.append({
 					'question': r['id'],
 					'answer': new_answer,
-					'question_identifier': r['identifier'],
 					'options': r['options']
 				})
 			
 	async def send_answers(self):
 		async with httpx.AsyncClient() as client:
+			print("POSITION ID IS", self.position_id)
 			res = await client.patch(join(base_url, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
+			
+			if res.status_code != 200:
+				for ans, err in zip(self.answers, res.json()['answers']):
+					if err:
+						print('ERROR ON', ans, err)
+
+				raise exceptions.ServerError('There has been an error while updating this answers.')
+			
 		self.pending_update = False
 		self.time = -1
 
