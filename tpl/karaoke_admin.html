@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Furizon 2023 Karaoke Admin{% endblock %}
+{% block main %}
+	<main class="container">
+		<h1>Karaoke Admin</h1>
+		
+		<h2>Canzoni da cantare</h2>
+		<table>
+			{% for s in songs if s.approved is not none and (not s.singed) %}
+				<tr {% if s.approved == false %}style="text-decoration: line-through"{% endif %}>
+					<td>{{'🏆' if s.contest else '🎵'}}</td>
+					<td>{{s.order.code}} ({{s.order.name}})</td>
+					<td>{{s.song}}</td>
+					<td><a role="button" href="/manage/karaoke/sing/{{s.order.code}}{{s.song|urlencode}}">Canta</a></td>
+				</tr>
+			{% endfor %}
+		</table>
+		
+		<h2>Canzoni da approvare</h2>
+		<form method="post" action="approve">
+			<table>
+				{% for s in songs if s.approved is none %}
+					<tr>
+						<td>{{'🏆' if s.contest else '🎵'}}</td>
+						<td>{{s.order.code}} ({{s.order.name}})</td>
+						<td>{{s.song}}</td>
+						<td style="width:4em"><input type="radio" name="{{s.order.code}}{{s.song}}" style="background:#090;" value="yes"> <input type="radio" style="background:#900;" name="{{s.order.code}}{{s.song}}" value="no"></td>
+					</tr>
+				{% endfor %}
+			</table>
+			<div class="grid">
+				<input type="reset" value="Reset" />
+				<input type="submit" value="Approva/Disapprova" />
+			</div>
+		</form>
+		
+		<h2>Canzoni cantate</h2>
+		<table>
+			{% for s in songs if s.singed %}
+				<tr>
+					<td>{{'🏆' if s.contest else '🎵'}}</td>
+					<td>{{s.order.code}} ({{s.order.name}})</td>
+					<td>{{s.song}}</td>
+				</tr>
+			{% endfor %}
+		</table>
+		
+		<h2>Canzoni disapprovate</h2>
+		<table>
+			{% for s in songs if s.approved == false %}
+				<tr>
+					<td>{{'🏆' if s.contest else '🎵'}}</td>
+					<td>{{s.order.code}} ({{s.order.name}})</td>
+					<td>{{s.song}}</td>
+				</tr>
+			{% endfor %}
+		</table>
+	</main>
+{% endblock %}

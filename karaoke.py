@@ -1,5 +1,5 @@
 from sanic.response import html, redirect, text
-from sanic import Blueprint, exceptions
+from sanic import Blueprint, exceptions, response
 from random import choice
 from ext import *
 from config import headers, PROPIC_DEADLINE
@@ -31,6 +31,36 @@ async def show_songs(request, order: Order):
 
 	tpl = request.app.ctx.tpl.get_template('karaoke_admin.html')
 	return html(tpl.render(songs=songs))
+
+@bp.post("/approve")
+async def approve_songs(request, order: Order):
+
+	if order.code not in ['9YKGJ', 'CMPQG']:
+		raise exceptions.Forbidden("Birichino")
+	
+	for song in request.form:
+		o = await request.app.ctx.om.get_order(code=song[:5])
+		o.karaoke_songs[song[5:]]['approved'] = request.form[song][0] == 'yes'
+		await order.edit_answer('karaoke_songs', json.dumps(o.karaoke_songs))
+		await order.send_answers()
+		
+	return response.redirect('/manage/karaoke/admin')
+
+@bp.get("/sing/<songname>")
+async def sing_song(request, order: Order, songname):
+	
+	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	
+	if order.code not in ['9YKGJ', 'CMPQG']:
+		raise exceptions.Forbidden("Birichino")
+
+	songname = unquote(songname)
+	o = await request.app.ctx.om.get_order(code=songname[:5])
+	o.karaoke_songs[songname[5:]]['singed'] = True
+	await order.edit_answer('karaoke_songs', json.dumps(o.karaoke_songs))
+	await order.send_answers()
+	
+	return redirect("/manage/karaoke/admin")
 
 @bp.post("/add")
 async def add_song(request, order: Order):
