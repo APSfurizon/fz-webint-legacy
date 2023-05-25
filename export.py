@@ -50,3 +50,38 @@ async def export_csv(request, order: Order):
 			]))) + "\n"
 
 	return text(ret)
+
+@bp.route("/hotel_export.csv")
+async def export_csv(request, order: Order):
+	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	if order.code not in ['HWUC9','9YKGJ']: raise exceptions.Forbidden("Birichino :)")
+
+	page = 0
+	orders = {}
+
+	ret = 'code;nome;cognome;datanascita;posnascita;indirizzo;mail;status\n'
+
+	while 1:
+		page += 1
+		
+		r = httpx.get(f'https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orders/?page={page}', headers=headers)
+		if r.status_code == 404: break
+		
+		for r in r.json()['results']:
+		
+			o = Order(r)
+			orders[o.code] = o
+
+			ret += (';'.join(map(lambda x: str(x),
+			[
+				o.code,
+				o.first_name,
+				o.last_name,
+				o.birth_date,
+				o.birth_location,
+				o.address,
+				o.email,
+				o.status
+			]))) + "\n"
+
+	return text(ret)
