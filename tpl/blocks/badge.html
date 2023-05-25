@@ -11,7 +11,7 @@
 	<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
 		<div class="grid" style="text-align:center;margin-bottom:1em;">
 			<div>
-				{% if not order.ans('propic') and time() < PROPIC_DEADLINE %}
+				{% if not order.ans('propic') %}
 					<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
 				{% else %}
 					<div class="propic-container">
@@ -22,7 +22,7 @@
 			</div>
 			{% if order.ans('is_fursuiter') != 'No' %}
 				<div>
-					{% if not order.ans('propic_fursuiter') and time() < PROPIC_DEADLINE %}
+					{% if not order.ans('propic_fursuiter') %}
 						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
 					{% else %}
 						<div class="propic-container">
@@ -35,7 +35,7 @@
 		</div>
 		
 		{% if time() > PROPIC_DEADLINE %}
-		<p class="notice">⚠️ The deadline to upload pictures for the badge has expired. For last-minute changes, please contact the support over at <a href="mailto:info@furizon.net">info@furizon.net</a>. If your badge has been printed already, changing it will incur in a 2€ fee. You can also get extra badges at the reception for the same price.</p>
+		<p class="notice">⚠️ The deadline to upload pictures for the badge has expired. For last-minute changes, please contact the support over at <a href="mailto:info@furizon.net">info@furizon.net</a>. If your badge has been printed already, changing it will incur in a 2€ fee. You can also get extra badges at the reception for the same price. If you upload a propic now, it might not be printed on time.</p>
 		{% else %}
 			<p><em>
 				Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png<br />
@@ -51,7 +51,7 @@
 				<input type="submit" name="submit" value="Delete fursuit image" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
 			{% endif %}
 			{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
-				<input type="submit" value="Upload" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
+				<input type="submit" name="submit" value="Upload" />
 			{% endif %}
 		</div>
 	</form>
