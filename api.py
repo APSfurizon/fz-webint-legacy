@@ -16,7 +16,7 @@ async def api_members(request):
 	ret = []
 	
 	for o in sorted(request.app.ctx.om.cache.values(), key=lambda x: len(x.room_members), reverse=True):
-		if o.status in ['c', 'e']: continue
+		if o.status in ['expired', 'canceled']: continue
 		
 		ret.append({
 			'code': o.code,
@@ -40,16 +40,18 @@ async def api_leaderboard(request):
 	
 	ret = []
 	
-	for o in sorted(request.app.ctx.om.cache.values(), key=lambda x: len(x.room_members), reverse=True):
-		if o.status in ['c', 'e']: continue
+	for o in request.app.ctx.om.cache.values():
+		if o.status in ['expired', 'canceled']: continue
 		
 		ret.append({
-			'code': o.code,
+			'name': o.name,
 			'propic': o.ans('propic'),
-			'points': random.randint(0,50) if random.random() > 0.3 else '???'
+			'points': 0,
 		})
 		
-	return response.json(sorted(ret, key=lambda x: x['points'], reverse=True))
+	ret = sorted(ret, key=lambda x: x['points'], reverse=True)
+	
+	return response.json(ret)
 	
 @bp.route("/events.json")
 async def show_events(request):
@@ -102,8 +104,14 @@ async def token_test(request):
 	
 @bp.get("/welcome")
 async def welcome_app(request):
+
+	ret = {
+		'phone': None,
+		'message': 'Reception open now!'
+	}
+	
 	if not request.token:
-		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
+		return response.json(ret)
 		
 	o = await request.app.ctx.om.get_order(code=request.token[:5])
 	if not o or o.app_token != request.token[5:]:
@@ -124,12 +132,9 @@ async def welcome_app(request):
 		'points': random.randint(0,50) if random.random() > 0.3 else 0,
 		'can_scan_nfc': o.can_scan_nfc,
 		'actual_room_id': o.actual_room_id,
-		'phone': '+3901234567890'
+		**ret
 	})
 	
-	
-	
-
 @bp.get("/scan/<nfc_id>")
 async def nfc_scan(request, nfc_id):
 	if not request.token:
@@ -142,8 +147,11 @@ async def nfc_scan(request, nfc_id):
 	if not user.can_scan_nfc:
 		return response.json({'ok': False, 'error': 'You cannot scan NFC at this time.'}, status=401)
 	
-	for o in request.app.ctx.om.cache:
-		if o.nfc_id == nfc_id:
+	for o in request.app.ctx.om.cache.values():
+		if nfc_id in [o.nfc_id, o.code, o.barcode]:
+		
+			room_owner = request.app.ctx.om.cache[o.room_id]
+		
 			return response.json({
 			'code': o.code,
 			'sponsorship': o.sponsorship,
@@ -158,10 +166,13 @@ async def nfc_scan(request, nfc_id):
 			'is_checked_in': False,
 			'points': random.randint(0,50) if random.random() > 0.3 else 0,
 			'comment': o.comment,
-			'actual_room_id': o.actual_room_id
+			'actual_room_id': o.actual_room_id,
+			'phone': o.phone,
+			'telegram_username': o.telegram_username,
+			'roommates': [x for x in o.room_members if x != o.code]
 		})
 
-	return response.json({'ok': True, 'message': 'This NFC tag is not valid.'})
+	return response.json({'ok': False, 'error': 'This NFC tag is not valid.'})
 
 @bp.get("/get_token/<code>/<login_code>")
 async def get_token_from_code(request, code, login_code):

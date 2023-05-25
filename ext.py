@@ -30,6 +30,7 @@ class Order:
 		self.first_name = None
 		self.last_name = None
 		self.country = None
+		self.address = None
 		
 		for p in self.data['positions']:
 			if p['item'] in [16, 38]:
@@ -37,6 +38,7 @@ class Order:
 				self.position_positionid = p['positionid']
 				self.answers = p['answers']
 				self.barcode = p['secret']
+				self.address = f"{p['street']} - {p['zipcode']} {p['city']} - {p['country']}"
 
 			if p['item'] == 17:
 				self.has_card = True
@@ -70,6 +72,7 @@ class Order:
 		
 		self.payment_provider = data['payment_provider']
 		self.comment = data['comment']
+		self.phone = data['phone']
 		self.shirt_size = self.ans('shirt_size')
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
@@ -80,6 +83,7 @@ class Order:
 		self.carpooling_message = json.loads(self.ans('carpooling_message')) if self.ans('carpooling_message') else {}
 		self.karaoke_songs = json.loads(self.ans('karaoke_songs')) if self.ans('karaoke_songs') else {}
 		self.birth_date = self.ans('birth_date')
+		self.birth_location = self.ans('birth_location')
 		self.name = self.ans('fursona_name')
 		self.room_id = self.ans('room_id')
 		self.room_confirmed = self.ans('room_confirmed')
@@ -93,6 +97,7 @@ class Order:
 		self.nfc_id = self.ans('nfc_id')
 		self.can_scan_nfc = True if self.ans('can_scan_nfc') != 'No' else False
 		self.actual_room_id = self.ans('actual_room_id')
+		self.telegram_username = self.ans('telegram_username').strip('@') if self.ans('telegram_username') else None
 
 	def __getitem__(self, var):
 		return self.data[var]
@@ -140,6 +145,13 @@ class Order:
 	async def send_answers(self):
 		async with httpx.AsyncClient() as client:
 			print("POSITION ID IS", self.position_id)
+			
+			for i, ans in enumerate(self.answers):
+				# Fix for karaoke fields
+				if ans['question'] == 40:
+					del self.answers[i]['options']
+					del self.answers[i]['option_identifiers']
+			
 			res = await client.patch(join(base_url, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
 			
 			if res.status_code != 200:
