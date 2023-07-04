@@ -1,0 +1,44 @@
+ <!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8">
+		<title>You found a coin!</title>
+		<meta name="viewport" content="width=device-width,initial-scale=1">
+		<style>
+			@import url(https://fonts.bunny.net/css?family=arbutus:400);
+			body {font-family:'arbutus', 'Comic Sans MS', sans-serif;background:url('/res/wood.jpg') #222 no-repeat;background-size:cover;color:#eee;text-align:center;}
+			
+			strong {color:#de0;}
+			main {display:block;max-width:26em;margin:1em auto;}
+			video {display:block;width:100%;}
+		</style>
+	</head>
+	<body>
+		<main>
+			<video autoplay muted oncanplay="preloadSecondVideo()" onended="loopVideo()">
+				<source src="/res/video/coin-intro.webm" type="video/webm">
+				<img src="/res/video/coin.webp" alt="Fallback Image">
+			</video>
+			{% if balance < 0 %}
+				<h1>You found a<br/><strong>{{balance}}FZ</strong><br />coin!</h1>
+			{% else %}
+				<h1>You found a coin!<br />(but sadly, it's already spent)</h1>
+			{% endif %}
+		</main>
+
+		<script>
+			function preloadSecondVideo() {
+				var secondVideo = new Image();	// Create an image element to preload the second video
+				secondVideo.src = '/res/video/coin-loop.webm';
+			}
+
+			function loopVideo() {
+				var video = document.querySelector('video');
+				video.src = '/res/video/coin-loop.webm';
+				video.loop = true;
+				video.load();
+				video.play();
+			}
+		</script>
+	</body>
+</html> 

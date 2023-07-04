@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Fz vending</title>
+		<style>
+			/* HTML5 display-role reset for older browsers */
+			article, aside, details, figcaption, figure, 
+			footer, header, hgroup, menu, nav, section {
+				display: block;
+			}
+			body {
+				line-height: 1;
+			}
+			ol, ul {
+				list-style: none;
+			}
+			blockquote, q {
+				quotes: none;
+			}
+			blockquote:before, blockquote:after,
+			q:before, q:after {
+				content: '';
+				content: none;
+			}
+			table {
+				border-collapse: collapse;
+				border-spacing: 0;
+			}
+			
+			@keyframes shake {
+				0%, 100% {
+					transform: translateX(0);
+				}
+				25%, 75% {
+					transform: translateX(-10px);
+				}
+				50% {
+					transform: translateX(10px);
+				}
+			}
+
+			body {margin:0;padding:0;background:#222;color:#eee;font-family:"Open Sans", monospace;}
+			
+			header {padding-left:0.5em;height:4rem;line-height:4rem;background:#111;font-size:2.2rem;color:#fa0;}
+			header img {height:3.6rem;margin-right:0.3em;display:inline-block;vertical-align:middle;}
+			header strong {font-size:1.05em;color:#f00;vertical-align:baseline;}
+			aside {position:fixed;height:100%;overflow:auto;top:0;width:18em;right:0;background:#111;}
+			
+			main {padding-right:18em;}
+			
+			.shake {animation: shake 0.3s 1;}
+			
+			#toolkit {position:fixed;bottom:0;right:0;width:18em;padding:0.5em;box-sizing:border-box;background:#000;text-align:center;}
+			#toolkit img {display:inline;height:3rem;margin:0.5rem 0.1rem;border:1px dashed rgba(255,255,255,0.2);padding:0.2em;}
+			
+			h2 {margin-top:0;font-size: 2.2rem;line-height:4rem;display:block;text-align:center;background:#070;color:#eee;}
+			h3 {margin-top:1em;font-size: 1.4rem;display:block;text-align:center;padding:0.3em 0em;background:#fa0;color:#000;}
+			
+			button {background: #fa0;padding:0.2em;margin:0.1em;font-size:1.2em;width:1.6em;border-radius:6px;border:none;transition:all 0.1s;}
+			button:active {transform: scale(0.95);}
+			
+			aside strong {font-size:1.9em;color:#f00;vertical-align:baseline;}
+			aside button {font-size:3em;}
+			
+			ul {padding:0.5em 1em;}
+			li {line-height:1.8em;}
+			p {margin-bottom: 1em;}
+			em {font-size: 1.3em;font-weight:bold;}
+			sup {font-size: 0.7em;color:#fc0;}
+			
+			table {width:100%;font-size:1.3em;}
+			table td {padding:0.1em;}
+			table td:first-child {color:#0f0;text-align:right;}
+			
+			#mask {position:fixed;height:100%;width:100%;top:0;left:0;background:rgba(0,0,0,0.3);z-index:9999;backdrop-filter: blur(20px);text-align:center;}
+			#mask h1 {font-size:4em;margin:3em 0 0.6em;}
+			#mask button {font-size:3em;background:#ddd;}
+			
+			.secret {display:none;}
+			
+			input {color:#eee;background:#000;font-size:2em;width:2em;font-size:center;border:none;text-align:center;}
+		</style>
+	</head>
+	<body>
+		<header id="nfcInfo">{{message or 'Scannerizza un NFC...'}}</header>
+		<form method="post" action="pos">
+			<input type="hidden" id="totalValue" name="total" />
+			<input type="hidden" id="nfcid" name="nfc_id" value="" />
+			<main>
+				<table>
+					{% for item in items %}
+						<tr {% if item.price > 0 %}class="secret"{% endif %}>
+							<td>{{item.name}}</td>
+							<td><strong>{{item.price}}FZ</strong></td>
+							<td>
+								<button type="button" onclick="decrementValue(this)">-</button>
+								<input type="text" name="itm_{{item.id}}" value="0" data-price="{{item.price}}" autocomplete="off" oninput="updateTotal();" />
+								<button type="button" onclick="incrementValue(this)">+</button>
+							</td>
+						</tr>
+					{% endfor %}
+				</table>
+			</main>
+			<aside>
+				<h2><span id="badgeBalance">0</span> FZ</h2>
+				<p style="text-align:center;">Totale <strong><span id="totalValueShow">0</span>FZ</strong></p>
+				<div style="text-align:center;"><button style="background:#090;" id="sendButton" disabled="disabled">✓</button><button type="button" onClick="zeroItems();" style="background:#c00;">⛌</button></div>
+				<h3 id="triggerElement">Ultime transazioni</h3>
+				{% for tx in last_tx %}
+					<ul>
+						<li><em>{{tx_info[tx['id']]['order'].name or tx['tag_id']}}<sup>{{tx_info[tx['id']]['time']}}</sup></em></li>
+						{% for tx_item in tx_info[tx['id']]['items'] %}
+							<li><strong>{{tx_item['qty']}}x</strong> {{tx_item['name']}}</li>
+						{% endfor %}
+						<li><em>Totale: {{tx['amount']}}FZ</em></li>
+					</ul>
+				{% endfor %}				
+				<span style="display:none;" id="debug"></span>
+			</aside>
+			<div id="toolkit">
+				<a href="pos"><img src="/res/icons/refresh.svg" style="filter: invert(1);"/></a>
+				<a href="#"><img src="/res/icons/qr.svg" id="executeButton" style="filter: invert(1);"/></a>
+			</div>		
+		</form>
+	</body>
+	<script>
+
+		let isClosing = false;
+
+		window.addEventListener('beforeunload', handleBeforeUnload);
+		function handleBeforeUnload(event) {
+			isClosing = true;
+		}
+
+		const triggerElement = document.getElementById('triggerElement');
+		const secretElements = document.querySelectorAll('.secret');
+		let secretElementsVisible = localStorage.getItem('secretElementsVisible');
+
+		let pressStart;
+		let isPress = false;
+
+		triggerElement.addEventListener('mousedown', handleMouseDown);
+		triggerElement.addEventListener('touchstart', handleMouseDown);
+		triggerElement.addEventListener('mouseup', handleMouseUp);
+		triggerElement.addEventListener('touchend', handleMouseUp);
+
+		function handleMouseDown() {
+			pressStart = Date.now();
+			isPress = true;
+			setTimeout(toggleSecretElements, 1200); // Delay the toggle action by 500 milliseconds
+		}
+		
+		function handleMouseUp() {
+			isPress = false;
+		}
+		
+		if (secretElementsVisible === 'true') {
+			secretElements.forEach(element => {
+				element.classList.remove('secret');
+			});
+		}
+
+		const executeButton = document.getElementById('executeButton');
+
+		executeButton.addEventListener('click', () => {
+			const code = prompt('Enter the code:');
+			if (code && /^([A-F0-9]{2}){4,}$/.test(code)) {
+			const payload = {
+				id: code,
+				is_secure: false,
+				count: null,
+				boopbox_id: null
+			};
+
+			fetch('/nfc/read', {
+				method: 'POST',
+				headers: {
+				'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(payload)
+			})
+				.then(response => response.json())
+				.then(data => {
+					// Handle the response data as needed
+					console.log(data);
+				})
+				.catch(error => {
+					// Handle any errors that occur during the POST request
+					console.error(error);
+				});
+			} else if (code !== null) {
+				alert('Invalid code format. Please enter a valid code.');
+			}
+		});
+
+		function toggleSecretElements() {
+			const pressDuration = Date.now() - pressStart;
+			if (pressDuration >= 1000 && isPress) {
+				secretElementsVisible = !secretElementsVisible;
+
+				if (secretElementsVisible) {
+					localStorage.setItem('secretElementsVisible', 'true');
+					secretElements.forEach(element => {
+						element.classList.remove('secret');
+					});
+				} else {
+					localStorage.removeItem('secretElementsVisible');
+					secretElements.forEach(element => {
+						element.classList.add('secret');
+					});
+				}
+			}
+		}
+
+		// Function to perform long-polling
+		function longPoll() {
+			fetch('poll_barcode')
+				.then((response) => response.json())
+				.then((data) => {
+					// Update the table with received JSON data
+
+					if(!data.error) {
+						document.getElementById('nfcInfo').classList.remove('shake');
+						document.getElementById('nfcInfo').innerHTML = data.desc;
+						void document.getElementById('nfcInfo').offsetWidth;
+						document.getElementById('nfcInfo').classList.add('shake');
+						
+						document.getElementById('nfcid').value = data.id;
+						document.getElementById('badgeBalance').innerHTML = data.balance;
+						document.getElementById('debug').innerHTML = JSON.stringify(data);
+					} else {
+						console.log("Got no barcode.")
+					}
+					
+					// Start the next long-poll request
+					updateTotal();
+					longPoll();
+				})
+				.catch((error) => {
+					if(isClosing) return;
+					document.getElementById('nfcInfo').innerHTML = error;
+					// Retry long-polling after a delay in case of errors
+					setTimeout(longPoll, 1000);
+				});
+		}
+
+		// Start long-polling
+		longPoll();
+
+	
+		function incrementValue(button) {
+			var input = button.previousElementSibling;
+			var value = parseInt(input.value) || 0;
+			input.value = Math.max(value + 1, 0);
+			updateTotal();
+		}
+
+		function decrementValue(button) {
+			var input = button.nextElementSibling;
+			var value = parseInt(input.value) || 0;
+			input.value = Math.max(value - 1, 0);
+			updateTotal();
+		}
+		
+		function zeroItems() {
+			var inputs = document.querySelectorAll('input[name^="itm_"]');
+			inputs.forEach(function(input) {
+				input.value = 0;
+			});
+			updateTotal();
+		}
+		
+		function updateTotal() {
+			var inputs = document.querySelectorAll('input[name^="itm_"]');
+			var total = 0;
+			inputs.forEach(function(input) {
+				var value = parseInt(input.value) || 0;
+				var price = parseFloat(input.getAttribute('data-price'));
+				total += value * price;
+			});
+			document.getElementById('totalValue').value = total;
+			document.getElementById('totalValueShow').innerHTML = total;
+			
+			let badgeBalance = Number(document.getElementById('badgeBalance').innerHTML);
+			
+			if(badgeBalance+total < 0 || total == 0) {
+				document.getElementById('sendButton').setAttribute("disabled", "disabled");
+			} else {
+				document.getElementById('sendButton').removeAttribute("disabled");
+			}
+		}
+		
+	</script>
+</html>
