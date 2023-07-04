@@ -31,6 +31,7 @@ class Order:
 		self.last_name = None
 		self.country = None
 		self.address = None
+		self.checked_in = False
 		
 		for p in self.data['positions']:
 			if p['item'] in [16, 38]:
@@ -39,6 +40,7 @@ class Order:
 				self.answers = p['answers']
 				self.barcode = p['secret']
 				self.address = f"{p['street']} - {p['zipcode']} {p['city']} - {p['country']}"
+				self.checked_in = bool(p['checkins'])
 
 			if p['item'] == 17:
 				self.has_card = True
@@ -77,6 +79,8 @@ class Order:
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
 		self.is_allergic = True if self.ans('is_allergic') != 'No' else False
+		self.notes = self.ans('notes')
+		self.badge_id = int(self.ans('badge_id')) if self.ans('badge_id') else None
 		self.propic_locked = self.ans('propic_locked')
 		self.propic_fursuiter = self.ans('propic_fursuiter')
 		self.propic = self.ans('propic')
@@ -96,7 +100,7 @@ class Order:
 		self.app_token = self.ans('app_token')
 		self.nfc_id = self.ans('nfc_id')
 		self.can_scan_nfc = True if self.ans('can_scan_nfc') != 'No' else False
-		self.actual_room_id = self.ans('actual_room_id')
+		self.actual_room = self.ans('actual_room')
 		self.telegram_username = self.ans('telegram_username').strip('@') if self.ans('telegram_username') else None
 
 	def __getitem__(self, var):
@@ -105,7 +109,7 @@ class Order:
 	def ans(self, name):
 		for p in self.data['positions']:
 			for a in p['answers']:
-				if a['question_identifier'] == name:
+				if a.get('question_identifier', None) == name:
 					if a['answer'] in ['True', 'False']:
 						return bool(a['answer'] == 'True')
 					return a['answer']
@@ -115,7 +119,7 @@ class Order:
 		found = False
 		self.pending_update = True
 		for key in range(len(self.answers)):
-			if self.answers[key]['question_identifier'] == name:
+			if self.answers[key].get('question_identifier', None) == name:
 				if new_answer != None:
 					print('EXISTING ANSWER UPDATE', name, '=>', new_answer)
 					self.answers[key]['answer'] = new_answer
@@ -207,27 +211,32 @@ class OrderManager:
 			del self.cache[code]
 			self.order_list.remove(code)
 	
-	async def get_order(self, request=None, code=None, secret=None, cached=False):
-	
-		# Fill the cache on first load
-		if not self.cache and FILL_CACHE:
-			p = 0
+	async def fill_cache(self):
+		p = 0
 			
-			async with httpx.AsyncClient() as client:
-				while 1:
-					p += 1
-					res = await client.get(join(base_url, f"orders/?page={p}"), headers=headers)
+		async with httpx.AsyncClient() as client:
+			while 1:
+				p += 1
+				res = await client.get(join(base_url, f"orders/?page={p}"), headers=headers)
 		
-					if res.status_code == 404: break
+				if res.status_code == 404: break
 		
-					data = res.json()
-					for o in data['results']:
-						o = Order(o)
-						if o.status in ['canceled', 'expired']:
-							self.remove_cache(o.code)
-						else:
-							self.add_cache(Order(o))
+				data = res.json()
+				for o in data['results']:
+					o = Order(o)
+					if o.status in ['canceled', 'expired']:
+						self.remove_cache(o.code)
+					else:
+						self.add_cache(Order(o))
+	
+	async def get_order(self, request=None, code=None, secret=None, nfc_id=None, cached=False):
 
+		# if it's a nfc id, just retorn it
+		if nfc_id:
+			for order in self.cache.values():
+				if order.nfc_id == nfc_id:
+					return order
+	
 		# If a cached order is needed, just get it if available
 		if code and cached and code in self.cache and time()-self.cache[code].time < 3600:
 			return self.cache[code]

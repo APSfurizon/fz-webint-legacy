@@ -52,7 +52,7 @@ async def export_csv(request, order: Order):
 	return text(ret)
 
 @bp.route("/hotel_export.csv")
-async def export_csv(request, order: Order):
+async def export_hotel_csv(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	if order.code not in ['HWUC9','9YKGJ']: raise exceptions.Forbidden("Birichino :)")
 

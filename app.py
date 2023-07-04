@@ -5,11 +5,16 @@ from time import time
 import httpx
 import re
 import json
+import logging
 from os.path import join
 from ext import *
 from config import *
 from aztec_code_generator import AztecCode
 from io import BytesIO
+from asyncio import Queue
+import sqlite3
+
+log = logging.getLogger()
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -24,8 +29,12 @@ from export import bp as export_bp
 from stats import bp as stats_bp
 from api import bp as api_bp
 from carpooling import bp as carpooling_bp
+from nfc import bp as nfc_bp
+from checkin import bp as checkin_bp
+from money import bp as money_bp
+from boop import bp as boop_bp
 
-app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp])
+app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, nfc_bp, checkin_bp, money_bp, boop_bp])
 
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
@@ -42,7 +51,21 @@ async def main_start(*_):
 	print(">>>>>> main_start <<<<<<")
 	
 	app.ctx.om = OrderManager()
+	if FILL_CACHE:
+		log.info("Filling cache!")
+		await app.ctx.om.fill_cache()
+		log.info("Cache fill done!")
+	
+	app.ctx.nfc_counts = sqlite3.connect('data/nfc_counts.db')
+	app.ctx.boop = sqlite3.connect('data/boop.db')
+	app.ctx.money = sqlite3.connect('data/money.db')
+	app.ctx.money.row_factory = sqlite3.Row
+	
 	app.ctx.login_codes = {}
+	
+	app.ctx.nfc_reads = {}
+	app.ctx.boops = Queue()
+	
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
