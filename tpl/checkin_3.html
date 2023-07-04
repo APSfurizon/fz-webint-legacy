@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block main %}
+	<main class="container">
+		<h1>✅ Checkin effettuato!</h1>
+		<p><strong>Ricorda di apporre il numero sul badge! Numero: {{order.badge_id}}</strong></p>
+
+		<h2>Altri membri della stessa stanza ({{room_owner.actual_room}})</h2>
+		<table>
+			{% for o in roommates %}
+				<tr>
+					<td><a href="order?order={{o.code}}">{{o.code}}</a></td>
+					<td>{{o.name}}</td>
+					<td><a href="order?order={{o.code}}">{{'Effettua Checkin' if not o.checked_in else '✅'}}</a></td>
+				</tr>
+			{% endfor %}
+		</table>
+		<h3><a href="start">Effettua un altro checkin ➡️</a></h3>
+	</main>
+{% endblock %}

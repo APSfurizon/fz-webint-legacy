@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block main %}
+	<main class="container">
+		<h1>Cerca ordine</h1>
+		<input id="search" type="text" onchange="updateSearch();" onclick="this.value = '';" />
+		<form method="get" id="actionform" style="font-family:monospace;" action="order">
+			<select id="badgelist" name="order" id="order" multiple>
+				{% for o in orders %}
+					<option value="{{o.code}}" data-nfc="{{o.nfc_id}}" data-secret="{{o.secret}}" style="">{{o.code}} · {{o.nfc_id or ('&nbsp;'*14)|safe}} · {{o.name}} ({{o.first_name}} {{o.last_name}})</option>
+				{% endfor %}
+			</select>
+			<input type="submit" value="Search" />
+		</form>
+		<script type="text/javascript">
+			function filterOptions(textInputId, optionInputId) {
+				const textInput = document.getElementById(textInputId);
+				const optionInput = document.getElementById(optionInputId);
+
+				textInput.addEventListener('input', () => {
+				const searchText = textInput.value.toLowerCase();
+				const options = optionInput.getElementsByTagName('option');
+
+				let visible = 0;
+				let last_visible;
+
+				for (let i = 0; i < options.length; i++) {
+					const optionText = options[i].textContent.toLowerCase();
+					if (!searchText||optionText.includes(searchText)||options[i].getAttribute('data-secret').includes(searchText)) {
+						options[i].style.display = '';
+						last_visible = options[i]
+						visible++;
+					} else {
+						options[i].style.display = 'none';
+					}
+				}
+				
+				if(visible == 1) {
+					last_visible.selected = 'selected';
+				}
+				
+				});
+			}
+			
+			document.addEventListener('DOMContentLoaded', () => {
+				filterOptions('search', 'badgelist');
+			});
+		</script>
+	</main>
+{% endblock %}
