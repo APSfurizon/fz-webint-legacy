@@ -7,6 +7,8 @@ import smtplib
 from email.mime.text import MIMEText
 import random
 import string
+import httpx
+import json
 
 bp = Blueprint("api", url_prefix="/manage/api")
 
@@ -52,7 +54,26 @@ async def api_leaderboard(request):
 	ret = sorted(ret, key=lambda x: x['points'], reverse=True)
 	
 	return response.json(ret)
-	
+
+@bp.post("/feedback")
+async def send_feedback(request):
+	try:
+		async with httpx.AsyncClient() as client:
+			r = await client.post("https://api.telegram.org/bot5648800229:AAGr5EJdyo4obXB7pftIcQGjYLAlQdpu1Iw/sendMessage",
+				json = {'chat_id': -946677603, 'text': str(request.json)}
+			)
+	except:
+		return response.json({'ok': False, 'error': 'There has been an issue sending your feedback.'})
+	else:
+		return response.json({'ok': True, 'message': 'Your feedback has been sent'})
+		
+@bp.post("/event_feedback")
+async def send_event_feedback(request):
+	with open('data/event_feedback.json', 'a') as f:
+		f.write(json.dumps(request.json)+"\n")
+
+	return response.json({'ok': True, 'message': 'Your feedback has been sent'})
+
 @bp.route("/events.json")
 async def show_events(request):
 	with sqlite3.connect('data/event.db') as db:
@@ -65,14 +86,14 @@ async def show_events(request):
 		return r
 
 @bp.route("/achievements.json")
-async def show_events(request):
+async def show_achievements(request):
 	
 	if request.token:
 		user = await request.app.ctx.om.get_order(code=request.token[:5])
 		if not user or user.app_token != request.token[5:]:
 			return response.json({'ok': False, 'error': 'The token you have provided is not valid.'}, status=401)
 
-	with sqlite3.connect('data/achievement.db') as db:
+	with sqlite3.connect('data/boop.db') as db:
 		db.row_factory = sqlite3.Row
 		events = db.execute('SELECT * FROM achievement ORDER BY points DESC')
 		return response.json([{'won_at': '2023-05-05T21:00Z' if request.token and random.random() < 0.2 else None, **dict(x), 'about': 'This is instructions on how to win the field.'} for x in events])
@@ -131,7 +152,7 @@ async def welcome_app(request):
 		'is_checked_in': False,
 		'points': random.randint(0,50) if random.random() > 0.3 else 0,
 		'can_scan_nfc': o.can_scan_nfc,
-		'actual_room_id': o.actual_room_id,
+		'actual_room_id': o.actual_room,
 		**ret
 	})
 	
@@ -166,10 +187,10 @@ async def nfc_scan(request, nfc_id):
 			'is_checked_in': False,
 			'points': random.randint(0,50) if random.random() > 0.3 else 0,
 			'comment': o.comment,
-			'actual_room_id': o.actual_room_id,
+			'actual_room_id': o.actual_room,
 			'phone': o.phone,
 			'telegram_username': o.telegram_username,
-			'roommates': [x for x in o.room_members if x != o.code]
+			'roommates': {x: (await request.app.ctx.om.get_order(code=x, cached=True)).name for x in room_owner.room_members if x != o.code}
 		})
 
 	return response.json({'ok': False, 'error': 'This NFC tag is not valid.'})
