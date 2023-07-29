@@ -29,12 +29,9 @@ from export import bp as export_bp
 from stats import bp as stats_bp
 from api import bp as api_bp
 from carpooling import bp as carpooling_bp
-from nfc import bp as nfc_bp
 from checkin import bp as checkin_bp
-from money import bp as money_bp
-from boop import bp as boop_bp
 
-app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, nfc_bp, checkin_bp, money_bp, boop_bp])
+app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, checkin_bp])
 
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
@@ -57,14 +54,8 @@ async def main_start(*_):
 		log.info("Cache fill done!")
 	
 	app.ctx.nfc_counts = sqlite3.connect('data/nfc_counts.db')
-	app.ctx.boop = sqlite3.connect('data/boop.db')
-	app.ctx.money = sqlite3.connect('data/money.db')
-	app.ctx.money.row_factory = sqlite3.Row
 	
 	app.ctx.login_codes = {}
-	
-	app.ctx.nfc_reads = {}
-	app.ctx.boops = Queue()
 	
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
@@ -80,7 +71,7 @@ async def gen_barcode(request, code):
 
 	return raw(img.getvalue(), content_type="image/png")
 
-@app.route("/furizon/beyond/order/<code>/<secret>/open/<secret2>")
+@app.route(f"/{ORGANIZER}/{EVENT_NAME}/order/<code>/<secret>/open/<secret2>")
 async def redirect_explore(request, code, secret, order: Order, secret2=None):
 
 	r = redirect(app.url_for("welcome"))
@@ -89,6 +80,7 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 	if not order:
 		async with httpx.AsyncClient() as client:
 			res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
+			print(res.json())
 			if res.status_code != 200:
 				raise exceptions.NotFound("This order code does not exist. Check that your order wasn't deleted, or the link is correct.")
 			

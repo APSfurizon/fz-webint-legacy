@@ -34,7 +34,7 @@ class Order:
 		self.checked_in = False
 		
 		for p in self.data['positions']:
-			if p['item'] in [16, 38]:
+			if p['item'] in ITEM_IDS['ticket']:
 				self.position_id = p['id']
 				self.position_positionid = p['positionid']
 				self.answers = p['answers']
@@ -42,11 +42,11 @@ class Order:
 				self.address = f"{p['street']} - {p['zipcode']} {p['city']} - {p['country']}"
 				self.checked_in = bool(p['checkins'])
 
-			if p['item'] == 17:
+			if p['item'] in ITEM_IDS['membership_card']:
 				self.has_card = True
 				
-			if p['item'] == 19:
-				self.sponsorship = 'normal' if p['variation'] == 13 else 'super'
+			if p['item'] in ITEM_IDS['sponsorship']:
+				self.sponsorship = 'normal' if p['variation'] == ITEMS_IDS['sponsorship'][0] else 'super'
 				
 			if p['country']:
 				self.country = p['country']
@@ -55,10 +55,10 @@ class Order:
 				self.first_name = p['attendee_name_parts']['given_name']
 				self.last_name = p['attendee_name_parts']['family_name']
 				
-			if p['item'] == 20:
+			if p['item'] == ITEM_IDS['early_arrival']:
 				self.has_early = True
 			
-			if p['item'] == 21:
+			if p['item'] == ITEM_IDS['late_departure']:
 				self.has_late = True
 		
 		self.total = float(data['total'])
@@ -172,17 +172,10 @@ class Order:
 class Quotas:
 	def __init__(self, data):
 		self.data = data
-		self.capacity_mapping = {
-			1: 16,
-			2: 17,
-			3: 18,
-			4: 19,
-			5: 20
-		}
 		
 	def get_left(self, capacity):
 		for quota in self.data['results']:
-			if quota['id'] == self.capacity_mapping[capacity]:
+			if quota['id'] == ROOM_MAP[capacity]:
 				return quota['available_number']		
 
 async def get_quotas(request: Request=None):

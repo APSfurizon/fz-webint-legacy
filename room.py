@@ -279,8 +279,8 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 	thing = {
 		'order': order.code,
 		'addon_to': order.position_positionid,
-		'item': 39,
-		'variation': ([None, 16, 17, 18, 19, 20])[len(room_members)]
+		'item': ITEM_IDS['room'],
+		'variation': ROOM_MAP[len(room_members)]
 	}
 	
 	async with httpx.AsyncClient() as client:
@@ -294,8 +294,8 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 			thing = {
 				'order': rm.code,
 				'addon_to': rm.position_positionid,
-				'item': 42,
-				'variation': ([None, 21, 22, 23, 24, 25])[len(room_members)]
+				'item': ITEM_IDS['room'],
+				'variation': ROOM_MAP[len(room_members)]
 			}
 			res = await client.post(join(base_url, "orderpositions/"), headers=headers, json=thing)			
 	
