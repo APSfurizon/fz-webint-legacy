@@ -1,14 +1,14 @@
 from sanic.response import text
 from sanic import Blueprint, exceptions
 from ext import *
-from config import headers
+from config import headers, ADMINS, ORGANIZER, EVENT_NAME
 
 bp = Blueprint("export", url_prefix="/manage/export")
 
 @bp.route("/export.csv")
 async def export_csv(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
-	if order.code not in ['HWUC9','9YKGJ']: raise exceptions.Forbidden("Birichino :)")
+	if order.code not in ADMINS: raise exceptions.Forbidden("Birichino :)")
 
 	page = 0
 	orders = {}
@@ -18,7 +18,7 @@ async def export_csv(request, order: Order):
 	while 1:
 		page += 1
 		
-		r = httpx.get(f'https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orders/?page={page}', headers=headers)
+		r = httpx.get(f'https://reg.furizon.net/api/v1/organizers/{ORGANIZER}/events/{EVENT_NAME}/orders/?page={page}', headers=headers)
 		if r.status_code == 404: break
 		
 		for r in r.json()['results']:
@@ -64,7 +64,7 @@ async def export_hotel_csv(request, order: Order):
 	while 1:
 		page += 1
 		
-		r = httpx.get(f'https://reg.furizon.net/api/v1/organizers/furizon/events/beyond/orders/?page={page}', headers=headers)
+		r = httpx.get(f'https://reg.furizon.net/api/v1/organizers/{ORGANIZER}/events/{EVENT_NAME}/orders/?page={page}', headers=headers)
 		if r.status_code == 404: break
 		
 		for r in r.json()['results']:

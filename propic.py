@@ -1,11 +1,8 @@
-from sanic.response import html, redirect, text
+from sanic.response import html, redirect
 from sanic import Blueprint, exceptions
-from random import choice
 from ext import *
-from config import headers, PROPIC_DEADLINE
+from config import PROPIC_DEADLINE
 from PIL import Image
-from os.path import isfile
-from os import unlink
 from io import BytesIO
 from hashlib import sha224
 from time import time

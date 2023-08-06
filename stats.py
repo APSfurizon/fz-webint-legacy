@@ -1,9 +1,6 @@
 from sanic.response import html
-from sanic import Blueprint, exceptions
+from sanic import Blueprint
 from ext import *
-from config import headers
-from time import time
-import asyncio
 
 bp = Blueprint("stats", url_prefix="/manage")
 

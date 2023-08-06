@@ -24,7 +24,7 @@
 			</tr>
 			<tr>
 				<th>When{{' (convention)' if order.has_early or order.has_late else ''}}?</th>
-				<td>30 May → 3 June 2023</td></td>
+				<td>13 October → 15 October 2023</td></td>
 			</tr>
 			{% if order.has_early or order.has_late %}
 				<tr>
@@ -53,7 +53,7 @@
 					{% if order.status == 'paid' and order.room_confirmed %}
 						<br />
 						<img src="/res/icons/pdf.svg" class="icon" />
-						<a href="/manage/download_ticket?name=BEYOND-{{order.code}}.pdf" target="_blank">Download ticket PDF</a>
+						<a href="/manage/download_ticket?name=RIVERSIDE-{{order.code}}.pdf" target="_blank">Download ticket PDF</a>
 					{% endif %}
 				</td>
 			</tr>

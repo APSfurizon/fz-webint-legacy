@@ -1,8 +1,6 @@
-from sanic.response import html, redirect, text
+from sanic.response import html
 from sanic import Blueprint, exceptions
-from random import choice
 from ext import *
-from config import headers
 import json
 
 bp = Blueprint("carpooling", url_prefix="/manage/carpooling")

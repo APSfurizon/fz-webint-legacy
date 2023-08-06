@@ -4,7 +4,7 @@
 	<main class="container">
 		<h1>Karaoke Admin</h1>
 		
-		<h2>Canzoni da cantare</h2>
+		<h2>Songs to sing</h2>
 		<table>
 			{% for s in songs if s.approved is not none and (not s.singed) %}
 				<tr {% if s.approved == false %}style="text-decoration: line-through"{% endif %}>

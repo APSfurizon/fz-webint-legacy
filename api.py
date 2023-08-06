@@ -1,5 +1,5 @@
 from sanic import response
-from sanic import Blueprint, exceptions
+from sanic import Blueprint
 from ext import *
 from config import *
 import sqlite3
@@ -59,8 +59,8 @@ async def api_leaderboard(request):
 async def send_feedback(request):
 	try:
 		async with httpx.AsyncClient() as client:
-			r = await client.post("https://api.telegram.org/bot5648800229:AAGr5EJdyo4obXB7pftIcQGjYLAlQdpu1Iw/sendMessage",
-				json = {'chat_id': -946677603, 'text': str(request.json)}
+			r = await client.post(f"https://api.telegram.org/bot{TG_BOT_API}/sendMessage",
+				json = {'chat_id': TG_CHAT_ID, 'text': str(request.json)}
 			)
 	except:
 		return response.json({'ok': False, 'error': 'There has been an issue sending your feedback.'})
@@ -84,19 +84,6 @@ async def show_events(request):
 		r.headers["Access-Control-Allow-Origin"] = "*"
 		
 		return r
-
-@bp.route("/achievements.json")
-async def show_achievements(request):
-	
-	if request.token:
-		user = await request.app.ctx.om.get_order(code=request.token[:5])
-		if not user or user.app_token != request.token[5:]:
-			return response.json({'ok': False, 'error': 'The token you have provided is not valid.'}, status=401)
-
-	with sqlite3.connect('data/boop.db') as db:
-		db.row_factory = sqlite3.Row
-		events = db.execute('SELECT * FROM achievement ORDER BY points DESC')
-		return response.json([{'won_at': '2023-05-05T21:00Z' if request.token and random.random() < 0.2 else None, **dict(x), 'about': 'This is instructions on how to win the field.'} for x in events])
 
 @bp.get("/logout")
 async def logout(request):

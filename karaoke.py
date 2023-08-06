@@ -1,15 +1,8 @@
 from sanic.response import html, redirect, text
 from sanic import Blueprint, exceptions, response
-from random import choice
 from ext import *
-from config import headers, PROPIC_DEADLINE
-from PIL import Image
-from os.path import isfile
-from os import unlink
-from io import BytesIO
-from hashlib import sha224
-from time import time
 from urllib.parse import unquote
+from config import ADMINS
 import json
 
 bp = Blueprint("karaoke", url_prefix="/manage/karaoke")
@@ -17,7 +10,7 @@ bp = Blueprint("karaoke", url_prefix="/manage/karaoke")
 @bp.get("/admin")
 async def show_songs(request, order: Order):
 
-	if order.code not in ['9YKGJ', 'CMPQG']:
+	if order.code not in ADMINS:
 		raise exceptions.Forbidden("Birichino")
 
 	orders = [x for x in request.app.ctx.om.cache.values() if x.karaoke_songs]
@@ -35,7 +28,7 @@ async def show_songs(request, order: Order):
 @bp.post("/approve")
 async def approve_songs(request, order: Order):
 
-	if order.code not in ['9YKGJ', 'CMPQG']:
+	if order.code not in ADMINS:
 		raise exceptions.Forbidden("Birichino")
 	
 	for song in request.form:
@@ -51,7 +44,7 @@ async def sing_song(request, order: Order, songname):
 	
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	
-	if order.code not in ['9YKGJ', 'CMPQG']:
+	if order.code not in ADMINS:
 		raise exceptions.Forbidden("Birichino")
 
 	songname = unquote(songname)

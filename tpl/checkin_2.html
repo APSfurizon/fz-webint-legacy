@@ -2,15 +2,15 @@
 {% block main %}
 	<main class="container">
 		<h1><kbd>{{order.code}}</kbd> {{order.name}} ({{order.first_name}} {{order.last_name}})</h1>
-		<p><strong>Commento:</strong> {{order.comment or '--'}}<br />
-		<strong>Note ordine:</strong> {{order.notes or '--'}}<br />
-		<strong>Stato ordine: <span style="color: {{'#900' if order.status == 'unpaid' else '#090'}}">{{order.status}}</span></strong><br />
+		<p><strong>Comment:</strong> {{order.comment or '--'}}<br />
+		<strong>Order notes:</strong> {{order.notes or '--'}}<br />
+		<strong>Status: <span style="color: {{'#900' if order.status == 'unpaid' else '#090'}}">{{order.status}}</span></strong><br />
 		<strong>Sponsor: <span style="color: {{'#fa0' if order.sponsorship == 'super' else ('#e8e' if order.sponsorship else 'initial')}}">{{order.sponsorship}}</span></strong><br />
-		<strong>Compagni di stanza:</strong> {% for code in room_owner.room_members %}<kbd><a href="order?order={{code}}">{{code}}</a></kbd> {% endfor %}<br />
-		<a target="_blank" href="https://reg.furizon.net/control/event/furizon/beyond/orders/{{order.code}}/">Apri su pretix</a><br /></p>
+		<strong>Roommates:</strong> {% for code in room_owner.room_members %}<kbd><a href="order?order={{code}}">{{code}}</a></kbd> {% endfor %}<br />
+		<a target="_blank" href="https://{config.HOSTNAME}/control/event/{config.ORGANIZER}/{config.EVENT_NAME}/orders/{{order.code}}/">Open on pretix</a><br /></p>
 		<form method="post" id="actionform" action="checkin">
 			<input type="hidden" value="{{order.code}}" name="code" />
-			<label for="actual_room">Numero Stanza Reale</label>
+			<label for="actual_room">Real Room Number</label>
 			<input type="text" value="{{room_owner.actual_room or ''}}" name="actual_room" required />
 			<label for="nfc_id">NFC Badge</label>
 			<input type="text" value="{{order.nfc_id or ''}}" name="nfc_id" pattern="[A-F0-9]{14}" title="NFC Tag id must be 14 chars" required />

@@ -88,9 +88,6 @@
 			<a href="/manage/nosecount">Nose Count</a>
 			{% if order %}
 				<a href="/manage/carpooling">Carpooling</a>
-				{% if not order.room_confirmed %}
-					<a href="/manage/roommate_search">Roommate Search</a>
-				{% endif %}
 				<a style="float:right;" href="/manage/logout">Logout</a>
 			{% endif %}
 			<br clear="both" />
@@ -109,7 +106,7 @@
 			});
 		</script>
 		<footer>
-			Made in 🇮🇹 by <img src="/res/icons/silhouette.svg" class="icon" title="ACCBCAC" /> · <a href="/manage/privacy">Privacy</a>
+			Made in 🇮🇹 by <img src="/res/icons/silhouette.svg" class="icon" /> · <a href="/manage/privacy">Privacy</a>
 		</footer>
 	</body>
 </html>
