@@ -29,9 +29,14 @@ class Order:
 		self.has_late = False
 		self.first_name = None
 		self.last_name = None
-		self.country = None
+		self.country = 'xx'
 		self.address = None
 		self.checked_in = False
+		
+		idata = data['invoice_address']
+		if idata:
+			self.address = f"{idata['street']} - {idata['zipcode']} {idata['city']} - {idata['country']}"
+			self.country = idata['country']
 		
 		for p in self.data['positions']:
 			if p['item'] in ITEM_IDS['ticket']:
@@ -39,7 +44,6 @@ class Order:
 				self.position_positionid = p['positionid']
 				self.answers = p['answers']
 				self.barcode = p['secret']
-				self.address = f"{p['street']} - {p['zipcode']} {p['city']} - {p['country']}"
 				self.checked_in = bool(p['checkins'])
 
 			if p['item'] in ITEM_IDS['membership_card']:
@@ -47,9 +51,6 @@ class Order:
 				
 			if p['item'] in ITEM_IDS['sponsorship']:
 				self.sponsorship = 'normal' if p['variation'] == ITEMS_IDS['sponsorship'][0] else 'super'
-				
-			if p['country']:
-				self.country = p['country']
 				
 			if p['attendee_name']:
 				self.first_name = p['attendee_name_parts']['given_name']
