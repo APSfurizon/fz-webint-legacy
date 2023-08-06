@@ -55,6 +55,5 @@ async def upload_propic(request, order: Order):
 			else:
 				await order.edit_answer(fn, f"{fn}_{order.code}_{h}.jpg")
 			
-		await order.send_answers()
-			
+	await order.send_answers()
 	return redirect("/manage/welcome#badge")
