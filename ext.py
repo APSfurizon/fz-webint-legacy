@@ -177,7 +177,8 @@ class Quotas:
 	def get_left(self, capacity):
 		for quota in self.data['results']:
 			if quota['id'] == ROOM_MAP[capacity]:
-				return quota['available_number']		
+				return quota['available_number']
+		return 0	
 
 async def get_quotas(request: Request=None):
 	async with httpx.AsyncClient() as client:
