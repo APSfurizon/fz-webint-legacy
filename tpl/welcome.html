@@ -12,7 +12,7 @@
 		<p>From here, you can easily manage all aspects of your booking, including composing your hotel room, designing your badge, and updating your payment information. Simply use the buttons below to navigate between the different sections.</p>
 		<p>Buttons marked with ⚠️ require your attention</p>
 		
-		<p>If you have any questions or issues while using this page, please don't hesitate to contact us for assistance. We look forward to seeing you at Furizon Beyond!</p>
+		<p>If you have any questions or issues while using this page, please don't hesitate to contact us for assistance. We look forward to seeing you at Furizon Riverside!</p>
 		<hr />
 		<h2 id="info">Useful information</h2>
 		<table>
@@ -30,7 +30,7 @@
 				<tr>
 					<th>When (check-in)?</th>
 					<td>
-						{{('29' if order.has_early else '30')|safe}} May → {{('4' if order.has_late else '3')|safe}} June 2023
+						{{('12' if order.has_early else '13')|safe}} October → {{('16' if order.has_late else '15')|safe}} October 2023
 						{% if order.has_early %}
 							<span class="tag">EARLY</span>
 						{% endif %}
@@ -61,7 +61,9 @@
 		
 		<h2>Manage your booking</h2>
 		{% include 'blocks/payment.html' %}
-		{% include 'blocks/room.html' %}
+		{% if order.position_positiontypeid not in ITEM_IDS['daily'] %}
+			{% include 'blocks/room.html' %}
+		{% endif %}
 		{% include 'blocks/badge.html' %}
 		
 		<details id="barcard">
@@ -75,8 +77,6 @@
 			<p>If you want to find out where your friends are staying at the convention, just click this link to see a list of all attendees and their assigned rooms. You'll be able to see which rooms are already occupied and by whom, so you can easily plan meet-ups with your friends.</p>
 			<a href="/manage/nosecount" role="button">Nose count</a>
 		</details>
-		
-		{% include 'blocks/karaoke.html' %}
 		
 		<details id="carpooling">
 			<summary role="button"><img src="/res/icons/car.svg" class="icon" />Carpooling</summary>

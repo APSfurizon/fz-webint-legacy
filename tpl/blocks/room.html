@@ -3,6 +3,7 @@
 	<h2>Your room {% if room_members %}- {{room_members[0].ans('room_name')}}{% endif %}</h2>
 	
 	{# Show alert if room owner has wrong people inside #}
+	
 	{% if room_members and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %}
 		<p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}} rooms. You need to add or remove people until you reach the size of an available room if you want to confirm it.</p>
 	{% endif %}

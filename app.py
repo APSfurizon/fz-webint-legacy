@@ -60,6 +60,7 @@ async def main_start(*_):
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
+	app.ctx.tpl.globals.update(ITEM_IDS=ITEM_IDS)
 	app.ctx.tpl.globals.update(int=int)
 	app.ctx.tpl.globals.update(len=len)
 

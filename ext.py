@@ -39,9 +39,10 @@ class Order:
 			self.country = idata['country']
 		
 		for p in self.data['positions']:
-			if p['item'] in ITEM_IDS['ticket']:
+			if p['item'] in (ITEM_IDS['ticket'] + ITEM_IDS['daily']):
 				self.position_id = p['id']
 				self.position_positionid = p['positionid']
+				self.position_positiontypeid = p['item']
 				self.answers = p['answers']
 				self.barcode = p['secret']
 				self.checked_in = bool(p['checkins'])
@@ -176,7 +177,7 @@ class Quotas:
 		
 	def get_left(self, capacity):
 		for quota in self.data['results']:
-			if quota['id'] == ROOM_MAP[capacity]:
+			if quota['id'] == ROOM_QUOTA_ID[capacity]:
 				return quota['available_number']
 		return 0	
 
