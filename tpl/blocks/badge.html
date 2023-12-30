@@ -5,7 +5,7 @@
 	{% if order.propic_locked %}
 		<p class="notice">⚠️ You have been limited from further editing your profile pic.</p>
 	{% endif %}
-	{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
+	{% if not order.ans('propic') or (order.is_fursuiter and not order.ans('propic_fursuiter')) %}
 		<p class="notice">⚠️ One or more badge pictures are missing! This will cause you badge to be empty, so make sure to upload something before the deadline!</p>
 	{% endif %}
 	<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
@@ -20,7 +20,7 @@
 				{% endif %}
 				<p>Normal Badge</p>
 			</div>
-			{% if order.ans('is_fursuiter') != 'No' %}
+			{% if order.is_fursuiter %}
 				<div>
 					{% if not order.ans('propic_fursuiter') %}
 						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
@@ -50,7 +50,7 @@
 			{% if order.ans('propic_fursuiter') %}
 				<input type="submit" name="submit" value="Delete fursuit image" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
 			{% endif %}
-			{% if (not order.ans('propic')) or (order.ans('is_fursuiter') != 'No' and not order.ans('propic_fursuiter')) %}
+			{% if not order.ans('propic') or (order.is_fursuiter and not order.ans('propic_fursuiter')) %}
 				<input type="submit" name="submit" value="Upload" />
 			{% endif %}
 		</div>

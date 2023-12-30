@@ -94,13 +94,13 @@ function clock() {
 		currentTime = new Date();
 		let ts = currentTime.toString();
 		ts = ts.replace("GMT+0200 (Central European Summer Time)", "");
-		ts = ts.replace("2023", "<br />");
+		ts = ts.replace("2024", "<br />");
 		document.getElementById("clock").innerHTML = ts;
 	}, 1000);
 }
 
 function fastForward() {
-	currentTime = new Date("2023-05-29T18:00Z");
+	currentTime = new Date("2024-06-03T18:00Z");
 	setInterval(() => {
 	    updateDivs(cachedData);
 	    currentTime.setMinutes(currentTime.getMinutes()+1);

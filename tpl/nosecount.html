@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Furizon 2023 Nosecount{% endblock %}
+{% block title %}Furizon 2024 Nosecount{% endblock %}
 {% block main %}
 	<main class="container">
 		<header>
@@ -29,13 +29,14 @@
 				</div>
 			{% endif %}
 		{% endfor %}
-		{% for o in orders.values() if (o.code == o.room_id and not o.room_confirmed and len(o.room_members) > 1) %}
+		{% for o in orders.values() if (o.code == o.room_id and not o.room_confirmed) %}
 			{% if loop.first %}
 				<hr />
 				<h1>Unconfirmed rooms</h1>
 				<p>These unconfirmed rooms are still being organized and may be subject to change. These rooms may also have openings for additional roommates. If you are interested in sharing a room, you can use this page to find potential roommates</p>
 			{% endif %}
-			<h3>{{o.room_name}}</h3>
+			<h3 style="display:inline-block">{{o.room_name}}</h3>
+			{% if o.room_person_no - len(o.room_members) > 0 %} <p style="display:inline-block"> - Remaining slots: {{o.room_person_no - len(o.room_members)}}</p> {% endif %}
 			<div class="grid people" style="padding-bottom:1em;">
 				{% for m in o.room_members %}
 					{% if m in orders %}
@@ -54,7 +55,7 @@
 			{% if loop.last %}</div>{% endif %}
 		{% endfor %}
 
-		{% for person in orders.values() if (not person.room_id or len(person.room_members) == 1) and (not person.room_confirmed)%}
+		{% for person in orders.values() if (not person.room_id or len(person.room_members) == 1) and (not person.room_confirmed) and not person.daily %}
 			{% if loop.first %}
 				<hr />
 				<h1>Roomless furs</h1>
@@ -69,7 +70,24 @@
 					<h5>{{person.ans('fursona_name')}}</h5>
 				</div>
 			{% if loop.last %}</div>{% endif %}
-			{% endfor %}
+		{% endfor %}
+
+		{% for person in orders.values() if person.daily %}
+			{% if loop.first %}
+				<hr />
+				<h1>Daily furs!</h1>
+				<p>These furs will not stay in our hotels, but may be there with us just a few days!</p>
+				<div class="grid people" style="padding-bottom:1em;">
+			{% endif %}
+				<div style="margin-bottom: 1em;">
+					<div class="propic-container">
+						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
+						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+					</div>
+					<h5>{{person.ans('fursona_name')}}</h5>
+				</div>
+			{% if loop.last %}</div>{% endif %}
+		{% endfor %}
 
 	</main>
 {% endblock %}

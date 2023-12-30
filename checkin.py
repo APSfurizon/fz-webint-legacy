@@ -2,7 +2,7 @@ from sanic.response import html, redirect, text
 from sanic import Blueprint, exceptions, response
 from random import choice
 from ext import *
-from config import headers, base_url
+from config import headers, base_url_event
 from PIL import Image
 from os.path import isfile
 from os import unlink
@@ -64,7 +64,7 @@ async def do_checkin(request):
 	
 	if not order.checked_in:
 		async with httpx.AsyncClient() as client:
-			res = await client.post(base_url.replace('events/beyond/', 'checkinrpc/redeem/'), json={'secret': order.barcode, 'source_type': 'barcode', 'type': 'entry', 'lists': [3,]}, headers=headers)
+			res = await client.post(base_url_event.replace(f'events/{EVENT_NAME}/', 'checkinrpc/redeem/'), json={'secret': order.barcode, 'source_type': 'barcode', 'type': 'entry', 'lists': [3,]}, headers=headers)
 	
 	tpl = request.app.ctx.tpl.get_template('checkin_3.html')
 	return html(tpl.render(order=order, room_owner=room_owner, roommates=roommates))

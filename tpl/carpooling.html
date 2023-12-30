@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Furizon 2023 Carpooling{% endblock %}
+{% block title %}Furizon 2024 Carpooling{% endblock %}
 {% block main %}
 	<main class="container">
 		<header>
@@ -42,13 +42,13 @@
 					Day of departure
 					
 					<select name="day_departure" id="day_departure">
-					  <option value="m29th" {{'selected' if order.carpooling_message.day_departure == 'm29th'}}>May 29th</option>
-					  <option value="m30th" {{'selected' if order.carpooling_message.day_departure == 'm30th'}}>May 30th</option>
-					  <option value="m31st" {{'selected' if order.carpooling_message.day_departure == 'm31st'}}>May 31st</option>
-					  <option value="j1st" {{'selected' if order.carpooling_message.day_departure == 'j1st'}}>June 1st</option>
-					  <option value="j2nd" {{'selected' if order.carpooling_message.day_departure == 'j2nd'}}>June 2nd</option>
 					  <option value="j3rd" {{'selected' if order.carpooling_message.day_departure == 'j3rd'}}>June 3rd</option>
 					  <option value="j4th" {{'selected' if order.carpooling_message.day_departure == 'j4th'}}>June 4th</option>
+					  <option value="j5th" {{'selected' if order.carpooling_message.day_departure == 'j5th'}}>June 5th</option>
+					  <option value="j6th" {{'selected' if order.carpooling_message.day_departure == 'j6th'}}>June 6th</option>
+					  <option value="j7th" {{'selected' if order.carpooling_message.day_departure == 'j7th'}}>June 7th</option>
+					  <option value="j8th" {{'selected' if order.carpooling_message.day_departure == 'j8th'}}>June 8th</option>
+					  <option value="j9th" {{'selected' if order.carpooling_message.day_departure == 'j9th'}}>June 9th</option>
 					</select>
 				</label>
 				<textarea id="message" name="message" style="height:10em;" placeholder="Write here your message" required>{{order.carpooling_message.message}}</textarea>

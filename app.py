@@ -10,6 +10,7 @@ from os.path import join
 from ext import *
 from config import *
 from aztec_code_generator import AztecCode
+from propic import resetDefaultPropic
 from io import BytesIO
 from asyncio import Queue
 import sqlite3
@@ -32,7 +33,7 @@ from carpooling import bp as carpooling_bp
 from checkin import bp as checkin_bp
 
 app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, checkin_bp])
-
+				
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
 	tpl = app.ctx.tpl.get_template('error.html')
@@ -50,7 +51,7 @@ async def main_start(*_):
 	app.ctx.om = OrderManager()
 	if FILL_CACHE:
 		log.info("Filling cache!")
-		await app.ctx.om.fill_cache()
+		await app.ctx.om.updateCache()
 		log.info("Cache fill done!")
 	
 	app.ctx.nfc_counts = sqlite3.connect('data/nfc_counts.db')
@@ -61,6 +62,7 @@ async def main_start(*_):
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
 	app.ctx.tpl.globals.update(ITEM_IDS=ITEM_IDS)
+	app.ctx.tpl.globals.update(ROOM_TYPE_NAMES=ROOM_TYPE_NAMES)
 	app.ctx.tpl.globals.update(int=int)
 	app.ctx.tpl.globals.update(len=len)
 
@@ -80,7 +82,7 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 
 	if not order:
 		async with httpx.AsyncClient() as client:
-			res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
+			res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
 			print(res.json())
 			if res.status_code != 200:
 				raise exceptions.NotFound("This order code does not exist. Check that your order wasn't deleted, or the link is correct.")
@@ -102,6 +104,11 @@ async def welcome(request, order: Order, quota: Quotas):
 
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	
+	if order.ans("propic_file") is None:
+		await resetDefaultPropic(request, order, False)
+	if order.ans("propic_fursuiter_file") is None:
+		await resetDefaultPropic(request, order, True)
 
 	pending_roommates = []
 	if order.pending_roommates:
@@ -139,7 +146,7 @@ async def download_ticket(request, order: Order):
 		raise exceptions.Forbidden("You are not allowed to download this ticket.")
 		
 	async with httpx.AsyncClient() as client:
-		res = await client.get(join(base_url, f"orders/{order.code}/download/pdf/"), headers=headers)
+		res = await client.get(join(base_url_event, f"orders/{order.code}/download/pdf/"), headers=headers)
 	
 	if res.status_code == 409:
 		raise exceptions.SanicException("Your ticket is still being generated. Please try again later!", status_code=res.status_code)
@@ -150,7 +157,7 @@ async def download_ticket(request, order: Order):
 	
 @app.route("/manage/logout")
 async def logour(request):
-	raise exceptions.Forbidden("You have been logged out.", status_code=403)
+	raise exceptions.Forbidden("You have been logged out.")
 
 if __name__ == "__main__":
 	app.run(host="0.0.0.0", port=8188, dev=DEV_MODE)

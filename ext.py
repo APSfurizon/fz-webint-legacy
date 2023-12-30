@@ -2,6 +2,7 @@ from dataclasses import dataclass
 from sanic import Request, exceptions
 import httpx
 import re
+from utils import *
 from config import *
 from os.path import join
 import json
@@ -32,6 +33,11 @@ class Order:
 		self.country = 'xx'
 		self.address = None
 		self.checked_in = False
+		self.room_type = None
+		self.daily = False
+		self.dailyDays = []
+		self.room_person_no = 0
+		self.answers = []
 		
 		idata = data['invoice_address']
 		if idata:
@@ -39,13 +45,22 @@ class Order:
 			self.country = idata['country']
 		
 		for p in self.data['positions']:
-			if p['item'] in (ITEM_IDS['ticket'] + ITEM_IDS['daily']):
+			if p['item'] in (ITEM_IDS['ticket'] + [ITEM_IDS['daily']]):
 				self.position_id = p['id']
 				self.position_positionid = p['positionid']
 				self.position_positiontypeid = p['item']
 				self.answers = p['answers']
+				for i, ans in enumerate(self.answers):
+					if(TYPE_OF_QUESTIONS[self.answers[i]['question']] == QUESTION_TYPES['file_upload']):
+						self.answers[i]['answer'] = "file:keep"
 				self.barcode = p['secret']
 				self.checked_in = bool(p['checkins'])
+				if p['item'] == ITEM_IDS['daily']:
+					self.daily = True
+			
+			if p['item'] in ITEM_IDS['daily_addons']:
+				self.daily = True
+				self.dailyDays.append(ITEM_IDS['daily_addons'].index(p['item']))
 
 			if p['item'] in ITEM_IDS['membership_card']:
 				self.has_card = True
@@ -62,6 +77,10 @@ class Order:
 			
 			if p['item'] == ITEM_IDS['late_departure']:
 				self.has_late = True
+
+			if p['item'] == ITEM_IDS['bed_in_room']:
+				self.bed_in_room = p['variation']
+				self.room_person_no = ROOM_MAP[self.bed_in_room] if self.bed_in_room in ROOM_MAP else None
 		
 		self.total = float(data['total'])
 		self.fees = 0
@@ -117,6 +136,18 @@ class Order:
 					return a['answer']
 		return None
 		
+	async def edit_answer_fileUpload(self, name, fileName, mimeType, data : bytes):
+		if(mimeType != None and data != None):
+			async with httpx.AsyncClient() as client:
+				localHeaders = dict(headers)
+				localHeaders['Content-Type'] = mimeType
+				localHeaders['Content-Disposition'] = f'attachment; filename="{fileName}"'
+				res = await client.post(join(base_url, 'upload'), headers=localHeaders, content=data)
+				res = res.json()
+				await self.edit_answer(name, res['id'])
+		else:
+			await self.edit_answer(name, None)
+
 	async def edit_answer(self, name, new_answer):
 		found = False
 		self.pending_update = True
@@ -135,7 +166,7 @@ class Order:
 		if (not found) and (new_answer is not None):
 			
 			async with httpx.AsyncClient() as client:
-				res = await client.get(join(base_url, 'questions/'), headers=headers)
+				res = await client.get(join(base_url_event, 'questions/'), headers=headers)
 				res = res.json()
 
 			for r in res['results']:
@@ -158,7 +189,7 @@ class Order:
 					del self.answers[i]['options']
 					del self.answers[i]['option_identifiers']
 			
-			res = await client.patch(join(base_url, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
+			res = await client.patch(join(base_url_event, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
 			
 			if res.status_code != 200:
 				for ans, err in zip(self.answers, res.json()['answers']):
@@ -166,6 +197,10 @@ class Order:
 						print('ERROR ON', ans, err)
 
 				raise exceptions.ServerError('There has been an error while updating this answers.')
+			
+			for i, ans in enumerate(self.answers):
+				if(TYPE_OF_QUESTIONS[self.answers[i]['question']] == QUESTION_TYPES['file_upload']):
+					self.answers[i]['answer'] = "file:keep"
 			
 		self.pending_update = False
 		self.time = -1
@@ -183,7 +218,7 @@ class Quotas:
 
 async def get_quotas(request: Request=None):
 	async with httpx.AsyncClient() as client:
-		res = await client.get(join(base_url, 'quotas/?order=id&with_availability=true'), headers=headers)
+		res = await client.get(join(base_url_event, 'quotas/?order=id&with_availability=true'), headers=headers)
 		res = res.json()
 		
 		return Quotas(res)
@@ -194,8 +229,19 @@ async def get_order(request: Request=None):
 
 class OrderManager:
 	def __init__(self):
+		self.lastCacheUpdate = 0
+		self.empty()
+
+	def empty(self):
 		self.cache = {}
 		self.order_list = []
+
+	async def updateCache(self):
+		t = time()
+		if(t - self.lastCacheUpdate > CACHE_EXPIRE_TIME):
+			print("Re-filling cache!")
+			await self.fill_cache()
+			self.lastCacheUpdate = t			
 
 	def add_cache(self, order):
 		self.cache[order.code] = order
@@ -208,12 +254,14 @@ class OrderManager:
 			self.order_list.remove(code)
 	
 	async def fill_cache(self):
+		await loadQuestions()
+		self.empty()
 		p = 0
 			
 		async with httpx.AsyncClient() as client:
 			while 1:
 				p += 1
-				res = await client.get(join(base_url, f"orders/?page={p}"), headers=headers)
+				res = await client.get(join(base_url_event, f"orders/?page={p}"), headers=headers)
 		
 				if res.status_code == 404: break
 		
@@ -233,6 +281,7 @@ class OrderManager:
 				if order.nfc_id == nfc_id:
 					return order
 	
+		await self.updateCache()
 		# If a cached order is needed, just get it if available
 		if code and cached and code in self.cache and time()-self.cache[code].time < 3600:
 			return self.cache[code]
@@ -246,7 +295,7 @@ class OrderManager:
 			print('Fetching', code, 'with secret', secret)
 
 			async with httpx.AsyncClient() as client:
-				res = await client.get(join(base_url, f"orders/{code}/"), headers=headers)
+				res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
 				if res.status_code != 200:
 					if request:
 						raise exceptions.Forbidden("Your session has expired due to order deletion or change! Please check your E-Mail for more info.")

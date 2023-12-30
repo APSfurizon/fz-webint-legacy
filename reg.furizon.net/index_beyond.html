@@ -1,0 +1,132 @@
+<html>
+<head>
+	<title>Countdown to Furizon</title>
+	<link rel="preconnect" href="https://fonts.bunny.net">
+	<meta name="viewport" content="width=500rem" />
+	<link href="https://fonts.bunny.net/css?family=pt-serif-caption:400" rel="stylesheet" />
+	<meta property="og:title" content="Furizon Beyond · Booking">
+	<meta property="og:description" content="Acquista i biglietti per Furizon Beyond, la convention furry Italiana.">
+	<style>
+	
+		*{margin:0;border:0;padding:0;}
+	
+		body {
+			font-family: 'PT Serif Caption';
+			background-image: url('https://furizon.net/wp-content/uploads/2022/12/Header-banner.jpg?id=1635');
+			background-repeat: no-repeat;
+			background-position: right;
+			background-size: cover;
+			background-color:#111;
+			height:100%;
+		}
+		
+		img {
+			display:block;
+			height: 6rem;
+			margin: 0 auto;
+		}
+
+		main {
+			padding: 1em 0;
+			font-size: 1.2rem;
+			color: #fff;
+			width:100%;
+			box-sizing:border-box;
+			background:rgba(0,0,0,0.5);
+			text-align:center;
+			position:absolute;
+			top: 50%;
+			transform: translateY(-50%);
+		}
+		
+		em {
+			color: #FCB53F;
+			font-size: 0.5em;
+			text-decoration:none;
+		}
+
+		main a {
+			font-size:1.6em;
+			margin-top: 0.5em;
+			color: #FCB53F;
+			background:#000;
+			border-radius: 5px;
+			text-decoration:none;
+			padding: 0.3em 0.6em;
+			display:inline-block;
+			transition: all 0.2s;
+		}
+		
+		main a:hover {
+			background:#FCB53F;
+			color: #000;
+		}
+		
+		#timer {display:block;max-width:30em;margin: 0 auto;}
+		#clock {display:block;}
+		
+	</style>
+	<!-- Matomo -->
+	<script>
+		var _paq = window._paq = window._paq || [];
+		/* tracker methods like "setCustomDimension" should be called before "trackPageView" */
+		_paq.push(['trackPageView']);
+		_paq.push(['enableLinkTracking']);
+		(function() {
+			var u="https://y.foxo.me/";
+			_paq.push(['setTrackerUrl', u+'matomo.php']);
+			_paq.push(['setSiteId', '2']);
+			var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+			g.async=true; g.src=u+'matomo.js'; s.parentNode.insertBefore(g,s);
+		})();
+	</script>
+	<!-- End Matomo Code -->
+</head>
+<body>
+	<main>
+		<div id="timer">
+			<img src="https://furizon.net/wp-content/uploads/2022/08/Logo_base_no_sfondoo_Furizon_1-1.png" />
+			<h2>Thank you to everybody who registered for Furizon 2023!</h2>
+			<p>Too late to register? You can still sign up to the waiting list! We will contact you as soon as a spot is available for you~</p>
+			<!--<span id="clock">Enjoy furizon~</span>-->
+			<a id="button" href="https://reg.furizon.net/furizon/beyond/waitinglist?item=38">Join waiting list</a>
+			<a id="button" href="https://reg.furizon.net/furizon/beyond/redeem">Redeem code</a>
+		</div>
+	</main>
+	<!--<script>
+		// Set the date we're counting down to
+		var countDownDate = 1685455200 * 1000;
+		
+		var now = new Date().getTime();
+		if(now <= countDownDate) {
+			// Update the count down every 1 second
+			var x = setInterval(function() {
+
+				// Get today's date and time
+				var now = new Date().getTime();
+
+				// Find the distance between now and the count down date
+				var distance = countDownDate - now;
+
+				// Time calculations for days, hours, minutes and seconds
+				var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+				var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+				var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+				var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+				// Display the result in the element with id="timer"
+				document.getElementById("clock").innerHTML = days + "<em>d</em> " + hours + "<em>h</em> "
+				+ minutes + "<em>m</em> " + seconds + "<em>s</em>";
+
+				// If the count down is finished, write some text
+				if (distance < 0) {
+					clearInterval(x);
+					document.getElementById("clock").style.display = 'none';
+
+				}
+			}, 1000);
+		}
+	</script>-->
+</body>
+</html>
+

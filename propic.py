@@ -9,6 +9,15 @@ from time import time
 
 bp = Blueprint("propic", url_prefix="/manage/propic")
 
+async def resetDefaultPropic(request, order: Order, isFursuiter, sendAnswer=True):
+	s = "_fursuiter" if isFursuiter else ""
+	print("Resetting default propic")
+	with open("res/propic/default.png", "rb") as f:
+		data = f.read()
+	await order.edit_answer_fileUpload(f'propic{s}_file', f'propic{s}_file_{order.code}_default.png', 'image/png', data)
+	if(sendAnswer):
+		await order.send_answers()
+
 @bp.post("/upload")
 async def upload_propic(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
@@ -21,8 +30,10 @@ async def upload_propic(request, order: Order):
 		
 	if request.form.get('submit') == 'Delete main image':
 			await order.edit_answer('propic', None)	
+			await resetDefaultPropic(request, order, False, sendAnswer=False)
 	elif request.form.get('submit') == 'Delete fursuit image':
 			await order.edit_answer('propic_fursuiter', None)
+			await resetDefaultPropic(request, order, True, sendAnswer=False)
 	else:
 		for fn, body in request.files.items():
 			if fn not in ['propic', 'propic_fursuiter']:
@@ -49,8 +60,17 @@ async def upload_propic(request, order: Order):
 					
 				img = img.convert('RGB')
 				img.thumbnail((512,512))
-				img.save(f"res/propic/{fn}_{order.code}_{h}.jpg")
-			except:
+				imgBytes = BytesIO()
+				img.save(imgBytes, format='jpeg')
+				imgBytes = imgBytes.getvalue()
+				
+				with open(f"res/propic/{fn}_{order.code}_{h}.jpg", "wb") as f:
+					f.write(imgBytes)
+
+				await order.edit_answer_fileUpload(f'{fn}_file', f'{fn}_file_{order.code}_{h}.jpg', 'image/jpeg', imgBytes)
+			except Exception:
+				import traceback
+				print(traceback.format_exc())
 				raise exceptions.BadRequest("The image you uploaded is not valid.")
 			else:
 				await order.edit_answer(fn, f"{fn}_{order.code}_{h}.jpg")

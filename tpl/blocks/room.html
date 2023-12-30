@@ -1,12 +1,14 @@
 <details id="room">
 	<summary role="button"><img src="/res/icons/bedroom.svg" class="icon"/> Accomodation & Roommates <span class="status">{% if not order.room_confirmed %}⚠️{% endif %}</span></summary>
-	<h2>Your room {% if room_members %}- {{room_members[0].ans('room_name')}}{% endif %}</h2>
+	<h2 style="margin-bottom:0;">Your room {% if room_members %}- {{room_members[0].ans('room_name')}}{% endif %}</h2>
+	<p><b>Room's type:</b> {{ROOM_TYPE_NAMES[order.bed_in_room]}}.</p>
+	<p class="notice" style="background:#0881c0"><b>Note! </b> Only people with the same room type can be roommates. If you need help, you can check the support guide <a href="https://pornhub.com">clicking here</a>.</p>
 	
 	{# Show alert if room owner has wrong people inside #}
 	
-	{% if room_members and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %}
-		<p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}} rooms. You need to add or remove people until you reach the size of an available room if you want to confirm it.</p>
-	{% endif %}
+	{# {% if room_members and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %} #}
+		{# <p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}} rooms. You need to add or remove people until you reach the size of an available room if you want to confirm it.</p> #}
+	{# {% endif %} #}
 	
 	{# Show alert if room was not confirmed #}
 	{% if order.room_id and not order.room_confirmed %}
@@ -15,7 +17,8 @@
 	
 	{# Show notice if the room is confirmed #}
 	{% if order.room_confirmed %}
-		<p class="notice" style="background:#060">✅ Your <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room has been confirmed</p>
+		{# <p class="notice" style="background:#060">✅ Your <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room has been confirmed</p> #}
+		<p class="notice" style="background:#060">✅ Your <strong>{{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}}</strong> room has been confirmed</p>
 	{% endif %}
 	
 	{# Show roommates if room is set #}
@@ -30,7 +33,7 @@
 					</div>
 					<h3>{{person.ans('fursona_name')}}</h3>
 					{% if person.code == order.room_id %}<p><strong style="color:#c6f">ROOM OWNER</strong></p>{% endif %}
-					<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}} {{'Fursuiter' if person.ans('is_fursuiter') != 'No'}}</p>
+					<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}} {{'Fursuiter' if person.is_fursuiter}}</p>
 					{% if person.status == 'pending' %}
 						<p><strong style="color:red;">UNPAID</strong></p>
 					{% endif %}
@@ -42,7 +45,8 @@
 				{% endif %}
 			{% endfor %}
 			
-			{% if order.room_id == order.code and not order.room_confirmed and len(room_members) < 5 %}
+			{# {% if order.room_id == order.code and not order.room_confirmed and len(room_members) < 5%} #}
+			{% if order.room_id == order.code and not order.room_confirmed and len(room_members) < order.room_person_no %}
 				<div>
 					<a href="javascript:document.getElementById('modal-roominvite').setAttribute('open', 'true');">
 						<div class="propic-container">
@@ -79,7 +83,8 @@
 			{% endif %}	
 			
 			{% if not order.room_confirmed %}
-				<a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a>
+				{# <a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a> #}
+				<a role="button" {% if not room.forbidden and len(room_members) == order.room_person_no %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}}</strong> room</a>
 			{% endif %}
 		{% else %}
 			{% if order.room_id and not order.room_confirmed %}
@@ -113,13 +118,13 @@
 	{% endif %}
 	
 	{# Room availability is always shown #}
-	<h4>Room availability</h4>
-	<table>
-		{% for q in quota.data['results'] if 'Room' in q['name'] %}
-			<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}>
-				<td>{{q['name']}}</td>
-				<td>{{q['available_number']}} left</td>
-			</tr>
-		{% endfor %}
-	</table>
+	{# <h4>Room availability</h4> #}
+	{# <table> #}
+	{# 	{% for q in quota.data['results'] if 'Room' in q['name'] %} #}
+	{# 		<tr {% if q['available_number'] == 0 %}style="text-decoration:line-through;"{% endif %}> #}
+	{# 			<td>{{q['name']}}</td> #}
+	{# 			<td>{{q['available_number']}} left</td>  #}
+	{# 		</tr> #}
+	{# 	{% endfor %} #}
+	{# </table> #}
 </details>

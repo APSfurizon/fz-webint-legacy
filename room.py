@@ -18,6 +18,9 @@ async def room_create_post(request, order: Order):
 		
 	if order.room_id:
 		error = "You are already in another room. You need to delete (if it's yours) or leave it before creating another."
+
+	if order.daily:
+		raise exceptions.BadRequest("You cannot create a room if you have a daily ticket!") 
 		
 	if not error:
 		await order.edit_answer('room_name', name)
@@ -34,6 +37,9 @@ async def room_create_post(request, order: Order):
 async def room_create(request, order: Order):
 
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+
+	if order.daily:
+		raise exceptions.BadRequest("You cannot create a room if you have a daily ticket!") 
 
 	tpl = request.app.ctx.tpl.get_template('create_room.html')
 	return html(tpl.render(order=order))
@@ -70,6 +76,9 @@ async def join_room(request, order: Order):
 
 	if order.room_id:
 		raise exceptions.BadRequest("You are in another room already. Why would you join another?")
+	
+	if order.daily:
+		raise exceptions.BadRequest("You cannot join a room if you have a daily ticket!") 
 
 	code = request.form.get('code').strip()
 	room_secret = request.form.get('room_secret').strip()
@@ -87,6 +96,9 @@ async def join_room(request, order: Order):
 		
 	if room_owner.room_confirmed:
 		raise exceptions.BadRequest("The room you're trying to join has been confirmed already")
+	
+	if room_owner.bed_in_room != order.bed_in_room:
+		raise exceptions.BadRequest("This room's ticket is of a different type than yours!")
 		
 	#if room_owner.pending_roommates and (order.code in room_owner.pending_roommates):
 		#raise exceptions.BadRequest("What? You should never reach this check, but whatever...")
@@ -252,9 +264,11 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 	if order.room_id != order.code:
 		raise exceptions.BadRequest("You are not allowed to confirm rooms of others.")
 
-	if quotas.get_left(len(order.room_members)) == 0:
-		raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
+	# This is not needed anymore you buy tickets already 
+	#if quotas.get_left(len(order.room_members)) == 0:
+	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
 
+	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
 	room_members = []
 	for m in order.room_members:
 		if m == order.code:
@@ -267,8 +281,18 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		
 		if res.status != 'paid':
 			raise exceptions.BadRequest("Somebody hasn't paid.")
+		
+		if res.bed_in_room != bed_in_room:
+			raise exceptions.BadRequest("Somebody has a ticket for a different type of room!")
+		
+		if res.daily:
+			raise exceptions.BadRequest("Somebody in your room has a daily ticket!") 
 			
 		room_members.append(res)
+	
+
+	if len(room_members) != order.room_person_no and order.room_person_no != None:
+		raise exceptions.BadRequest("The number of people in your room mismatches your type of ticket!")
 
 	for rm in room_members:
 		await rm.edit_answer('room_id', order.code)
@@ -276,28 +300,19 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		await rm.edit_answer('pending_roommates', None)
 		await rm.edit_answer('pending_room', None)
 	
-	thing = {
-		'order': order.code,
-		'addon_to': order.position_positionid,
-		'item': ITEM_IDS['room'],
-		'variation': ROOM_MAP[len(room_members)]
-	}
-	
-	async with httpx.AsyncClient() as client:
-		res = await client.post(join(base_url, "orderpositions/"), headers=headers, json=thing)
-		
-		if res.status_code != 201:
-			raise exceptions.BadRequest("Something has gone wrong! Please contact support immediately")
-			
-		'''for rm in room_members:
-			if rm.code == order.code: continue
-			thing = {
-				'order': rm.code,
-				'addon_to': rm.position_positionid,
-				'item': ITEM_IDS['room'],
-				'variation': ROOM_MAP[len(room_members)]
-			}
-			res = await client.post(join(base_url, "orderpositions/"), headers=headers, json=thing)		'''	
+	# This should now be useless because in the ticket there already is the ticket/room type
+	# thing = {
+	# 	'order': order.code,
+	# 	'addon_to': order.position_positionid,
+	# 	'item': ITEM_IDS['room'],
+	# 	'variation': ROOM_MAP[len(room_members)]
+	# }
+	# 
+	# async with httpx.AsyncClient() as client:
+	# 	res = await client.post(join(base_url_event, "orderpositions/"), headers=headers, json=thing)
+	# 	
+	# 	if res.status_code != 201:
+	# 		raise exceptions.BadRequest("Something has gone wrong! Please contact support immediately")
 	
 	for rm in room_members:
 		await rm.send_answers()

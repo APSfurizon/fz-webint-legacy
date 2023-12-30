@@ -86,9 +86,11 @@
 				<a href="/manage/welcome">Your Booking</a>
 			{% endif %}
 			<a href="/manage/nosecount">Nose Count</a>
+			<a href="/manage/fursuitcount">Fursuit Count</a>
 			{% if order %}
 				<a href="/manage/carpooling">Carpooling</a>
 				<a style="float:right;" href="/manage/logout">Logout</a>
+				<a style="float:right;color: #b1b1b1;">Logged in as <i>{{order.ans('fursona_name')}}</i></a>
 			{% endif %}
 			<br clear="both" />
 		</nav>

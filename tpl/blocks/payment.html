@@ -18,7 +18,7 @@
 		</tr>
 	</table>
 	{% if order.status == 'paid' and order.room_confirmed %}
-		<p style="text-align:right;"><a href="/manage/download_ticket?name=BEYOND-{{order.code}}.pdf" role="button">Download ticket</a></p>
+		<p style="text-align:right;"><a href="/manage/download_ticket?name=OVERLORD-{{order.code}}.pdf" role="button">Download ticket</a></p>
 	{% endif %}
 	{% if order.status != 'paid' %}
 		<a href="{{order.url}}"><button>Payment area</button></a>

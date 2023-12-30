@@ -12,7 +12,7 @@
 		<p>From here, you can easily manage all aspects of your booking, including composing your hotel room, designing your badge, and updating your payment information. Simply use the buttons below to navigate between the different sections.</p>
 		<p>Buttons marked with ⚠️ require your attention</p>
 		
-		<p>If you have any questions or issues while using this page, please don't hesitate to contact us for assistance. We look forward to seeing you at Furizon Riverside!</p>
+		<p>If you have any questions or issues while using this page, please don't hesitate to contact us for assistance. We look forward to seeing you at Furizon Overlord!</p>
 		<hr />
 		<h2 id="info">Useful information</h2>
 		<table>
@@ -24,13 +24,14 @@
 			</tr>
 			<tr>
 				<th>When{{' (convention)' if order.has_early or order.has_late else ''}}?</th>
-				<td>13 October → 15 October 2023</td></td>
+				{# This should be early/late excluded! #}
+				<td>4 June → 8 June 2024</td></td>
 			</tr>
 			{% if order.has_early or order.has_late %}
 				<tr>
 					<th>When (check-in)?</th>
 					<td>
-						{{('12' if order.has_early else '13')|safe}} October → {{('16' if order.has_late else '15')|safe}} October 2023
+						{{('3' if order.has_early else '4')|safe}} October → {{('9' if order.has_late else '8')|safe}} June 2024
 						{% if order.has_early %}
 							<span class="tag">EARLY</span>
 						{% endif %}
@@ -53,7 +54,7 @@
 					{% if order.status == 'paid' and order.room_confirmed %}
 						<br />
 						<img src="/res/icons/pdf.svg" class="icon" />
-						<a href="/manage/download_ticket?name=RIVERSIDE-{{order.code}}.pdf" target="_blank">Download ticket PDF</a>
+						<a href="/manage/download_ticket?name=OVERLORD-{{order.code}}.pdf" target="_blank">Download ticket PDF</a>
 					{% endif %}
 				</td>
 			</tr>
@@ -61,7 +62,7 @@
 		
 		<h2>Manage your booking</h2>
 		{% include 'blocks/payment.html' %}
-		{% if order.position_positiontypeid not in ITEM_IDS['daily'] %}
+		{% if not order.daily %}
 			{% include 'blocks/room.html' %}
 		{% endif %}
 		{% include 'blocks/badge.html' %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Furizon 2024 Fursuitcount{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<!--h2>Fursuit-count!</h2-->
+		<p>Welcome to the fursuit-count page! Here you can see all of the fursuits that you'll find at Furizon!</p>
+		{% for person in orders.values() if person.is_fursuiter%}
+			{% if loop.first %}
+				<div class="grid people" style="padding-bottom:1em;">
+			{% endif %}
+				<div style="margin-bottom: 1em;">
+					<div class="propic-container">
+						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic_fursuiter') or 'default.png'}}" />
+						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+					</div>
+					<h5>{{person.ans('fursona_name')}}</h5>
+				</div>
+			{% if loop.last %}</div>{% endif %}
+		{% endfor %}
+
+	</main>
+{% endblock %}
