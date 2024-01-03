@@ -55,7 +55,7 @@
 			{% if loop.last %}</div>{% endif %}
 		{% endfor %}
 
-		{% for person in orders.values() if (not person.room_id or len(person.room_members) == 1) and (not person.room_confirmed) and not person.daily %}
+		{% for person in orders.values() if not person.room_id and (not person.room_confirmed) and not person.daily %}
 			{% if loop.first %}
 				<hr />
 				<h1>Roomless furs</h1>
