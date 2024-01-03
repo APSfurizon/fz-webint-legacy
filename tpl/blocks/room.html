@@ -27,10 +27,9 @@
 		<div class="grid people" style="padding-bottom:1em;">
 			{% for person in room_members %}
 				<div style="margin-bottom: 1em;">
-					<div class="propic-container">
-						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic') or 'default.png'}}" />
-						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
-					</div>
+					{% with order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
+						{% include 'blocks/propic.html' %}
+					{% endwith %}
 					<h3>{{person.ans('fursona_name')}}</h3>
 					{% if person.code == order.room_id %}<p><strong style="color:#c6f">ROOM OWNER</strong></p>{% endif %}
 					<p>{{person.ans('staff_title') if person.ans('staff_title') else ''}} {{'Fursuiter' if person.is_fursuiter}}</p>

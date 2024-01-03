@@ -1,0 +1,6 @@
+/* Other blocks' styles */
+@import url('propic.css');
+
+summary:has(span.status) {
+    background-color: #ffaf0377;
+}

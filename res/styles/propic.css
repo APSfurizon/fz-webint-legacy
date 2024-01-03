@@ -1,0 +1,94 @@
+svg.propic-border-filter {
+    display: none;
+}
+
+.propic-container {
+    max-width:7em;
+    margin:0 auto;
+    position: relative;
+}
+
+.propic-container img {
+    display: block;
+}
+
+.propic-container .absolute {
+    position: absolute;
+}
+
+.propic-filler {
+    width: 100%;
+    border-radius:0.4em;
+    margin:0 auto;
+    border:4px solid #546e7a;
+    opacity: 0;
+}
+
+.propic {
+    width:calc(100% - 4mm);
+    border-radius:0.4em;
+    margin:2mm;
+    border:4px solid #546e7a00;
+    z-index: 2;
+}
+
+.propic-border {
+    top: 0%;
+    z-index: 0;
+    min-width: 100%;
+    min-height: 100%;
+    border-radius:0.6em;
+    border: none !important;
+    overflow: hidden;
+}
+
+.propic-border-animation {
+    min-width: 200%;
+    min-height: 200%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    transform-origin: 0% 0%;
+}
+
+.propic-border.blurred {
+    filter: blur(20px);
+    z-index: 1;
+}
+
+.propic-border.propic-animated-super .propic-border-animation {
+    background: linear-gradient(90deg, #FA5E00 20%, #FAAA00 40%, #FB8C00 60%, #FA3200 80%, #FAC800 100%);
+    animation: border-animation 1s linear 0ms infinite;
+}
+
+.propic-border.propic-animated-normal .propic-border-animation {
+    background: linear-gradient(90deg, #6124AB 20%, #AB248F 40%, #8E24AA 60%, #3524AB 80%, #AB243E 100%);
+    animation: border-animation 1s linear 0ms infinite;
+}
+
+@keyframes border-animation {
+    0% {
+        rotate: 0deg;
+    }
+
+    100% {
+        rotate: 360deg;
+    }
+}
+
+.propic-flag {
+    z-index: 2;
+    max-width: 2em;
+    border-radius:2px;
+    right: calc(0% - 0.3em);
+    bottom: -0.1em;
+}
+
+.propic-super {
+    border:4px solid #fb8c00;
+}
+
+.propic-normal {
+    border:4px solid #8e24aa;
+}
