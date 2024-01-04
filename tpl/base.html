@@ -49,6 +49,22 @@
 			footer img {height:1.3em;}
 			
 			.tag {background:var(--primary);color:var(--contrast);font-size:0.8em;font-weight:600;padding:0.1em 0.3em;border-radius:3px;}
+
+			.rainbow-text {
+				background-image: repeating-linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+				text-align: center;
+				background-size: 2000% 2000%;
+				color: transparent;
+				background-clip: text;
+				-webkit-background-clip: text;
+				-webkit-text-fill-color: transparent;
+				animation: rainbow 4s linear infinite;
+			}
+
+			@keyframes rainbow { 
+				0%{background-position:0% 0%}
+				100%{background-position:57.75% 0%}
+			}
 		</style>
 		
 		<!-- Matomo -->
@@ -79,6 +95,7 @@
 			{% endif %}
 			<a href="/manage/nosecount">Nose Count</a>
 			<a href="/manage/fursuitcount">Fursuit Count</a>
+			<a href="/manage/sponsorcount" class="rainbow-text">Sponsor Count</a>
 			{% if order %}
 				<a href="/manage/carpooling">Carpooling</a>
 				<a style="float:right;" href="/manage/logout">Logout</a>

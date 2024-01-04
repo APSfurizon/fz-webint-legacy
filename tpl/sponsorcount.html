@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Furizon 2024 Sponsorcount{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<h2 class="rainbow-text">Sponsor count!</h2>
+		<p>Welcome to the sponsor-count page! This is the list of users that support us! Thanks really a lot to everyone ❤️</p>
+		{% for person in orders.values() if person.sponsorship == "super"%}
+			{% if loop.first %}
+				<hr />
+				<h1>Super sponsors!</h1>
+				<div class="grid people" style="padding-bottom:1em;">
+			{% endif %}
+				<div style="margin-bottom: 1em;">
+					<div class="propic-container">
+						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic_fursuiter') or 'default.png'}}" />
+						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+					</div>
+					<h5>{{person.ans('fursona_name')}}</h5>
+				</div>
+			{% if loop.last %}</div>{% endif %}
+		{% endfor %}
+
+		{% for person in orders.values() if person.sponsorship == "normal"%}
+			{% if loop.first %}
+				<hr />
+				<h1>Sponsors</h1>
+				<div class="grid people" style="padding-bottom:1em;">
+			{% endif %}
+				<div style="margin-bottom: 1em;">
+					<div class="propic-container">
+						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic_fursuiter') or 'default.png'}}" />
+						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
+					</div>
+					<h5>{{person.ans('fursona_name')}}</h5>
+				</div>
+			{% if loop.last %}</div>{% endif %}
+		{% endfor %}
+
+	</main>
+{% endblock %}
