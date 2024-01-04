@@ -8,8 +8,8 @@
     </div>
     {% endif %}
     <img alt="Your own profile picture" src="{{imgSrc}}" class="absolute propic {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}"/>
-    <img alt="Your own profile picture" src="{{imgSrc}}" class="propic-filler {{(('propic-' + order.sponsorship) if not effects else '')}}"/>
+    <img alt="Your own profile picture" src="{{imgSrc}}" class="propic-filler {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}"/>
     {% if flag %}
-      <img alt="A country flag" class="absolute propic-flag" src="/res/flags/{{order.country.lower()}}.svg"/>
+      <img alt="flag" class="absolute propic-flag" src="/res/flags/{{order.country.lower()}}.svg"/>
     {% endif %}
 </div>

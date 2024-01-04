@@ -17,10 +17,9 @@
 				<div class="grid people" style="padding-bottom:1em;">
 			{% endif %}
 				<div style="margin-bottom: 1em;">
-					<div class="propic-container">
-						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic_fursuiter') or 'default.png'}}" />
-						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
-					</div>
+					{% with order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
+						{% include 'blocks/propic.html' %}
+					{% endwith %}
 					<h5>{{person.ans('fursona_name')}}</h5>
 				</div>
 			{% if loop.last %}</div>{% endif %}
@@ -33,10 +32,9 @@
 				<div class="grid people" style="padding-bottom:1em;">
 			{% endif %}
 				<div style="margin-bottom: 1em;">
-					<div class="propic-container">
-						<img class="propic propic-{{person.sponsorship}}" src="/res/propic/{{person.ans('propic_fursuiter') or 'default.png'}}" />
-						<img class="propic-flag" src="/res/flags/{{person.country.lower()}}.svg" />
-					</div>
+					{% with order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
+						{% include 'blocks/propic.html' %}
+					{% endwith %}
 					<h5>{{person.ans('fursona_name')}}</h5>
 				</div>
 			{% if loop.last %}</div>{% endif %}
