@@ -47,6 +47,8 @@ async def clear_session(request, exception):
 @app.before_server_start
 async def main_start(*_):
 	print(">>>>>> main_start <<<<<<")
+
+	app.config.REQUEST_MAX_SIZE = 1024 * 1024 * 5 # 5 MB
 	
 	app.ctx.om = OrderManager()
 	if FILL_CACHE:
