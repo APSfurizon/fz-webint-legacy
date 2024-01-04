@@ -13,22 +13,20 @@
 			<div>
 				{% if not order.ans('propic') %}
 					<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
-				{% else %}
-					<div class="propic-container">
-						<img src="/res/propic/{{order.ans('propic') or 'default.png'}}" class="propic" />
-					</div>
 				{% endif %}
+				{% with order=order, imgSrc='/res/propic/' + (order.ans('propic') or 'default.png'), effects = true %}
+					{% include 'blocks/propic.html' %}
+				{% endwith %}
 				<p>Normal Badge</p>
 			</div>
 			{% if order.is_fursuiter %}
 				<div>
 					{% if not order.ans('propic_fursuiter') %}
 						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
-					{% else %}
-						<div class="propic-container">
-							<img src="/res/propic/{{order.ans('propic_fursuiter') or 'default.png'}}" class="propic" />
-						</div>
 					{% endif %}
+					{% with order=order, imgSrc='/res/propic/' + (order.ans('propic_fursuiter') or 'default.png'), effects = true %}
+						{% include 'blocks/propic.html' %}
+					{% endwith %}
 					<p>Fursuit Badge</p>
 				</div>
 			{% endif %}

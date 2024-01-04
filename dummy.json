@@ -1,0 +1,3048 @@
+{
+    "event": {
+        "name": "Furizon Overlord",
+        "slug": "overlord",
+        "organizer": {
+            "name": "Furizon APS",
+            "slug": "furizon"
+        },
+        "meta_data": {},
+        "categories": [
+            {
+                "id": 35,
+                "name": "Biglietti",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 36,
+                "name": "APS Furizon Card",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 37,
+                "name": "Sponsorship",
+                "description": "Thanks to Sponsorship, you can financially support Furizon, enabling it to constantly improve its events and invest in new equipment beneficial for all participants. In exchange for your valuable contribution, you will be publicly thanked in the conbook of this edition, and also receive some special and exclusive gadgets, assigned based on the level you choose below.",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 38,
+                "name": "Abbigliamento",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 39,
+                "name": "Extra Days",
+                "description": "If you want to arrive a day earlier or leave a day later to further socialize with other participants, enjoy the relaxation and services of the hotel, or explore the wonderful community of Cavalese, this is the right section for you!",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 40,
+                "name": "Room",
+                "description": "In this section, <b>you can choose the type of room to stay in, as well as choose between the main hotel</b> (Park Hotel Sacro Cuore) <b>and the overflow hotel</b> (Hotel San Valier). Remember that all convention activities and services (such as the fursuit lounge) will only be active in the main hotel. Selecting a certain type of room automatically places you, after paying your registration, in that specific type of room. You will be able to choose your roommates later in the reserved area of each participant. <b>All roommates must purchase the same type of room!</b>\r\nWhen purchasing a ticket for the convention, it is mandatory to also purchase a bed in one of the two affiliated hotels. <b>The hotel fee for bed & breakfast is not optional.</b>",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 41,
+                "name": "Sponsor (voucher)",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 42,
+                "name": "Supersponsor (voucher)",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 43,
+                "name": "Service Products",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            },
+            {
+                "id": 44,
+                "name": "Daily",
+                "description": "",
+                "position": 0,
+                "internal_name": null
+            }
+        ],
+        "items": [
+            {
+                "id": 126,
+                "position": 1,
+                "name": "Furizon Overlord - Early Bird",
+                "internal_name": "None",
+                "category": 35,
+                "price": "80.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": true,
+                "personalized": true,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Choose this ticket if you want to join Furizon. You will be able to decide later for the extras.",
+                "available_from": null,
+                "available_until": "2024-01-31T23:00:00Z",
+                "require_voucher": false,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": 0,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": "90.00",
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 127,
+                "position": 9,
+                "name": "Furizon Overlord - Regular",
+                "internal_name": "None",
+                "category": 35,
+                "price": "90.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": true,
+                "personalized": true,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": "2024-01-31T23:00:00Z",
+                "available_until": "2024-06-02T19:00:00Z",
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": 1,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 155,
+                "position": 19,
+                "name": "Furizon Overlord - Staff Ticket",
+                "internal_name": "None",
+                "category": 35,
+                "price": "80.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": true,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": "80.00",
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 161,
+                "position": 21,
+                "name": "Furizon Overlord - Daily VARIATIONS",
+                "internal_name": "None",
+                "category": 35,
+                "price": "69420.00",
+                "tax_rate": "21.00",
+                "tax_name": "IVA",
+                "admission": true,
+                "personalized": true,
+                "active": false,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "TEST TEST TEST AAAAAAAAA RICORDARSI DI DOUBLE CHECKAREEEE",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": 0,
+                "max_per_order": 4,
+                "checkin_attention": false,
+                "original_price": "1.00",
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": [
+                    {
+                        "id": 78,
+                        "active": true,
+                        "price": "400.00",
+                        "name": "Furizon Overlord - Daily - June 4th",
+                        "description": "",
+                        "position": 0,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 79,
+                        "active": true,
+                        "price": "500.00",
+                        "name": "Furizon Overlord - Daily - June 5th",
+                        "description": "",
+                        "position": 1,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 80,
+                        "active": true,
+                        "price": "600.00",
+                        "name": "Furizon Overlord - Daily - June 6th",
+                        "description": "",
+                        "position": 2,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 81,
+                        "active": true,
+                        "price": "700.00",
+                        "name": "Furizon Overlord - Daily - June 7th",
+                        "description": "",
+                        "position": 3,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 162,
+                "position": 22,
+                "name": "Furizon Overlord - Daily Tickets",
+                "internal_name": "None",
+                "category": 35,
+                "price": "38.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": true,
+                "personalized": true,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "This ticket will allow you to access, during the days you will select later, all areas of the convention reserved for participants and all services offered to participants. Excluded are all reserved events (such as those dedicated to Supersponsors). This ticket does not include a hotel bed, so all participants must leave the convention area at the end of the last scheduled activity and in any case no later than 02:00 on the day following the one purchased.",
+                "available_from": "2024-01-31T23:00:00Z",
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": true,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 128,
+                "position": 2,
+                "name": "APS Furizon Membership Card",
+                "internal_name": "None",
+                "category": 36,
+                "price": "10.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "If you did not attend Riverside 2023 you will need to purchase an APS Furizon Card. This card will be valid for one year and will give you access to future events organized by Furizon until september 2024!",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 129,
+                "position": 3,
+                "name": "Sponsorship",
+                "internal_name": "None",
+                "category": 37,
+                "price": "30.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": [
+                    {
+                        "id": 55,
+                        "active": true,
+                        "price": "45.00",
+                        "name": "Sponsor",
+                        "description": "Thank you for helping us make Furizon better! With this sponsorship, you will get a T-shirt and the event gadget, as well as a special mention on the conbook!",
+                        "position": 0,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 56,
+                        "active": true,
+                        "price": "75.00",
+                        "name": "Supersponsor",
+                        "description": "The best experience you can have at Furizon! With this, you will get all the benefits of the sponsor and some extra perks: express check-in, a free welcome drink, access to one exclusive themed aperitif, an exclusive gadget, discount (and priority) on the wellness center and access to the panoramic photo-shoot organized by Furizon!",
+                        "position": 1,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 130,
+                "position": 4,
+                "name": "Furizon's Staff T-shirt 2024",
+                "internal_name": "None",
+                "category": 38,
+                "price": "0.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": true,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": 1,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 131,
+                "position": 17,
+                "name": "T-Shirt Security 2023",
+                "internal_name": "None",
+                "category": 38,
+                "price": "10.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": true,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": 1,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 132,
+                "position": 18,
+                "name": "Sweatshirt Security 2023",
+                "internal_name": "None",
+                "category": 38,
+                "price": "35.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": true,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": 1,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 133,
+                "position": 5,
+                "name": "Early Arrival",
+                "internal_name": "None",
+                "category": 39,
+                "price": "55.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Get one extra day at the beginning of the con to settle in and make your first friends in a relaxed environment.",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 134,
+                "position": 6,
+                "name": "Late Departure",
+                "internal_name": "None",
+                "category": 39,
+                "price": "55.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Get one extra night of sleep",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 153,
+                "position": 0,
+                "name": "Bed in a room",
+                "internal_name": "None",
+                "category": 40,
+                "price": "0.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": true,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": 1,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": [
+                    {
+                        "id": 83,
+                        "active": true,
+                        "price": "200.00",
+                        "name": "Park Hotel Sacro Cuore (main hotel) - Single room",
+                        "description": "Purchase a place in a single room in the main hotel.",
+                        "position": 0,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 67,
+                        "active": true,
+                        "price": "200.00",
+                        "name": "Park Hotel Sacro Cuore (main hotel) - Double",
+                        "description": "Purchase a place in a double room in the main hotel.",
+                        "position": 1,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 68,
+                        "active": true,
+                        "price": "200.00",
+                        "name": "Park Hotel Sacro Cuore (main hotel) - Triple",
+                        "description": "Purchase a place in a triple room in the main hotel.",
+                        "position": 2,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 69,
+                        "active": true,
+                        "price": "200.00",
+                        "name": "Park Hotel Sacro Cuore (main hotel) - Quadruple",
+                        "description": "Purchase a place in a 4-beds room in the main hotel.",
+                        "position": 3,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 70,
+                        "active": true,
+                        "price": "200.00",
+                        "name": "Park Hotel Sacro Cuore (main hotel) - Quintuple",
+                        "description": "Purchase a place in a 5-beds room in the main hotel.",
+                        "position": 4,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 75,
+                        "active": true,
+                        "price": "220.00",
+                        "name": "Hotel San Valier (overflow hotel) - Double",
+                        "description": "Purchase a place in a double room in the <b>overflow</b> hotel.",
+                        "position": 5,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 135,
+                "position": 2,
+                "name": "Room",
+                "internal_name": "None",
+                "category": 40,
+                "price": "0.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": true,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": [
+                    {
+                        "id": 57,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Single",
+                        "description": "",
+                        "position": 0,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 58,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Double",
+                        "description": "",
+                        "position": 1,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 59,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Triple",
+                        "description": "",
+                        "position": 2,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 60,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Quadruple",
+                        "description": "",
+                        "position": 3,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 61,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Quintuple",
+                        "description": "",
+                        "position": 4,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 136,
+                "position": 3,
+                "name": "Guest of another room",
+                "internal_name": "None",
+                "category": 40,
+                "price": "0.00",
+                "tax_rate": "0.00",
+                "tax_name": "Tasse Incluse",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [],
+                "description": "",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": true,
+                "hide_without_voucher": true,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": [
+                    {
+                        "id": 62,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Single",
+                        "description": "",
+                        "position": 0,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 63,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Double",
+                        "description": "",
+                        "position": 1,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 64,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Triple",
+                        "description": "",
+                        "position": 2,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 65,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Quadruple",
+                        "description": "",
+                        "position": 3,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    },
+                    {
+                        "id": 66,
+                        "active": true,
+                        "price": "0.00",
+                        "name": "Quintuple",
+                        "description": "",
+                        "position": 4,
+                        "checkin_attention": false,
+                        "require_approval": false,
+                        "require_membership": false,
+                        "sales_channels": [
+                            "web"
+                        ],
+                        "available_from": null,
+                        "available_until": null,
+                        "hide_without_voucher": false,
+                        "meta_data": {
+                            "PrefissoTessera": "232410-"
+                        }
+                    }
+                ]
+            },
+            {
+                "id": 163,
+                "position": 23,
+                "name": "Daily 4th June",
+                "internal_name": "None",
+                "category": 44,
+                "price": "400.00",
+                "tax_rate": "21.00",
+                "tax_name": "IVA",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Entry valid only for June 4, 2024, from 16:00 to 02:00 next day.",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 164,
+                "position": 24,
+                "name": "Daily 5th June",
+                "internal_name": "None",
+                "category": 44,
+                "price": "500.00",
+                "tax_rate": "21.00",
+                "tax_name": "IVA",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Entry valid only for June 5, 2024, from 10:00 to 02:00 next day.",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 165,
+                "position": 25,
+                "name": "Daily 6th June",
+                "internal_name": "None",
+                "category": 44,
+                "price": "600.00",
+                "tax_rate": "21.00",
+                "tax_name": "IVA",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Entry valid only for June 6, 2024, from 10:00 to 02:00 next day.",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            },
+            {
+                "id": 166,
+                "position": 26,
+                "name": "Daily 7th June",
+                "internal_name": "None",
+                "category": 44,
+                "price": "700.00",
+                "tax_rate": "21.00",
+                "tax_name": "IVA",
+                "admission": false,
+                "personalized": false,
+                "active": true,
+                "sales_channels": [
+                    "web"
+                ],
+                "description": "Entry valid only for June 7, 2024, from 10:00 to 02:00 next day.",
+                "available_from": null,
+                "available_until": null,
+                "require_voucher": false,
+                "hide_without_voucher": false,
+                "allow_cancel": false,
+                "require_bundling": false,
+                "min_per_order": null,
+                "max_per_order": null,
+                "checkin_attention": false,
+                "original_price": null,
+                "issue_giftcard": false,
+                "meta_data": {
+                    "PrefissoTessera": "232410-"
+                },
+                "require_membership": false,
+                "variations": []
+            }
+        ],
+        "questions": [
+            {
+                "id": 111,
+                "identifier": "room_members",
+                "required": false,
+                "question": "Membri Stanza",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 112,
+                "identifier": "room_confirmed",
+                "required": false,
+                "question": "Room Confirmed",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "B"
+            },
+            {
+                "id": 113,
+                "identifier": "propic",
+                "required": false,
+                "question": "Propic",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 114,
+                "identifier": "propic_fursuiter",
+                "required": false,
+                "question": "Propic Fursuiter",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 115,
+                "identifier": "room_id",
+                "required": false,
+                "question": "Room ID",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 116,
+                "identifier": "room_secret",
+                "required": false,
+                "question": "Room Secret",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 117,
+                "identifier": "room_name",
+                "required": false,
+                "question": "Room Name",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 118,
+                "identifier": "pending_room",
+                "required": false,
+                "question": "Pending Room",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 119,
+                "identifier": "pending_roommates",
+                "required": false,
+                "question": "Pending Roommates",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 120,
+                "identifier": "propic_locked",
+                "required": false,
+                "question": "Locked Propic",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "B"
+            },
+            {
+                "id": 121,
+                "identifier": "staff_role",
+                "required": false,
+                "question": "Staff Role",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 122,
+                "identifier": "carpooling_message",
+                "required": false,
+                "question": "Carsharing Message",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "T"
+            },
+            {
+                "id": 124,
+                "identifier": "app_token",
+                "required": false,
+                "question": "APP Token",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 125,
+                "identifier": "karaoke_songs",
+                "required": false,
+                "question": "Karaoke Songs",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "T"
+            },
+            {
+                "id": 126,
+                "identifier": "nfc_id",
+                "required": false,
+                "question": "NFC TAG ID",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 127,
+                "identifier": "can_scan_nfc",
+                "required": false,
+                "question": "NFC Scan permission",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "B"
+            },
+            {
+                "id": 128,
+                "identifier": "actual_room",
+                "required": false,
+                "question": "Stanza Reale",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 129,
+                "identifier": "badge_id",
+                "required": false,
+                "question": "Badge ID",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 130,
+                "identifier": "sc_code",
+                "required": false,
+                "question": "Codice SC",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 141,
+                "identifier": "M3QPMEVV",
+                "required": false,
+                "question": "Shuttle bus user",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "M"
+            },
+            {
+                "id": 142,
+                "identifier": "LFEBMPN9",
+                "required": true,
+                "question": "Fiscal Code",
+                "position": 0,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "Required for the issue of receipt and proper membership as a Member of the Association.",
+                "type": "S"
+            },
+            {
+                "id": 145,
+                "identifier": "propic_file",
+                "required": false,
+                "question": "Propic File",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "F"
+            },
+            {
+                "id": 146,
+                "identifier": "propic_fursuiter_file",
+                "required": false,
+                "question": "Propic fursuiter File",
+                "position": 0,
+                "hidden": true,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "F"
+            },
+            {
+                "id": 131,
+                "identifier": "fursona_name",
+                "required": true,
+                "question": "Fursona Name / Nickname",
+                "position": 1,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "This will be printed on the badge and shown in public pages.",
+                "type": "S"
+            },
+            {
+                "id": 132,
+                "identifier": "telegram_username",
+                "required": true,
+                "question": "Your Telegram nickname",
+                "position": 2,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 133,
+                "identifier": "birth_date",
+                "required": true,
+                "question": "Date of birth",
+                "position": 3,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "D"
+            },
+            {
+                "id": 134,
+                "identifier": "birth_location",
+                "required": true,
+                "question": "Place of Birth (City)",
+                "position": 4,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 135,
+                "identifier": "is_fursuiter",
+                "required": true,
+                "question": "Will you bring your own fursuit to the event?",
+                "position": 9,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "C"
+            },
+            {
+                "id": 136,
+                "identifier": "is_artist",
+                "required": true,
+                "question": "Are you an artist?",
+                "position": 10,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "C"
+            },
+            {
+                "id": 137,
+                "identifier": "is_allergic",
+                "required": true,
+                "question": "Do you have any food allergies to report to the hotel staff?",
+                "position": 11,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "C"
+            },
+            {
+                "id": 138,
+                "identifier": "GS8FUUQV",
+                "required": false,
+                "question": "What kind of allergies?",
+                "position": 12,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "S"
+            },
+            {
+                "id": 139,
+                "identifier": "notes",
+                "required": false,
+                "question": "Notes",
+                "position": 13,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "T"
+            },
+            {
+                "id": 140,
+                "identifier": "shirt_size",
+                "required": true,
+                "question": "Size",
+                "position": 14,
+                "hidden": false,
+                "ask_during_checkin": false,
+                "help_text": "",
+                "type": "C"
+            }
+        ],
+		"orders": [
+
+            {
+                "count": 34,
+                "next": null,
+                "previous": null,
+                "results": [
+                  {
+                    "id": 111,
+                    "question": {
+                      "en": "Membri Stanza",
+                      "it": "Membri Stanza"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "room_members",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 112,
+                    "question": {
+                      "en": "Room Confirmed",
+                      "it": "Stanza Confermata"
+                    },
+                    "type": "B",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "room_confirmed",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 113,
+                    "question": {
+                      "en": "Propic",
+                      "it": "Propic"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "propic",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 114,
+                    "question": {
+                      "en": "Propic Fursuiter",
+                      "it": "Fursuiter Propic"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "propic_fursuiter",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 115,
+                    "question": {
+                      "en": "Room ID",
+                      "it": "ID Stanza"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "room_id",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 116,
+                    "question": {
+                      "en": "Room Secret",
+                      "it": "Segreto Stanza"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "room_secret",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 117,
+                    "question": {
+                      "en": "Room Name",
+                      "it": "Nome Stanza"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "room_name",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 118,
+                    "question": {
+                      "en": "Pending Room",
+                      "it": "Stanza in Sospeso"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "pending_room",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 119,
+                    "question": {
+                      "en": "Pending Roommates",
+                      "it": "Pending Roommates"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "pending_roommates",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 120,
+                    "question": {
+                      "en": "Locked Propic",
+                      "it": "Propic Bloccata"
+                    },
+                    "type": "B",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "propic_locked",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 121,
+                    "question": {
+                      "en": "Staff Role",
+                      "it": "Ruolo Staff"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155
+                    ],
+                    "options": [
+                      {
+                        "id": 69,
+                        "identifier": "CGNQJNGH",
+                        "answer": {
+                          "en": "main staff",
+                          "it": "main staff"
+                        },
+                        "position": 0
+                      },
+                      {
+                        "id": 70,
+                        "identifier": "WU7S7AFD",
+                        "answer": {
+                          "en": "staff",
+                          "it": "staff"
+                        },
+                        "position": 1
+                      },
+                      {
+                        "id": 71,
+                        "identifier": "JSCHVSGR",
+                        "answer": {
+                          "en": "junior staff",
+                          "it": "junior staff"
+                        },
+                        "position": 2
+                      },
+                      {
+                        "id": 72,
+                        "identifier": "SHDKYJHG",
+                        "answer": {
+                          "en": "security",
+                          "it": "security"
+                        },
+                        "position": 3
+                      }
+                    ],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "staff_role",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 122,
+                    "question": {
+                      "en": "Carsharing Message",
+                      "it": "Messaggio Carsharing"
+                    },
+                    "type": "T",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "carpooling_message",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 124,
+                    "question": {
+                      "en": "APP Token",
+                      "it": "APP Token"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "app_token",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 125,
+                    "question": {
+                      "en": "Karaoke Songs",
+                      "it": "Canzoni Karaoke"
+                    },
+                    "type": "T",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "karaoke_songs",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 126,
+                    "question": {
+                      "en": "NFC TAG ID",
+                      "it": "NFC TAG ID"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "nfc_id",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 127,
+                    "question": {
+                      "en": "NFC Scan permission",
+                      "it": "NFC Scan permission"
+                    },
+                    "type": "B",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "can_scan_nfc",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 128,
+                    "question": {
+                      "en": "Stanza Reale",
+                      "it": "Stanza Reale"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "actual_room",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 129,
+                    "question": {
+                      "en": "Badge ID",
+                      "it": "Badge ID"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "badge_id",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 130,
+                    "question": {
+                      "en": "Codice SC",
+                      "it": "Codice SC"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "sc_code",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 141,
+                    "question": {
+                      "en": "Shuttle bus user",
+                      "it": "Utilizzatore navetta"
+                    },
+                    "type": "M",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155
+                    ],
+                    "options": [
+                      {
+                        "id": 87,
+                        "identifier": "LKMEATWV",
+                        "answer": {
+                          "en": "From Trento | Round-trip",
+                          "it": "Da Trento | Andata e Ritorno"
+                        },
+                        "position": 0
+                      },
+                      {
+                        "id": 88,
+                        "identifier": "EU9KABLC",
+                        "answer": {
+                          "en": "From Milano | Round-trip",
+                          "it": "Da Milano | Andata e Ritorno"
+                        },
+                        "position": 1
+                      },
+                      {
+                        "id": 89,
+                        "identifier": "QHCUGTJA",
+                        "answer": {
+                          "en": "From Milano | One-way ticket",
+                          "it": "Da Milano | Solo Andata"
+                        },
+                        "position": 2
+                      },
+                      {
+                        "id": 90,
+                        "identifier": "VUUBVBAR",
+                        "answer": {
+                          "en": "From Bergamo | Round-trip",
+                          "it": "Da Bergamo | Andata e Ritorno"
+                        },
+                        "position": 3
+                      },
+                      {
+                        "id": 91,
+                        "identifier": "EJQTBSGG",
+                        "answer": {
+                          "en": "From Bergamo | One-way Ticket",
+                          "it": "Da Bergamo | Solo Andata"
+                        },
+                        "position": 4
+                      },
+                      {
+                        "id": 92,
+                        "identifier": "GU3FURQP",
+                        "answer": {
+                          "en": "From Verona | Round-trip",
+                          "it": "Da Verona | Andata e Ritorno"
+                        },
+                        "position": 5
+                      },
+                      {
+                        "id": 93,
+                        "identifier": "XLL8SLES",
+                        "answer": {
+                          "en": "From Verona | One-way Ticket",
+                          "it": "Da Verona | Solo Andata"
+                        },
+                        "position": 6
+                      }
+                    ],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "M3QPMEVV",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 142,
+                    "question": {
+                      "en": "Fiscal Code",
+                      "it": "Codice Fiscale"
+                    },
+                    "type": "S",
+                    "required": true,
+                    "items": [
+                      128
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "LFEBMPN9",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": true,
+                    "help_text": {
+                      "en": "Required for the issue of receipt and proper membership as a Member of the Association."
+                    },
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 143,
+                    "question": {
+                      "en": "Badge image",
+                      "it": "Immagine badge"
+                    },
+                    "type": "F",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "badge_image",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 145,
+                    "question": {
+                      "en": "Propic File",
+                      "it": "Propic File"
+                    },
+                    "type": "F",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "propic_file",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 146,
+                    "question": {
+                      "en": "Propic fursuiter File",
+                      "it": "Propic fursuiter File"
+                    },
+                    "type": "F",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      162
+                    ],
+                    "options": [],
+                    "position": 0,
+                    "ask_during_checkin": false,
+                    "identifier": "propic_fursuiter_file",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": true,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 131,
+                    "question": {
+                      "en": "Fursona Name / Nickname",
+                      "it": "Nome Fursona / Nickname"
+                    },
+                    "type": "S",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [],
+                    "position": 1,
+                    "ask_during_checkin": false,
+                    "identifier": "fursona_name",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {
+                      "en": "This will be printed on the badge and shown in public pages.",
+                      "it": "Verrà stampato sul badge e mostrato nelle aree pubbliche del sito."
+                    },
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 132,
+                    "question": {
+                      "en": "Your Telegram nickname",
+                      "it": "Il tuo username su Telegram"
+                    },
+                    "type": "S",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [],
+                    "position": 2,
+                    "ask_during_checkin": false,
+                    "identifier": "telegram_username",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 133,
+                    "question": {
+                      "en": "Date of birth",
+                      "it": "Data di nascita"
+                    },
+                    "type": "D",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [],
+                    "position": 3,
+                    "ask_during_checkin": false,
+                    "identifier": "birth_date",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": "2005-05-29",
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 134,
+                    "question": {
+                      "en": "Place of Birth (City)",
+                      "it": "Luogo di Nascita (Città)"
+                    },
+                    "type": "S",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [],
+                    "position": 4,
+                    "ask_during_checkin": false,
+                    "identifier": "birth_location",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 135,
+                    "question": {
+                      "en": "Will you bring your own fursuit to the event?",
+                      "it": "Porterai la tua fursuit all'evento?"
+                    },
+                    "type": "C",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [
+                      {
+                        "id": 73,
+                        "identifier": "EHNBETQP",
+                        "answer": {
+                          "en": "Yes",
+                          "it": "Si"
+                        },
+                        "position": 0
+                      },
+                      {
+                        "id": 74,
+                        "identifier": "WRJVANUY",
+                        "answer": {
+                          "en": "No",
+                          "it": "No"
+                        },
+                        "position": 1
+                      }
+                    ],
+                    "position": 9,
+                    "ask_during_checkin": false,
+                    "identifier": "is_fursuiter",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 136,
+                    "question": {
+                      "en": "Are you an artist?",
+                      "it": "Sei un artista?"
+                    },
+                    "type": "C",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [
+                      {
+                        "id": 75,
+                        "identifier": "FQZDUJYJ",
+                        "answer": {
+                          "en": "Yes",
+                          "it": "Si"
+                        },
+                        "position": 0
+                      },
+                      {
+                        "id": 76,
+                        "identifier": "7E3ZZQL9",
+                        "answer": {
+                          "en": "No",
+                          "it": "No"
+                        },
+                        "position": 1
+                      }
+                    ],
+                    "position": 10,
+                    "ask_during_checkin": false,
+                    "identifier": "is_artist",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 137,
+                    "question": {
+                      "en": "Do you have any food allergies to report to the hotel staff?",
+                      "it": "Hai qualche allergia alimentare da segnalare allo staff dell'hotel?"
+                    },
+                    "type": "C",
+                    "required": true,
+                    "items": [
+                      126,
+                      127,
+                      155
+                    ],
+                    "options": [
+                      {
+                        "id": 77,
+                        "identifier": "UTNAQUBY",
+                        "answer": {
+                          "en": "Yes",
+                          "it": "Si"
+                        },
+                        "position": 0
+                      },
+                      {
+                        "id": 78,
+                        "identifier": "3UTJFMQN",
+                        "answer": {
+                          "en": "No",
+                          "it": "No"
+                        },
+                        "position": 1
+                      }
+                    ],
+                    "position": 11,
+                    "ask_during_checkin": false,
+                    "identifier": "is_allergic",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 138,
+                    "question": {
+                      "en": "What kind of allergies?",
+                      "it": "Indica le allergie"
+                    },
+                    "type": "S",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155
+                    ],
+                    "options": [],
+                    "position": 12,
+                    "ask_during_checkin": false,
+                    "identifier": "GS8FUUQV",
+                    "dependency_question": 137,
+                    "dependency_values": [
+                      "UTNAQUBY"
+                    ],
+                    "hidden": false,
+                    "dependency_value": "UTNAQUBY",
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 139,
+                    "question": {
+                      "en": "Notes",
+                      "it": "Note"
+                    },
+                    "type": "T",
+                    "required": false,
+                    "items": [
+                      126,
+                      127,
+                      155,
+                      161,
+                      162
+                    ],
+                    "options": [],
+                    "position": 13,
+                    "ask_during_checkin": false,
+                    "identifier": "notes",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  },
+                  {
+                    "id": 140,
+                    "question": {
+                      "en": "Size",
+                      "it": "Taglia"
+                    },
+                    "type": "C",
+                    "required": true,
+                    "items": [
+                      129,
+                      130,
+                      131,
+                      132
+                    ],
+                    "options": [
+                      {
+                        "id": 79,
+                        "identifier": "YKZVVLEX",
+                        "answer": {
+                          "en": "XS",
+                          "it": "XS"
+                        },
+                        "position": 0
+                      },
+                      {
+                        "id": 80,
+                        "identifier": "STVNRNAP",
+                        "answer": {
+                          "en": "S",
+                          "it": "S"
+                        },
+                        "position": 1
+                      },
+                      {
+                        "id": 81,
+                        "identifier": "PR7ZPD83",
+                        "answer": {
+                          "en": "M",
+                          "it": "M"
+                        },
+                        "position": 2
+                      },
+                      {
+                        "id": 82,
+                        "identifier": "7SGQY8XL",
+                        "answer": {
+                          "en": "L",
+                          "it": "L"
+                        },
+                        "position": 3
+                      },
+                      {
+                        "id": 83,
+                        "identifier": "BM3YTBZX",
+                        "answer": {
+                          "en": "XL",
+                          "it": "XL"
+                        },
+                        "position": 4
+                      },
+                      {
+                        "id": 84,
+                        "identifier": "WZKUVQUT",
+                        "answer": {
+                          "en": "2XL",
+                          "it": "2XL"
+                        },
+                        "position": 5
+                      },
+                      {
+                        "id": 85,
+                        "identifier": "C8DKCGZC",
+                        "answer": {
+                          "en": "3XL",
+                          "it": "3XL"
+                        },
+                        "position": 6
+                      },
+                      {
+                        "id": 86,
+                        "identifier": "P9XJCKM3",
+                        "answer": {
+                          "en": "4XL",
+                          "it": "4XL"
+                        },
+                        "position": 7
+                      },
+                      {
+                        "id": 94,
+                        "identifier": "DFKT7HQQ",
+                        "answer": {
+                          "en": "5XL",
+                          "it": "5XL"
+                        },
+                        "position": 8
+                      },
+                      {
+                        "id": 95,
+                        "identifier": "BHAVM8BX",
+                        "answer": {
+                          "en": "6XL",
+                          "it": "6XL"
+                        },
+                        "position": 9
+                      }
+                    ],
+                    "position": 14,
+                    "ask_during_checkin": false,
+                    "identifier": "shirt_size",
+                    "dependency_question": null,
+                    "dependency_values": [],
+                    "hidden": false,
+                    "dependency_value": null,
+                    "print_on_invoice": false,
+                    "help_text": {},
+                    "valid_number_min": null,
+                    "valid_number_max": null,
+                    "valid_date_min": null,
+                    "valid_date_max": null,
+                    "valid_datetime_min": null,
+                    "valid_datetime_max": null,
+                    "valid_string_length_max": null,
+                    "valid_file_portrait": false
+                  }
+                ]
+              }
+        ],
+        "quotas": [
+            {
+                "id": 61,
+                "size": null,
+                "subevent": null,
+                "items": [
+                    162,
+                    163,
+                    164,
+                    165,
+                    166
+                ],
+                "variations": []
+            },
+            {
+                "id": 47,
+                "size": 50,
+                "subevent": null,
+                "items": [
+                    153
+                ],
+                "variations": [
+                    67
+                ]
+            },
+            {
+                "id": 62,
+                "size": 50,
+                "subevent": null,
+                "items": [
+                    153
+                ],
+                "variations": [
+                    75
+                ]
+            },
+            {
+                "id": 48,
+                "size": 250,
+                "subevent": null,
+                "items": [
+                    126,
+                    127
+                ],
+                "variations": []
+            },
+            {
+                "id": 49,
+                "size": 84,
+                "subevent": null,
+                "items": [
+                    153
+                ],
+                "variations": [
+                    69
+                ]
+            },
+            {
+                "id": 50,
+                "size": 10,
+                "subevent": null,
+                "items": [
+                    153
+                ],
+                "variations": [
+                    70
+                ]
+            },
+            {
+                "id": 51,
+                "size": null,
+                "subevent": null,
+                "items": [
+                    155,
+                    162,
+                    128,
+                    129,
+                    130,
+                    131,
+                    132,
+                    133,
+                    134
+                ],
+                "variations": [
+                    55,
+                    56
+                ]
+            },
+            {
+                "id": 53,
+                "size": 11,
+                "subevent": null,
+                "items": [
+                    153
+                ],
+                "variations": [
+                    83
+                ]
+            },
+            {
+                "id": 63,
+                "size": null,
+                "subevent": null,
+                "items": [
+                    135
+                ],
+                "variations": [
+                    57,
+                    58,
+                    59,
+                    60,
+                    61
+                ]
+            },
+            {
+                "id": 54,
+                "size": null,
+                "subevent": null,
+                "items": [
+                    136
+                ],
+                "variations": [
+                    62,
+                    63,
+                    64,
+                    65,
+                    66
+                ]
+            },
+            {
+                "id": 55,
+                "size": 45,
+                "subevent": null,
+                "items": [
+                    153
+                ],
+                "variations": [
+                    68
+                ]
+            }
+        ],
+        "subevents": []
+    }
+}

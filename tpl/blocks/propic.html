@@ -1,0 +1,15 @@
+<div class="propic-container" >
+    {% if effects and (not order.sponsorship == None) %}
+    <div class="absolute propic-border {{'propic-animated-' + (order.sponsorship or 'base')}}">
+      <div class="propic-border-animation"></div>
+    </div>
+    <div class="absolute propic-border blurred {{'propic-animated-' + (order.sponsorship or 'base')}}">
+      <div class="propic-border-animation"></div>
+    </div>
+    {% endif %}
+    <img alt="Your own profile picture" src="{{imgSrc}}" class="absolute propic {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}"/>
+    <img alt="Your own profile picture" src="{{imgSrc}}" class="propic-filler {{(('propic-' + order.sponsorship) if not effects else '')}}"/>
+    {% if flag %}
+      <img alt="A country flag" class="absolute propic-flag" src="/res/flags/{{order.country.lower()}}.svg"/>
+    {% endif %}
+</div>
