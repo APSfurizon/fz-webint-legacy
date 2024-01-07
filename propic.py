@@ -45,6 +45,8 @@ async def upload_propic(request, order: Order):
 			
 			try:
 				img = Image.open(BytesIO(body[0].body))
+				if(img.size[0] > 2048 or img.size[1] > 2048):
+					raise exceptions.BadRequest("Maximum allowed dimensions: 2048x2048")
 				
 				with open(f"res/propic/{fn}_{order.code}_original", "wb") as f:
 					f.write(body[0].body)
