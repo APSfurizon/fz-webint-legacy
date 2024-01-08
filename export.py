@@ -8,7 +8,7 @@ bp = Blueprint("export", url_prefix="/manage/export")
 @bp.route("/export.csv")
 async def export_csv(request, order: Order):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
-	if order.code not in ADMINS: raise exceptions.Forbidden("Birichino :)")
+	if not order.isAdmin(): raise exceptions.Forbidden("Birichino :)")
 
 	page = 0
 	orders = {}

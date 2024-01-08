@@ -1,0 +1,14 @@
+span.nsc-room-counter {
+    font-size: medium;
+    color: var(--color);
+}
+
+#intentFormAction #intentText {
+    text-transform: capitalize;
+}
+
+@media only screen and (max-width: 500px) {
+    div.room-actions a>span {
+        display: none;
+    }    
+}

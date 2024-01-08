@@ -1,5 +1,5 @@
 <details id="badge">
-	<summary role="button"><img src="/res/icons/badge.svg" class="icon"/>Badge Customization {% if not order.ans('propic') %}<span class="status">⚠️</span>{% endif %}</summary>
+	<summary role="button"><img src="/res/icons/badge.svg" class="icon"/>Badge Customization {% if not order.isBadgeValid() %}<span class="status">⚠️</span>{% endif %}</summary>
 	{# Badge is always shown #}
 	<h2>Badge</h2>
 	{% if order.propic_locked %}
@@ -11,23 +11,23 @@
 	<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
 		<div class="grid" style="text-align:center;margin-bottom:1em;">
 			<div>
-				{% if not order.ans('propic') %}
-					<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
-				{% endif %}
-				{% with order=order, imgSrc='/res/propic/' + (order.ans('propic') or 'default.png'), effects = true %}
+				{% with order=order, imgSrc='/res/propic/' + (order.ans('propic') or 'default.png'), effects = false %}
 					{% include 'blocks/propic.html' %}
 				{% endwith %}
 				<p>Normal Badge</p>
+				{% if not order.ans('propic') %}
+					<input type="file" value="" accept="image/jpeg,image/png" name="propic" />
+				{% endif %}
 			</div>
 			{% if order.is_fursuiter %}
 				<div>
-					{% if not order.ans('propic_fursuiter') %}
-						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
-					{% endif %}
-					{% with order=order, imgSrc='/res/propic/' + (order.ans('propic_fursuiter') or 'default.png'), effects = true %}
+					{% with order=order, imgSrc='/res/propic/' + (order.ans('propic_fursuiter') or 'default.png'), effects = false %}
 						{% include 'blocks/propic.html' %}
 					{% endwith %}
 					<p>Fursuit Badge</p>
+					{% if not order.ans('propic_fursuiter') %}
+						<input type="file" value="" accept="image/jpeg,image/png" name="propic_fursuiter" />
+					{% endif %}
 				</div>
 			{% endif %}
 		</div>
@@ -36,7 +36,8 @@
 		<p class="notice">⚠️ The deadline to upload pictures for the badge has expired. For last-minute changes, please contact the support over at <a href="mailto:info@furizon.net">info@furizon.net</a>. If your badge has been printed already, changing it will incur in a 2€ fee. You can also get extra badges at the reception for the same price. If you upload a propic now, it might not be printed on time.</p>
 		{% else %}
 			<p><em>
-				Min size: 64x64 - Max Size: 5MB, 2048x2048 - Formats: jpg, png<br />
+				Min size: {{PROPIC_MIN_SIZE[0]}}x{{PROPIC_MIN_SIZE[1]}} - Max Size: {{PROPIC_MAX_FILE_SIZE}}, {{PROPIC_MAX_SIZE[0]}}x{{PROPIC_MAX_SIZE[1]}} - Formats: jpg, png<br />
+				Photos whose aspect ratio is not a square will be cropped
 				Badge photos must clearly show the fursona/fursuit head.<br />Memes and low quality images will be removed and may limit your ability to upload pics in the future.
 			</em></p>
 		{% endif %}

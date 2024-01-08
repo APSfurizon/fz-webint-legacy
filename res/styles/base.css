@@ -1,5 +1,7 @@
 /* Other blocks' styles */
 @import url('propic.css');
+@import url('admin.css');
+@import url('room.css');
 
 summary:has(span.status) {
     background-color: #ffaf0377;

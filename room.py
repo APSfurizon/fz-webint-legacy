@@ -49,7 +49,7 @@ async def delete_room(request, order: Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 
-	if order.room_id != order.code:
+	if order.room_owner:
 		raise exceptions.BadRequest("You are not allowed to delete room of others.")
 		
 	if order.ans('room_confirmed'):
@@ -176,6 +176,9 @@ async def cancel_request(request, order: Order):
 async def approve_roomreq(request, code, order: Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	
+	if not order.room_owner:
+		raise exceptions.BadRequest("You are not the owner of the room!")
 		
 	if not code in order.pending_roommates:
 		raise exceptions.BadRequest("You cannot accept people that didn't request to join your room")
@@ -230,6 +233,9 @@ async def leave_room(request, order: Order):
 async def reject_roomreq(request, code, order: Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	
+	if not order.room_owner:
+		raise exceptions.BadRequest("You are not the owner of the room!")
 		
 	if not code in order.pending_roommates:
 		raise exceptions.BadRequest("You cannot reject people that didn't request to join your room")
@@ -251,6 +257,32 @@ async def reject_roomreq(request, code, order: Order):
 	await pending_member.send_answers()
 	await order.send_answers()
 	
+	return redirect('/manage/welcome')
+
+@bp.post("/rename")
+async def rename_room(request, order: Order):
+	if not order:
+		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	
+	if not order.room_owner:
+		raise exceptions.BadRequest("You are not the owner of the room!")
+		
+	if not order.room_id:
+		raise exceptions.BadRequest("Try joining a room before renaming it.")
+
+	if order.room_confirmed:
+		raise exceptions.BadRequest("You can't rename a confirmed room!")
+	
+	if order.room_id != order.code:
+		raise exceptions.BadRequest("You are not allowed to rename rooms of others.")
+
+	name = request.form.get('name')
+	if len(name) > 64 or len(name) < 4:
+		raise exceptions.BadRequest("Your room name is invalid. Please try another one.")
+
+	await order.edit_answer("room_name", name)
+	await order.send_answers()
+
 	return redirect('/manage/welcome')
 	
 @bp.route("/confirm")

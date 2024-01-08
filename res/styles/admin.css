@@ -1,0 +1,18 @@
+div.room-actions {
+    float: right;
+}
+
+div.room-actions > a {
+    background-color: var(--card-background-color);
+    font-size: 12pt;
+    padding: 0.7rem;
+    border-radius: 1rem;
+}
+
+div.room-actions > a:hover {
+    background-color: var(--primary-focus);
+}
+
+div.room-actions > a.act-del:hover {
+    background-color: var(--del-color);
+}
