@@ -194,10 +194,14 @@ class Order:
 			print("POSITION ID IS", self.position_id)
 			
 			for i, ans in enumerate(self.answers):
+				if TYPE_OF_QUESTIONS[ans['question']] == QUESTION_TYPES["multiple_choice_from_list"]: # if multiple choice
+					identifier = ans['question_identifier']
+					if self.ans(identifier) == "": #if empty answer 
+						await self.edit_answer(identifier, None)
 				# Fix for karaoke fields
-				if ans['question'] == 40:
-					del self.answers[i]['options']
-					del self.answers[i]['option_identifiers']
+				#if ans['question'] == 40:
+				#	del self.answers[i]['options']
+				#	del self.answers[i]['option_identifiers']
 			
 			res = await client.patch(join(base_url_event, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
 			
