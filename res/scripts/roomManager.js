@@ -18,6 +18,7 @@ function confirmAction (intent, sender) {
             intentEditPanel.style.display = 'block';
             intentEdit.setAttribute('required', true)
             intentFormAction.setAttribute('method', 'POST')
+            document.getElementById("intentRename").value = sender.parentElement.parentElement.querySelector("span").innerText;
             break
         case 'unconfirm':
             break
