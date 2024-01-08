@@ -31,8 +31,9 @@ from stats import bp as stats_bp
 from api import bp as api_bp
 from carpooling import bp as carpooling_bp
 from checkin import bp as checkin_bp
+from admin import bp as admin_bp
 
-app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, checkin_bp])
+app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, checkin_bp, admin_bp])
 				
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
@@ -40,8 +41,8 @@ async def clear_session(request, exception):
 	r = html(tpl.render(exception=exception))
 	
 	if exception.status_code == 403:
-		del r.cookies["foxo_code"]
-		del r.cookies["foxo_secret"]
+		r.delete_cookie("foxo_code")
+		r.delete_cookie("foxo_secret")
 	return r
 
 @app.before_server_start
@@ -63,8 +64,12 @@ async def main_start(*_):
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
-	app.ctx.tpl.globals.update(ITEM_IDS=ITEM_IDS)
+	app.ctx.tpl.globals.update(ITEMS_ID_MAP=ITEMS_ID_MAP)
+	app.ctx.tpl.globals.update(ITEM_VARIATIONS_MAP=ITEM_VARIATIONS_MAP)
 	app.ctx.tpl.globals.update(ROOM_TYPE_NAMES=ROOM_TYPE_NAMES)
+	app.ctx.tpl.globals.update(PROPIC_MIN_SIZE=PROPIC_MIN_SIZE)
+	app.ctx.tpl.globals.update(PROPIC_MAX_SIZE=PROPIC_MAX_SIZE)
+	app.ctx.tpl.globals.update(PROPIC_MAX_FILE_SIZE=sizeof_fmt(PROPIC_MAX_FILE_SIZE))
 	app.ctx.tpl.globals.update(int=int)
 	app.ctx.tpl.globals.update(len=len)
 
@@ -156,6 +161,15 @@ async def download_ticket(request, order: Order):
 		raise exceptions.SanicException("You can download your ticket only after the order has been confirmed and paid. Try later!", status_code=400)
 
 	return raw(res.content, content_type='application/pdf')
+
+@app.route("/manage/admin")
+async def admin(request, order: Order):
+	await request.app.ctx.om.updateCache()
+	if not order:
+		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	if not order.isAdmin(): raise exceptions.Forbidden("Birichino :)")
+	tpl = app.ctx.tpl.get_template('admin.html')
+	return html(tpl.render(order=order))
 	
 @app.route("/manage/logout")
 async def logour(request):

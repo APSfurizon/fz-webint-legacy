@@ -1,5 +1,5 @@
 <details id="room">
-	<summary role="button"><img src="/res/icons/bedroom.svg" class="icon"/> Accomodation & Roommates <span class="status">{% if not order.room_confirmed %}⚠️{% endif %}</span></summary>
+	<summary role="button"><img src="/res/icons/bedroom.svg" class="icon"/> Accomodation & Roommates {% if not order.room_confirmed %}<span class="status">⚠️</span>{% endif %}</summary>
 	<h2 style="margin-bottom:0;">Your room {% if room_members %}- {{room_members[0].ans('room_name')}}{% endif %}</h2>
 	<p><b>Room's type:</b> {{ROOM_TYPE_NAMES[order.bed_in_room]}}.</p>
 	<p class="notice" style="background:#0881c0"><b>Note! </b> Only people with the same room type can be roommates. If you need help, contact the <a href="https://furizon.net/contact/">Furizon's Staff</a>.</p>
@@ -77,13 +77,17 @@
 	
 	<p class="grid">
 		{% if order.room_owner %}
-			{% if len(room_members) == 1 and not order.room_confirmed %}
-				<a href="/manage/room/delete" role="button">Delete room</a>	
-			{% endif %}	
 			
 			{% if not order.room_confirmed %}
+
+				{% if len(room_members) == 1 %}
+					<a href="/manage/room/delete" role="button">Delete room</a>	
+				{% endif %}	
+
 				{# <a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a> #}
 				<a role="button" {% if not room.forbidden and len(room_members) == order.room_person_no %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}}</strong> room</a>
+			
+				<a role="button" href="javascript:document.getElementById('modal-roomrename').setAttribute('open', 'true');">Rename room {{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}} room</a>
 			{% endif %}
 		{% else %}
 			{% if order.room_id and not order.room_confirmed %}
@@ -104,8 +108,10 @@
 					{% if person.status == 'pending' %}
 						<td><strong style="color:red;">UNPAID</strong></td>
 					{% endif %}
-					<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
-					<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
+					{% if order.room_owner %}
+						<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
+						<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
+					{% endif %}
 				</tr>
 			</div>
 				

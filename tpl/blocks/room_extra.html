@@ -45,7 +45,20 @@
 		</article>
 	</dialog>
 	
+	<dialog id="modal-roomrename">
+		<article>
+			<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+			<h3>Rename this room</h3>
+			<p>Enter your room's new name!</p>
+			<p>This name will be public and shown in the room list, so nothing offensive! :)</p>
 			
+			<form method="POST" action="/manage/room/rename">
+				<label for="name"></label>
+				<input type="text" name="name" required minlength="4" maxlength="64" />
+				<input type="submit" value="Rename room" />
+			</form>
+		</article>
+	</dialog>
 {% endif %}
 
 

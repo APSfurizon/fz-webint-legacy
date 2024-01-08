@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Admin panel{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<!-- Quick controls -->
+        <h2>Admin panel</h2>
+        <a href="/manage/admin/cache/clear" role="button" title="Reload the orders' data and the re-sync items' indexes from pretix">Clear cache</a>
+        <a href="/manage/nosecount" role="button" title="Reload the orders' data and the re-sync items' indexes from pretix">Manage rooms</a>
+		<hr>
+	</main>
+	
+{% endblock %}

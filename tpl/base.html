@@ -7,6 +7,7 @@
 		<meta name="supported-color-schemes" content="light dark">
 		<link rel="stylesheet" href="/res/pico.min.css">
 		<link rel="stylesheet" href="/res/styles/base.css">
+		<link rel="icon" type="image/x-icon" href="/res/icons/favicon.ico">
 		<style>
 			.people div {text-align:center;}
 			.people h3, .people p, .people h5 {margin:0;}
@@ -99,6 +100,7 @@
 			{% if order %}
 				<a href="/manage/carpooling">Carpooling</a>
 				<a style="float:right;" href="/manage/logout">Logout</a>
+				{% if order.isAdmin() %}<a style="float:right;" href="/manage/admin">Admin panel</a>{% endif %}
 				<a style="float:right;color: #b1b1b1;">Logged in as <i>{{order.ans('fursona_name')}}</i></a>
 			{% endif %}
 			<br clear="both" />

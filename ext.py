@@ -45,7 +45,7 @@ class Order:
 			self.country = idata['country']
 		
 		for p in self.data['positions']:
-			if p['item'] in (ITEM_IDS['ticket'] + [ITEM_IDS['daily']]):
+			if p['item'] in CATEGORIES_LIST_MAP['tickets']:
 				self.position_id = p['id']
 				self.position_positionid = p['positionid']
 				self.position_positiontypeid = p['item']
@@ -55,32 +55,33 @@ class Order:
 						self.answers[i]['answer'] = "file:keep"
 				self.barcode = p['secret']
 				self.checked_in = bool(p['checkins'])
-				if p['item'] == ITEM_IDS['daily']:
-					self.daily = True
 			
-			if p['item'] in ITEM_IDS['daily_addons']:
+			if p['item'] in CATEGORIES_LIST_MAP['dailys']:
 				self.daily = True
-				self.dailyDays.append(ITEM_IDS['daily_addons'].index(p['item']))
+				self.dailyDays.append(CATEGORIES_LIST_MAP['dailys'].index(p['item']))
 
-			if p['item'] in ITEM_IDS['membership_card']:
+			if p['item'] in CATEGORIES_LIST_MAP['memberships']:
 				self.has_card = True
 				
-			if p['item'] in ITEM_IDS['sponsorship']:
-				self.sponsorship = 'normal' if p['variation'] == ITEMS_IDS['sponsorship'][0] else 'super'
+			if p['item'] == ITEMS_ID_MAP['sponsorship_item']:
+				sponsorshipType = keyFromValue(ITEM_VARIATIONS_MAP['sponsorship_item'], p['variation'])
+				self.sponsorship = sponsorshipType[0].replace ('sponsorship_item_', '') if len(sponsorshipType) > 0 else None
 				
 			if p['attendee_name']:
 				self.first_name = p['attendee_name_parts']['given_name']
 				self.last_name = p['attendee_name_parts']['family_name']
 				
-			if p['item'] == ITEM_IDS['early_arrival']:
+			if p['item'] == ITEMS_ID_MAP['early_arrival_admission']:
 				self.has_early = True
 			
-			if p['item'] == ITEM_IDS['late_departure']:
+			if p['item'] == ITEMS_ID_MAP['late_departure_admission']:
 				self.has_late = True
 
-			if p['item'] == ITEM_IDS['bed_in_room']:
+			if p['item'] == ITEMS_ID_MAP['bed_in_room']:
+				roomTypeLst = keyFromValue(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
+				roomTypeId = roomTypeLst[0] if len(roomTypeLst) > 0 else None
 				self.bed_in_room = p['variation']
-				self.room_person_no = ROOM_MAP[self.bed_in_room] if self.bed_in_room in ROOM_MAP else None
+				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else None
 		
 		self.total = float(data['total'])
 		self.fees = 0
@@ -96,6 +97,8 @@ class Order:
 		self.payment_provider = data['payment_provider']
 		self.comment = data['comment']
 		self.phone = data['phone']
+		self.loadAns()
+	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
 		self.is_fursuiter = True if self.ans('is_fursuiter') != 'No' else False
@@ -122,8 +125,8 @@ class Order:
 		self.nfc_id = self.ans('nfc_id')
 		self.can_scan_nfc = True if self.ans('can_scan_nfc') != 'No' else False
 		self.actual_room = self.ans('actual_room')
+		self.staff_role = self.ans('staff_role')
 		self.telegram_username = self.ans('telegram_username').strip('@') if self.ans('telegram_username') else None
-
 	def __getitem__(self, var):
 		return self.data[var]
 
@@ -135,6 +138,12 @@ class Order:
 						return bool(a['answer'] == 'True')
 					return a['answer']
 		return None
+	
+	def isBadgeValid (self):
+		return self.ans('propic') and (not self.is_fursuiter or self.ans('propic_fursuiter'))
+	
+	def isAdmin (self):
+		return self.code in ADMINS or self.staff_role in ADMINS_PRETIX_ROLE_NAMES
 		
 	async def edit_answer_fileUpload(self, name, fileName, mimeType, data : bytes):
 		if(mimeType != None and data != None):
@@ -147,6 +156,7 @@ class Order:
 				await self.edit_answer(name, res['id'])
 		else:
 			await self.edit_answer(name, None)
+		self.loadAns()
 
 	async def edit_answer(self, name, new_answer):
 		found = False
@@ -168,7 +178,6 @@ class Order:
 			async with httpx.AsyncClient() as client:
 				res = await client.get(join(base_url_event, 'questions/'), headers=headers)
 				res = res.json()
-
 			for r in res['results']:
 				if r['identifier'] != name: continue
 			
@@ -178,6 +187,7 @@ class Order:
 					'answer': new_answer,
 					'options': r['options']
 				})
+		self.loadAns()
 			
 	async def send_answers(self):
 		async with httpx.AsyncClient() as client:
@@ -204,6 +214,7 @@ class Order:
 			
 		self.pending_update = False
 		self.time = -1
+		self.loadAns()
 
 @dataclass
 class Quotas:
@@ -254,6 +265,7 @@ class OrderManager:
 			self.order_list.remove(code)
 	
 	async def fill_cache(self):
+		await loadItems()
 		await loadQuestions()
 		self.empty()
 		p = 0

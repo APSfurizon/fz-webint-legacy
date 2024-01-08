@@ -8,47 +8,98 @@ base_url = "http://urlllllllllllllllllllll/api/v1/"
 base_url_event = f"{base_url}organizers/{ORGANIZER}/events/{EVENT_NAME}/"
 
 PROPIC_DEADLINE = 9999999999
+PROPIC_MAX_FILE_SIZE = 5 * 1024 * 1024 # 5MB
+PROPIC_MAX_SIZE = (2048, 2048) # (Width, Height)
+PROPIC_MIN_SIZE = (125, 125) # (Width, Height)
+
 FILL_CACHE = True
 CACHE_EXPIRE_TIME = 60 * 60 * 4
 
 DEV_MODE = True
 
-ITEM_IDS = {
-	'ticket': [126, 127, 155],
-	'membership_card': [128,],
-	'sponsorship': [55, 56], # first one = normal, second = super
-	'early_arrival': [133],
-	'late_departure': [134],
-	'room': 135,
-	'bed_in_room': 153,
-	'daily': 162,
-	'daily_addons': [163, 164, 165, 166] #This should be in date order. If there are holes in the daily-span, insert an unexisting id
+# Metadata property for item-id mapping
+METADATA_NAME = "item_name"
+# Metadata property for internal category mapping (not related to pretix's category)
+METADATA_CATEGORY = "category_name"
+
+# Maps Products metadata name <--> ID
+ITEMS_ID_MAP = {
+	'early_bird_ticket': 126,
+	'regular_ticket': 127,
+	'staff_ticket': 155,
+    'daily_ticket': 162,
+    'sponsorship_item': 129,
+    'early_arrival_admission': 133,
+    'late_departure_admission': 134,
+    'membership_card_item': 128,
+    'bed_in_room': 153,
+    'room_type': 135,
+    'room_guest': 136,
+    'daily_1': 163,
+    'daily_2': 164,
+    'daily_3': 165,
+    'daily_4': 166,
+    'daily_5': None
 }
 
+# Maps Products' variants metadata name <--> ID
+ITEM_VARIATIONS_MAP = {
+    'sponsorship_item': {
+        'sponsorship_item_normal': 55,
+        'sponsorship_item_super': 56
+    },
+    'bed_in_room': {
+        'bed_in_room_main_1': 83,
+        'bed_in_room_main_2': 67,
+        'bed_in_room_main_3': 68,
+        'bed_in_room_main_4': 69,
+        'bed_in_room_main_5': 70,
+        'bed_in_room_overflow1_2': 75,
+    },
+    'room_type': {
+        'single': 57,
+        'double': 58,
+        'triple': 59,
+        'quadruple': 60,
+        'quintuple': 61
+    },
+    'room_guest': {
+        'single': 57,
+        'double': 58,
+        'triple': 59,
+        'quadruple': 60,
+        'quintuple': 61
+    }
+}
+
+ADMINS_PRETIX_ROLE_NAMES = ["Reserved Area admin", "main staff"]
+
+# Links Products' variants' ids with the internal category name
+CATEGORIES_LIST_MAP = {
+    'tickets': [],
+    'memberships': [],
+    'sponsorships': [],
+    'tshirts': [],
+    'extra_days': [],
+    'rooms': [],
+    'dailys': []
+}
 # Create a bunch of "room" items which will get added to the order once somebody gets a room.
-# Map variationId -> numberOfPeopleInRoom
-ROOM_MAP = {
+# Map item_name -> room capacity
+ROOM_CAPACITY_MAP = {
 	# SACRO CUORE
-	83: 1,
-	67: 2,
-	68: 3,
-	69: 4,
-	70: 5,
+    'bed_in_room_main_1': 1,
+    'bed_in_room_main_2': 2,
+    'bed_in_room_main_3': 3,
+    'bed_in_room_main_4': 4,
+    'bed_in_room_main_5': 5,
 
-	# OVERFLOW 1
-	75: 2
+    # OVERFLOW 1
+    'bed_in_room_overflow1_2': 2,
 }
 
-ROOM_TYPE_NAMES = {
-	83: "Park Hotel Sacro Cuore (main hotel) - Single",
-	67: "Park Hotel Sacro Cuore (main hotel) - Double",
-	68: "Park Hotel Sacro Cuore (main hotel) - Triple",
-	69: "Park Hotel Sacro Cuore (main hotel) - Quadruple",
-	70: "Park Hotel Sacro Cuore (main hotel) - Quintuple",
-
-	# OVERFLOW 1
-	75: "Hotel San Valier (overflow hotel) - Double"
-}
+# Autofilled
+ROOM_TYPE_NAMES = { }
 
 # This is used for feedback sending inside of the app. Feedbacks will be sent to the specified chat using the bot api id.
 TG_BOT_API = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
