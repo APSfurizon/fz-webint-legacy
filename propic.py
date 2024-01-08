@@ -67,8 +67,6 @@ async def upload_propic(request, order: Order):
 				
 				with open(f"res/propic/{fn}_{order.code}_original.jpg", "wb") as f:
 					f.write(body[0].body)
-					f.flush()
-					f.close()
 							
 				aspect_ratio = width/height
 				if aspect_ratio > 1:
@@ -87,8 +85,6 @@ async def upload_propic(request, order: Order):
 				imgBytes = imgBytes.getvalue()
 				with open(f"res/propic/{fn}_{order.code}_{h}.jpg", "wb") as f:
 					f.write(imgBytes)
-					f.flush()
-					f.close()
 
 				await order.edit_answer_fileUpload(f'{fn}_file', f'{fn}_file_{order.code}_{h}.jpg', 'image/jpeg', imgBytes)
 			except Exception:

@@ -2,7 +2,7 @@
 {% block title %}Furizon 2024 Nosecount{% endblock %}
 {% block main %}
 	<main class="container">
-		{% if order.isAdmin() %}
+		{% if order and order.isAdmin() %}
 			<script src="/res/scripts/roomManager.js"></script>
 		{% endif %}
 		<header>
@@ -16,7 +16,7 @@
 			{% if o.code == o.room_id and o.room_confirmed %}
 				<h4 style="margin-top:1em;">
 					<span>{{o.room_name}}</span>
-					{% if order.isAdmin() %}
+					{% if order and order.isAdmin() %}
 						<div class="room-actions">
 							<a onclick="confirmAction('rename', this)" action="/manage/admin/room/rename/{{o.code}}"><img src="/res/icons/pencil.svg" class="icon" /><span>Rename</span></a>
 							<a onclick="confirmAction('unconfirm', this)" action="/manage/admin/room/unconfirm/{{o.code}}"><img src="/res/icons/door_open.svg" class="icon" /><span>Unconfirm</span></a>
@@ -49,7 +49,7 @@
 			<h3>
 				<span>{{o.room_name}}</span>
 				{% if o.room_person_no - len(o.room_members) > 0 %} <span class="nsc-room-counter"> - Remaining slots: {{o.room_person_no - len(o.room_members)}}</span> {% endif %}
-				{% if order.isAdmin() %}
+				{% if order and order.isAdmin() %}
 					<div class="room-actions">
 						<a onclick="confirmAction('rename', this)" action="/manage/admin/room/rename/{{o.code}}"><img src="/res/icons/pencil.svg" class="icon" /><span>Rename</span></a>
 						<a class="act-del" onclick="confirmAction('delete', this)" action="/manage/admin/room/delete/{{o.code}}"><img src="/res/icons/delete.svg" class="icon" /><span>Delete</span></a>
