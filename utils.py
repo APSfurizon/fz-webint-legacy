@@ -125,10 +125,12 @@ def sizeof_fmt(num, suffix="B"):
         num /= 1000.0
     return f"{num:.1f}Yi{suffix}"
 
-async def getOrderByCode_safe(request, code):
+async def getOrderByCode(request, code, throwException=False):
 	res = await request.app.ctx.om.get_order(code=code)
+	if not throwException:
+		return res
 	if res is None:
-		raise exceptions.BadRequest(f"[getOrderByCode_safe] Code {code} not found!")
+		raise exceptions.BadRequest(f"[getOrderByCode] Code {code} not found!")
 	return res
 
 def getPeopleInRoomByRoomId(request, roomId):
