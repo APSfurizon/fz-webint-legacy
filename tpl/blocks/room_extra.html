@@ -54,7 +54,7 @@
 			
 			<form method="POST" action="/manage/room/rename">
 				<label for="name"></label>
-				<input type="text" name="name" required minlength="4" maxlength="64" />
+				<input type="text" name="name" required minlength="4" maxlength="64" value="{{order.ans('room_name')}}"/>
 				<input type="submit" value="Rename room" />
 			</form>
 		</article>

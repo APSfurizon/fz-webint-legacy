@@ -26,7 +26,7 @@ async def clearCache(request, order:Order):
 @bp.get('/room/unconfirm/<code>')
 async def unconfirmRoom(request, code, order:Order):
 	credentialsCheck(request, order)
-	dOrder = await getOrderByCode_safe(request, code)
+	dOrder = await getOrderByCode(request, code, throwException=True)
 
 	if(not dOrder.room_confirmed):
 		raise exceptions.BadRequest("Room is not confirmed!")
@@ -41,7 +41,7 @@ async def unconfirmRoom(request, code, order:Order):
 @bp.get('/room/delete/<code>')
 async def deleteRoom(request, code, order:Order):
 	credentialsCheck(request, order)
-	dOrder = await getOrderByCode_safe(request, code)
+	dOrder = await getOrderByCode(request, code, throwException=True)
 
 	ppl = getPeopleInRoomByRoomId(request, code)
 	for p in ppl:
@@ -61,7 +61,7 @@ async def deleteRoom(request, code, order:Order):
 @bp.post('/room/rename/<code>')
 async def renameRoom(request, code, order:Order):
 	credentialsCheck(request, order)
-	dOrder = await getOrderByCode_safe(request, code)
+	dOrder = await getOrderByCode(request, code, throwException=True)
 
 	name = request.form.get('name')
 	if len(name) > 64 or len(name) < 4:

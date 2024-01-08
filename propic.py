@@ -18,7 +18,8 @@ async def resetDefaultPropic(request, order: Order, isFursuiter, sendAnswer=True
 		data = f.read()
 		f.close()
 	os.remove(f"res/propic/{order.ans(f'propic{s}')}") # converted file
-	os.remove(f"res/propic/{order.ans(f'propic{s}').split(".jpg")[0]}_original.jpg") # original file
+	filenameNoExt = order.ans(f'propic{s}').split(".jpg")[0]
+	os.remove(f"res/propic/{filenameNoExt}_original.jpg") # original file
 	await order.edit_answer_fileUpload(f'propic{s}_file', f'propic{s}_file_{order.code}_default.png', 'image/png', data)
 	if(sendAnswer):
 		await order.send_answers()
