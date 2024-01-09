@@ -58,12 +58,12 @@ svg.propic-border-filter {
 
 .propic-border.propic-animated-super .propic-border-animation {
     background: linear-gradient(90deg, #FA5E00 20%, #FAAA00 40%, #FB8C00 60%, #FA3200 80%, #FAC800 100%);
-    animation: border-animation 1s linear 0ms infinite;
+    animation: border-animation 2.5s linear 0ms infinite;
 }
 
 .propic-border.propic-animated-normal .propic-border-animation {
     background: linear-gradient(90deg, #6124AB 20%, #AB248F 40%, #8E24AA 60%, #3524AB 80%, #AB243E 100%);
-    animation: border-animation 1s linear 0ms infinite;
+    animation: border-animation 2.5s linear 0ms infinite;
 }
 
 @keyframes border-animation {
