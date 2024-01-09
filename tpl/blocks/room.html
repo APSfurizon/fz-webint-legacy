@@ -85,9 +85,9 @@
 				{% endif %}	
 
 				{# <a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a> #}
-				<a role="button" {% if not room.forbidden and len(room_members) == order.room_person_no %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}}</strong> room</a>
+				<a role="button" {% if not room.forbidden and len(room_members) == order.room_person_no %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm {{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}} room</a>
 			
-				<a role="button" href="javascript:document.getElementById('modal-roomrename').setAttribute('open', 'true');">Rename room {{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}} room</a>
+				<a role="button" href="javascript:document.getElementById('modal-roomrename').setAttribute('open', 'true');">Rename room</a>
 			{% endif %}
 		{% else %}
 			{% if order.room_id and not order.room_confirmed %}
