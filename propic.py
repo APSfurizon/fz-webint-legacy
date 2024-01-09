@@ -17,9 +17,16 @@ async def resetDefaultPropic(request, order: Order, isFursuiter, sendAnswer=True
 	with open("res/propic/default.png", "rb") as f:
 		data = f.read()
 		f.close()
-	os.remove(f"res/propic/{order.ans(f'propic{s}')}") # converted file
-	filenameNoExt = order.ans(f'propic{s}').split(".jpg")[0]
-	os.remove(f"res/propic/{filenameNoExt}_original.jpg") # original file
+	
+	convertedFilename = order.ans(f'propic{s}')
+	if convertedFilename is not None:
+		convertedFilename = f"res/propic/{convertedFilename}"
+		if os.path.exists(convertedFilename):
+			os.remove(convertedFilename) # converted file
+	originalFilename = f"res/propic/propic{s}_{order.code}_original"
+	if os.path.exists(originalFilename):
+		os.remove(originalFilename) # original file
+	
 	await order.edit_answer_fileUpload(f'propic{s}_file', f'propic{s}_file_{order.code}_default.png', 'image/png', data)
 	if(sendAnswer):
 		await order.send_answers()
@@ -35,11 +42,11 @@ async def upload_propic(request, order: Order):
 		raise exceptions.BadRequest("The deadline has passed. You cannot modify the badges at this moment.")
 		
 	if request.form.get('submit') == 'Delete main image':
-			await order.edit_answer('propic', None)	
 			await resetDefaultPropic(request, order, False, sendAnswer=False)
+			await order.edit_answer('propic', None)	#This MUST come after the reset default propic!
 	elif request.form.get('submit') == 'Delete fursuit image':
-			await order.edit_answer('propic_fursuiter', None)
 			await resetDefaultPropic(request, order, True, sendAnswer=False)
+			await order.edit_answer('propic_fursuiter', None) #This MUST come after the reset default propic!
 	else:
 		for fn, body in request.files.items():
 			if fn not in ['propic', 'propic_fursuiter']:
@@ -66,7 +73,7 @@ async def upload_propic(request, order: Order):
 					raise exceptions.BadRequest(errorDetails)
 
 				
-				with open(f"res/propic/{fn}_{order.code}_original.jpg", "wb") as f:
+				with open(f"res/propic/{fn}_{order.code}_original", "wb") as f:
 					f.write(body[0].body)
 							
 				aspect_ratio = width/height
