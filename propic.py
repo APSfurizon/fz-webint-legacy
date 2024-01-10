@@ -58,10 +58,13 @@ async def upload_propic(request, order: Order):
 			if len(body[0].body) > PROPIC_MAX_FILE_SIZE:
 				raise exceptions.BadRequest("File size too large for " + ("Profile picture" if fn == 'propic' else 'Fursuit picture'))
 			
-			h = sha224(body[0].body).hexdigest()[:32]
 			errorDetails = ''
+			bodyBytesBuff = None
+			imgBytesBuff = None
+			img = None
 			try:
-				img = Image.open(BytesIO(body[0].body))
+				bodyBytesBuff = BytesIO(body[0].body)
+				img = Image.open(bodyBytesBuff)
 				width, height = img.size
 				# Checking for min / max size
 				if width < PROPIC_MIN_SIZE[0] or height < PROPIC_MIN_SIZE[1]:
@@ -88,19 +91,28 @@ async def upload_propic(request, order: Order):
 				width, height = img.size
 
 				img.thumbnail((512,512))
-				imgBytes = BytesIO()
-				img.save(imgBytes, format='jpeg')
-				imgBytes = imgBytes.getvalue()
-				with open(f"res/propic/{fn}_{order.code}_{h}.jpg", "wb") as f:
+				imgBytesBuff = BytesIO()
+				img.save(imgBytesBuff, format='jpeg')
+				imgBytes = imgBytesBuff.getvalue()
+				with open(f"res/propic/{fn}_{order.code}.jpg", "wb") as f:
 					f.write(imgBytes)
 
-				await order.edit_answer_fileUpload(f'{fn}_file', f'{fn}_file_{order.code}_{h}.jpg', 'image/jpeg', imgBytes)
+				await order.edit_answer_fileUpload(f'{fn}_file', f'{fn}_file_{order.code}.jpg', 'image/jpeg', imgBytes)
 			except Exception:
 				import traceback
 				if DEV_MODE: print(traceback.format_exc())
 				raise exceptions.BadRequest(errorDetails if errorDetails else "The image you uploaded is not valid.")
 			else:
-				await order.edit_answer(fn, f"{fn}_{order.code}_{h}.jpg")
+				await order.edit_answer(fn, f"{fn}_{order.code}.jpg")
+			
+			if img is not None:
+				img.close()
+			if bodyBytesBuff is not None:
+				bodyBytesBuff.flush()
+				bodyBytesBuff.close()
+			if imgBytesBuff is not None:
+				imgBytesBuff.flush()
+				imgBytesBuff.close()
 			
 	await order.send_answers()
 	return redirect("/manage/welcome#badge")
