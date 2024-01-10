@@ -42,16 +42,10 @@
 			</em></p>
 		{% endif %}
 		
-		<div class="grid">
-			{% if order.ans('propic') %}
-				<input type="submit" name="submit" value="Delete main image" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
-			{% endif %}
-			{% if order.ans('propic_fursuiter') %}
-				<input type="submit" name="submit" value="Delete fursuit image" {{'disabled' if time() > PROPIC_DEADLINE else ''}} />
-			{% endif %}
-			{% if not order.ans('propic') or (order.is_fursuiter and not order.ans('propic_fursuiter')) %}
-				<input type="submit" name="submit" value="Upload" />
-			{% endif %}
+		<div class="grid grid_2x2">
+			<input style="grid-area: 1 / 1 / 2 / 3;" type="submit" name="submit" value="Upload" {{'disabled' if (order.ans('propic') and order.ans('propic_fursuiter')) else ''}} />
+			<input style="grid-area: 2 / 1 / 3 / 2;" type="submit" name="submit" value="Delete main image" {{'disabled' if (time() > PROPIC_DEADLINE or not order.ans('propic'))  else ''}} />
+			<input style="grid-area: 2 / 2 / 3 / 3;" type="submit" name="submit" value="Delete fursuit image" {{'disabled' if (time() > PROPIC_DEADLINE or not order.ans('propic_fursuiter')) else ''}} />
 		</div>
 	</form>
 </details>
