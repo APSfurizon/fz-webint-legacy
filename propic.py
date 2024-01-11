@@ -12,7 +12,7 @@ bp = Blueprint("propic", url_prefix="/manage/propic")
 
 async def resetDefaultPropic(request, order: Order, isFursuiter, sendAnswer=True):
 	s = "_fursuiter" if isFursuiter else ""
-	if (DEV_MODE): 
+	if (EXTRA_PRINTS): 
 		print("Resetting {fn} picture for {orderCod}".format(fn="Badge" if not isFursuiter else "fursuit", orderCod = order.code))
 	with open("res/propic/default.png", "rb") as f:
 		data = f.read()
@@ -100,7 +100,7 @@ async def upload_propic(request, order: Order):
 				await order.edit_answer_fileUpload(f'{fn}_file', f'{fn}_file_{order.code}.jpg', 'image/jpeg', imgBytes)
 			except Exception:
 				import traceback
-				if DEV_MODE: print(traceback.format_exc())
+				if EXTRA_PRINTS: print(traceback.format_exc())
 				raise exceptions.BadRequest(errorDetails if errorDetails else "The image you uploaded is not valid.")
 			else:
 				await order.edit_answer(fn, f"{fn}_{order.code}.jpg")

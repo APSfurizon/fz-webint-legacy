@@ -16,6 +16,8 @@ FILL_CACHE = True
 CACHE_EXPIRE_TIME = 60 * 60 * 4
 
 DEV_MODE = True
+ACCESS_LOG = True
+EXTRA_PRINTS = True
 
 # Metadata property for item-id mapping
 METADATA_NAME = "item_name"

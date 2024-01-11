@@ -176,4 +176,4 @@ async def logour(request):
 	raise exceptions.Forbidden("You have been logged out.")
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=8188, dev=DEV_MODE)
+	app.run(host="0.0.0.0", port=8188, dev=DEV_MODE, access_log=ACCESS_LOG)
