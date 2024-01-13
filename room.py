@@ -49,7 +49,7 @@ async def delete_room(request, order: Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 
-	if order.room_owner:
+	if not order.room_owner:
 		raise exceptions.BadRequest("You are not allowed to delete room of others.")
 		
 	if order.ans('room_confirmed'):
