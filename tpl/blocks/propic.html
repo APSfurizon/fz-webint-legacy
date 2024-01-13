@@ -1,14 +1,20 @@
 <div class="propic-container" >
     {% if effects and (not order.sponsorship == None) %}
-    <div class="absolute propic-border {{'propic-animated-' + (order.sponsorship or 'base')}}">
-      <div class="propic-border-animation"></div>
+    <div aria-hidden="true" class="absolute propic-border {{'propic-animated-' + (order.sponsorship or 'base')}}">
+      <div aria-hidden="true" class="propic-border-animation"></div>
     </div>
-    <div class="absolute propic-border blurred {{'propic-animated-' + (order.sponsorship or 'base')}}">
-      <div class="propic-border-animation"></div>
+    <div aria-hidden="true" class="absolute propic-border blurred {{'propic-animated-' + (order.sponsorship or 'base')}}">
+      <div aria-hidden="true" class="propic-border-animation"></div>
     </div>
     {% endif %}
-    <img alt="Your own profile picture" src="{{imgSrc}}" class="absolute propic {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}"/>
-    <svg alt="" class="propic-filler {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"></svg>
+    {% if current and current.isAdmin () and (not current.code == order.code )%}
+    <a class="control-login-as" href="/manage/admin/loginas/{{order.code}}">
+    {% endif %}
+    <img alt="{{order.ans('fursona_name') if order.ans('fursona_name') else 'A user'}}'s profile picture" src="{{imgSrc}}" class="absolute propic {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}"/>
+    <svg aria-hidden="true" alt="" class="propic-filler {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}" viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg"></svg>
+    {% if current and current.isAdmin () %}
+    </a>
+    {% endif %}
     {% if flag %}
       <img alt="flag" class="absolute propic-flag" src="/res/flags/{{order.country.lower()}}.svg"/>
     {% endif %}

@@ -7,14 +7,14 @@ span.nsc-room-counter {
     text-transform: capitalize;
 }
 
-@media only screen and (max-width: 500px) {
-    div.room-actions a>span {
-        display: none;
-    }    
-}
-
 #room a[role=button] {
     display: inline-flex;
     justify-content: space-around;
     align-items: center;
+}
+
+@media only screen and (max-width: 500px) {
+    div.room-actions a>span {
+        display: none;
+    }    
 }
