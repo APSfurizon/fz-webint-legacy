@@ -15,7 +15,8 @@ class Order:
 		self.time = time()
 		self.data = data
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
-		
+		self.secret = data['secret']
+
 		if not len(self.data['positions']):
 			self.status = 'canceled'
 		
