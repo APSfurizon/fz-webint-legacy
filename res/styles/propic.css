@@ -99,6 +99,9 @@ svg.propic-border-filter {
 .control-login-as:hover::before{
     background-color: #2f4e5cc5;
     position: absolute;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
     width: 100%;
     height: 100%;
     content: 'Enter as';
