@@ -1,0 +1,23 @@
+<nav id="topbar">
+    <a id="mobileMenu">
+        <img class="nav-hamburger icon" src="/res/icons/menu.svg"/>
+    </a>
+    <div class="navbar-container">
+        {% if order %}
+        <a href="/manage/welcome">
+            <img class="navbar-propic" src="{{'/res/propic/' + (order.ans('propic') or 'default.png')}}"></img>{{order.ans('fursona_name')}}'s Booking
+        </a>
+        {% if order.isAdmin() %}<a class="" href="/manage/admin">Admin panel</a>{% endif %}
+        {% endif %}
+        <a href="/manage/nosecount">Nose Count</a>
+        <a href="/manage/fursuitcount">Fursuit Count</a>
+        <a href="/manage/sponsorcount" class="rainbow-text">Sponsor Count</a>
+        {% if order %}
+            <a href="/manage/carpooling">Carpooling</a>
+            
+            
+            <a class="align-right" href="/manage/logout">Logout</a>
+        {% endif %}
+        <br clear="both" />
+    </div>
+</nav>

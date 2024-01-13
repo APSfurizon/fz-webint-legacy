@@ -1,0 +1,104 @@
+nav#topbar.closed {
+    top: -10rem;
+}
+
+nav#topbar {
+    background-color :var(--card-background-color);
+    width: 100vw;
+    position: sticky;
+    display: inline-block;
+    z-index: 9999;
+    padding: 0.2rem 0.7em;
+    margin: 0;
+    white-space: nowrap;
+    top: 0rem;
+    transition: top 300ms;
+    line-height: 2em;
+}
+
+nav#topbar a {
+    display: inline-block;
+    padding: 0 0.6em;
+    line-height: 2em;
+    margin: 0;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+nav#topbar .navbar-propic {
+    margin-right: 0.3rem;
+    border-radius: 0.2rem;
+    vertical-align: sub;
+}
+
+nav#topbar a.align-right {
+    float: right;
+}
+
+nav img {
+    height: 1.2em;
+    display: inline;
+    vertical-align:middle; 
+    box-sizing: border-box;
+}
+
+a.rainbow-text {
+    background-image: repeating-linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+    background-size: 2000% 2000%;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 4s linear infinite;
+}
+
+@keyframes rainbow { 
+    0% { background-position:0% 0%; }
+    100% { background-position:57.75% 0%; }
+}
+
+nav a#mobileMenu {
+    display: none;
+}
+
+nav .navbar-container {
+    overflow: hidden;
+}
+
+@media only screen and (max-width: 924px) {
+
+    nav#topbar::before {
+        transition-delay: 200ms;
+        transition-property: background-image;
+    }
+
+    nav#topbar:has(.navbar-container:not(.open))::before{
+        background-image: url('/res/furizon.png');
+        background-size: contain;
+        background-position: 50%;
+        background-origin: content-box;
+    }
+
+    nav#topbar.closed {
+        top: -100rem;
+    }
+
+    nav#topbar a#mobileMenu {
+        display: block;
+        max-width: 3rem;
+    }
+
+    nav#topbar .navbar-container {
+        transition: max-height 200ms;
+        display: flex;
+        flex-direction: column;
+    }
+
+    nav#topbar .navbar-container:not(.open) {
+        max-height: 0rem;
+    }
+
+    nav#topbar .navbar-container.open {
+        max-height: 30rem;
+    }
+}

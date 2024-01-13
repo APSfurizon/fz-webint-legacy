@@ -2,9 +2,19 @@
 @import url('propic.css');
 @import url('admin.css');
 @import url('room.css');
+@import url('navbar.css');
+
+a[role=button] {
+    margin: 0.25em 0;
+}
 
 summary:has(span.status) {
     background-color: #ffaf0377;
+}
+
+/* Dark theme */
+@media only screen and (prefers-color-scheme: dark) {
+    .icon {filter: invert(1);}
 }
 
 /* Mobile only */
