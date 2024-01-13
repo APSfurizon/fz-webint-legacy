@@ -11,7 +11,7 @@
 	<form method="POST" enctype="multipart/form-data" action="/manage/propic/upload">
 		<div class="grid" style="text-align:center;margin-bottom:1em;">
 			<div>
-				{% with order=order, imgSrc='/res/propic/' + (order.ans('propic') or 'default.png'), effects = false %}
+				{% with current=order, order=order, imgSrc='/res/propic/' + (order.ans('propic') or 'default.png'), effects = false %}
 					{% include 'blocks/propic.html' %}
 				{% endwith %}
 				<p>Normal Badge</p>
@@ -21,7 +21,7 @@
 			</div>
 			{% if order.is_fursuiter %}
 				<div>
-					{% with order=order, imgSrc='/res/propic/' + (order.ans('propic_fursuiter') or 'default.png'), effects = false %}
+					{% with current=order, order=order, imgSrc='/res/propic/' + (order.ans('propic_fursuiter') or 'default.png'), effects = false %}
 						{% include 'blocks/propic.html' %}
 					{% endwith %}
 					<p>Fursuit Badge</p>

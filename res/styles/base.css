@@ -6,3 +6,16 @@
 summary:has(span.status) {
     background-color: #ffaf0377;
 }
+
+/* Mobile only */
+@media only screen and ((max-width: 500px) or (hover: none)) {
+    .propic-border.blurred {
+        display: none;
+    }
+}
+
+@media only screen and (prefers-reduced-motion) {
+    .propic-border.blurred {
+        display: none;
+    }
+}

@@ -17,7 +17,7 @@
 				<div class="grid people" style="padding-bottom:1em;">
 			{% endif %}
 				<div style="margin-bottom: 1em;">
-					{% with order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
+					{% with current=order, order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
 						{% include 'blocks/propic.html' %}
 					{% endwith %}
 					<h5>{{person.ans('fursona_name')}}</h5>
@@ -32,7 +32,7 @@
 				<div class="grid people" style="padding-bottom:1em;">
 			{% endif %}
 				<div style="margin-bottom: 1em;">
-					{% with order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
+					{% with current=order, order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
 						{% include 'blocks/propic.html' %}
 					{% endwith %}
 					<h5>{{person.ans('fursona_name')}}</h5>
