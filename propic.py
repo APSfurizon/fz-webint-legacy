@@ -55,6 +55,8 @@ async def upload_propic(request, order: Order):
 			if not body[0].body: continue
 			
 			# Check max file size
+			if EXTRA_PRINTS:
+				print(f"Image {fn} weight: {len(body[0].body)} bytes")
 			if len(body[0].body) > PROPIC_MAX_FILE_SIZE:
 				raise exceptions.BadRequest("File size too large for " + ("Profile picture" if fn == 'propic' else 'Fursuit picture'))
 			

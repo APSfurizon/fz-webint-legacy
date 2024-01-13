@@ -49,7 +49,7 @@ async def clear_session(request, exception):
 async def main_start(*_):
 	print(">>>>>> main_start <<<<<<")
 
-	app.config.REQUEST_MAX_SIZE = 1024 * 1024 * 5 # 5 MB
+	app.config.REQUEST_MAX_SIZE = PROPIC_MAX_FILE_SIZE * 3
 	
 	app.ctx.om = OrderManager()
 	if FILL_CACHE:
@@ -167,12 +167,24 @@ async def admin(request, order: Order):
 	await request.app.ctx.om.updateCache()
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	if EXTRA_PRINTS:
+		print(f"Checking admin credentials of {order.code} with secret {order.secret}")
 	if not order.isAdmin(): raise exceptions.Forbidden("Birichino :)")
 	tpl = app.ctx.tpl.get_template('admin.html')
 	return html(tpl.render(order=order))
 	
 @app.route("/manage/logout")
 async def logour(request):
+	orgCode = request.cookies.get("foxo_code_ORG")
+	orgSecret = request.cookies.get("foxo_secret_ORG")
+	if orgCode != None and orgSecret != None:
+		r = redirect(f'/manage/welcome')
+		r.cookies['foxo_code'] = orgCode
+		r.cookies['foxo_secret'] = orgSecret
+		r.delete_cookie("foxo_code_ORG")
+		r.delete_cookie("foxo_secret_ORG")
+		return r
+
 	raise exceptions.Forbidden("You have been logged out.")
 
 if __name__ == "__main__":
