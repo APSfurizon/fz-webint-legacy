@@ -183,6 +183,8 @@ async def logour(request):
 		r.cookies['foxo_secret'] = orgSecret
 		r.delete_cookie("foxo_code_ORG")
 		r.delete_cookie("foxo_secret_ORG")
+		del r.cookies['foxo_code_ORG']
+		del r.cookies['foxo_secret_ORG']
 		return r
 
 	raise exceptions.Forbidden("You have been logged out.")
