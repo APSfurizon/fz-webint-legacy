@@ -7,7 +7,8 @@ function confirmAction (intent, sender) {
     let intentFormAction =  document.querySelector("#intentFormAction")
     let intentSend =  document.querySelector("#intentSend")
     // Resetting ui
-    intentEdit.setAttribute('required', false)
+    intentEdit.removeAttribute('required')
+    intentEdit.removeAttribute('minlength')
     intentFormAction.setAttribute('method', 'GET')
     intentEditPanel.style.display = 'none';
 
@@ -17,6 +18,7 @@ function confirmAction (intent, sender) {
         case 'rename':
             intentEditPanel.style.display = 'block';
             intentEdit.setAttribute('required', true)
+            intentEdit.setAttribute('minlength', 4)
             intentFormAction.setAttribute('method', 'POST')
             document.getElementById("intentRename").value = sender.parentElement.parentElement.querySelector("span").innerText;
             break

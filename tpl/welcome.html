@@ -31,7 +31,7 @@
 				<tr>
 					<th>When (check-in)?</th>
 					<td>
-						{{('3' if order.has_early else '4')|safe}} October → {{('9' if order.has_late else '8')|safe}} June 2024
+						{{('3' if order.has_early else '4')|safe}} June → {{('9' if order.has_late else '8')|safe}} June 2024
 						{% if order.has_early %}
 							<span class="tag">EARLY</span>
 						{% endif %}

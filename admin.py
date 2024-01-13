@@ -12,16 +12,36 @@ import json
 
 bp = Blueprint("admin", url_prefix="/manage/admin")
 
-def credentialsCheck (request, order:Order):
+def credentialsCheck(request, order:Order):
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	if EXTRA_PRINTS:
+		print(f"Checking admin credentials of {order.code} with secret {order.secret}")
 	if not order.isAdmin() : raise exceptions.Forbidden("Birichino :)")
+
+
 
 @bp.get('/cache/clear')
 async def clearCache(request, order:Order):
 	credentialsCheck(request, order)
 	await request.app.ctx.om.fill_cache()
 	return redirect(f'/manage/admin')
+
+@bp.get('/loginas/<code>')
+async def loginAs(request, code, order:Order):
+	credentialsCheck(request, order)
+	dOrder = await getOrderByCode(request, code, throwException=True)
+	if(dOrder.isAdmin()):
+		raise exceptions.Forbidden("You can't login as another admin!")
+
+	if EXTRA_PRINTS:
+		print(f"Swapping login: {order.secret} {order.code} -> {dOrder.secret} {code}")
+	r = redirect(f'/manage/welcome')
+	r.cookies['foxo_code_ORG'] = order.code
+	r.cookies['foxo_secret_ORG'] = order.secret
+	r.cookies['foxo_code'] = code
+	r.cookies['foxo_secret'] = dOrder.secret
+	return r
 
 @bp.get('/room/unconfirm/<code>')
 async def unconfirmRoom(request, code, order:Order):

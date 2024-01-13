@@ -73,7 +73,7 @@ async def loadItems():
 				categoryName = checkAndGetCategory ('item', q)
 				if not categoryName: continue
 				CATEGORIES_LIST_MAP[categoryName].append(q['id'])
-		if (DEV_MODE):
+		if (EXTRA_PRINTS):
 			print (f'Mapped Items:')
 			print (ITEMS_ID_MAP)
 			print (f'Mapped Variations:')
@@ -86,13 +86,13 @@ async def loadItems():
 # Tries to get an item name from metadata. Prints a warning if an item has no metadata
 def checkAndGetName(type, q):
 	itemName = extractMetadataName(q)
-	if not itemName and DEV_MODE:			
+	if not itemName and EXTRA_PRINTS:			
 		print (type + ' ' + q['id'] + ' has not been mapped.')
 	return itemName
 
 def checkAndGetCategory (type, q):
 	categoryName = extractCategory (q)
-	if not categoryName and DEV_MODE:
+	if not categoryName and EXTRA_PRINTS:
 		print (type + ' ' + q['id'] + ' has no category set.')
 	return categoryName
 

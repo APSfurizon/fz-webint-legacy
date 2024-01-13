@@ -15,7 +15,8 @@ class Order:
 		self.time = time()
 		self.data = data
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
-		
+		self.secret = data['secret']
+
 		if not len(self.data['positions']):
 			self.status = 'canceled'
 		
@@ -119,7 +120,7 @@ class Order:
 		self.pending_room = self.ans('pending_room')
 		self.pending_roommates = self.ans('pending_roommates').split(',') if self.ans('pending_roommates') else []
 		self.room_members = self.ans('room_members').split(',') if self.ans('room_members') else []
-		self.room_owner = (self.code == self.room_id)
+		self.room_owner = (self.code is not None and self.room_id is not None and self.code.strip() == self.room_id.strip())
 		self.room_secret = self.ans('room_secret')
 		self.app_token = self.ans('app_token')
 		self.nfc_id = self.ans('nfc_id')

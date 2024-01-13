@@ -12,3 +12,9 @@ span.nsc-room-counter {
         display: none;
     }    
 }
+
+#room a[role=button] {
+    display: inline-flex;
+    justify-content: space-around;
+    align-items: center;
+}
