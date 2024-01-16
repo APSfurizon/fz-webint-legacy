@@ -4,6 +4,8 @@ from random import choice
 from ext import *
 from config import headers
 
+jobs = []
+
 bp = Blueprint("room", url_prefix="/manage/room")
 
 @bp.post("/create")
@@ -350,3 +352,33 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		await rm.send_answers()
 
 	return redirect('/manage/welcome')
+
+async def get_room (request, code):
+	order_data = await request.app.ctx.om.get_order(code=code)
+	if not order_data or not order_data.room_owner: return None
+	members_map = []
+	for member_code in order_data.room_members:
+		member_order = await request.app.ctx.om.get_order(code=member_code)
+		if not member_order: continue
+		members_map.append ({'name': member_order.name, 'propic': member_order.propic, 'sponsorship': member_order.sponsorship})
+	return {'name': order_data.room_name, 'members': members_map}
+
+
+
+@bp.route("/view/<code>")
+async def get_view(request, code):
+	if code in jobs:
+		raise exceptions.SanicException("The room's preview is being generated... Wait a little longer", status_code=409)
+	jobs.append(code)
+	try:
+		room_data = await get_room(request, code)
+		return room_data
+	except Exception:
+		# Remove fault job
+		if len(jobs) > 0: jobs.pop()
+		raise exceptions.SanicException("Could not get that room's data at the moment. Try again, later.", status_code=500)
+	finally:
+		# Remove fault job
+		if len(jobs) > 0: jobs.pop()
+	if not room_data:
+		raise exceptions.SanicException("There's no room with that code.", status_code=404)
