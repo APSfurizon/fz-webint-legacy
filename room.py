@@ -3,6 +3,8 @@ from sanic import Blueprint, exceptions
 from random import choice
 from ext import *
 from config import headers
+from PIL import Image
+import os
 
 jobs = []
 
@@ -363,15 +365,11 @@ async def get_room (request, code):
 		members_map.append ({'name': member_order.name, 'propic': member_order.propic, 'sponsorship': member_order.sponsorship})
 	return {'name': order_data.room_name, 'members': members_map}
 
-
-
-@bp.route("/view/<code>")
-async def get_view(request, code):
-	if code in jobs:
-		raise exceptions.SanicException("The room's preview is being generated... Wait a little longer", status_code=409)
+async def generate_image(request, code):
 	jobs.append(code)
 	try:
 		room_data = await get_room(request, code)
+
 		return room_data
 	except Exception:
 		# Remove fault job
@@ -382,3 +380,15 @@ async def get_view(request, code):
 		if len(jobs) > 0: jobs.pop()
 	if not room_data:
 		raise exceptions.SanicException("There's no room with that code.", status_code=404)
+
+@bp.route("/view/<code>")
+async def get_view(request, code):
+	if code in jobs:
+		raise exceptions.SanicException("The room's preview is being generated... Wait a little longer", status_code=409)
+	room_file_name = f"res/rooms/{code}.jpg"
+	
+	if not os.path.exists(room_file_name):
+		await generate_image(request, code)
+	tpl = request.app.ctx.tpl.get_template('viewRoom.html')
+	return html(tpl.render(imgPath=room_file_name))
+	
