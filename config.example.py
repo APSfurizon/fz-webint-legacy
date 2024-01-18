@@ -86,6 +86,12 @@ CATEGORIES_LIST_MAP = {
     'rooms': [],
     'dailys': []
 }
+
+SPONSORSHIP_COLOR_MAP = {
+    'super': (251, 140, 0),
+    'normal': (142, 36, 170)
+}
+
 # Create a bunch of "room" items which will get added to the order once somebody gets a room.
 # Map item_name -> room capacity
 ROOM_CAPACITY_MAP = {

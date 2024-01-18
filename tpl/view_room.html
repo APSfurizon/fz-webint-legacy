@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}{{room_data['name']}}{% endblock %}
+{% block head %}
+    <!--Open Graph tags here-->
+    <meta property="og:title" content="{{room_data['name']}}" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="View of a room" />
+{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;"
+                onload="window.location.href='/manage/nosecount';">
+			</picture>
+		</header>
+	</main>
+	
+{% endblock %}

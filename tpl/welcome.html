@@ -1,5 +1,14 @@
 {% extends "base.html" %}
 {% block title %}{{order.name}}'s Booking{% endblock %}
+{% block head %}
+    <!--Open Graph tags here-->
+    <meta property="og:title" content="Furizon booking management" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Furizon's logo" />
+	<meta property="og:image" content="https://reg.furizon.net/res/furizon.png" />
+	<meta property="og:image:secure_url" content="https://reg.furizon.net/res/furizon.png" />
+
+{% endblock %}
 {% block main %}
 	<main class="container">
 		<header>

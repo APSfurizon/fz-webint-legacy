@@ -3,7 +3,8 @@ from sanic import Blueprint, exceptions
 from random import choice
 from ext import *
 from config import headers
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
+import textwrap
 import os
 
 jobs = []
@@ -67,6 +68,7 @@ async def delete_room(request, order: Order):
 	await order.edit_answer('room_members', None)
 	await order.edit_answer('room_secret', None)
 	await order.send_answers()
+	remove_room_preview (order.code)
 	return redirect('/manage/welcome')	
 	
 @bp.post("/join")
@@ -116,7 +118,7 @@ async def join_room(request, order: Order):
 	
 	await room_owner.edit_answer('pending_roommates', ','.join(pending_roommates))
 	await room_owner.send_answers()
-	
+	remove_room_preview (code)
 	return redirect('/manage/welcome')
 
 @bp.route("/kick/<code>")
@@ -139,7 +141,7 @@ async def kick_member(request, code, order: Order):
 
 	await order.send_answers()	
 	await to_kick.send_answers()
-	
+	remove_room_preview (order.code)
 	return redirect('/manage/welcome')
 
 @bp.route("/renew_secret")
@@ -286,7 +288,7 @@ async def rename_room(request, order: Order):
 
 	await order.edit_answer("room_name", name)
 	await order.send_answers()
-
+	remove_room_preview (order.code)
 	return redirect('/manage/welcome')
 	
 @bp.route("/confirm")
@@ -358,23 +360,59 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 async def get_room (request, code):
 	order_data = await request.app.ctx.om.get_order(code=code)
 	if not order_data or not order_data.room_owner: return None
-	members_map = []
+	members_map = [{'name': order_data.name, 'propic': order_data.propic, 'sponsorship': order_data.sponsorship}]
 	for member_code in order_data.room_members:
+		if member_code == order_data.code: continue
 		member_order = await request.app.ctx.om.get_order(code=member_code)
 		if not member_order: continue
 		members_map.append ({'name': member_order.name, 'propic': member_order.propic, 'sponsorship': member_order.sponsorship})
-	return {'name': order_data.room_name, 'members': members_map}
+	return {'name': order_data.room_name, 
+		 	'confirmed': order_data.room_confirmed,
+			'capacity': order_data.room_person_no,
+			'members': members_map}
 
-async def generate_image(request, code):
+async def get_room_with_order (request, code):
+	order_data = await request.app.ctx.om.get_order(code=code)
+	if not order_data or not order_data.room_owner: return None
+
+def remove_room_preview(code):
+	preview_file = f"res/rooms/{code}.jpg"
+	try:
+		if os.path.exists(preview_file): os.remove(preview_file)
+	except Exception as ex:
+		if (EXTRA_PRINTS): print(ex)
+
+async def generate_room_preview(request, code, room_data):
+	font_path = f'res/font/pt-serif-caption-latin-400-normal.ttf'
+	main_fill = (16, 149, 193)
 	jobs.append(code)
 	try:
-		room_data = await get_room(request, code)
-
-		return room_data
-	except Exception:
-		# Remove fault job
-		if len(jobs) > 0: jobs.pop()
-		raise exceptions.SanicException("Could not get that room's data at the moment. Try again, later.", status_code=500)
+		room_data = await get_room(request, code) if not room_data else room_data
+		width = 230 * int(room_data['capacity']) + 130
+		font = ImageFont.truetype(font_path, 20)
+		with Image.new('RGB', (width, 270), (17, 25, 31)) as to_save:
+			i_draw = ImageDraw.Draw(to_save)
+			# Draw room's name
+			room_name_len = i_draw.textlength(room_data['name'], font)
+			i_draw.text((((width / 2) - room_name_len / 2), 10), room_data['name'], font=font, fill=main_fill)
+			# Draw members
+			for m in range (room_data['capacity']):
+				member = room_data['members'][m] if m < len(room_data['members']) else { 'name': 'Empty', 'propic': '../new.png', 'sponsorship': None }
+				font = ImageFont.truetype(font_path, 20)
+				with Image.open(f'res/propic/{member['propic'] or 'default.png'}') as to_add:
+					to_save.paste(to_add.resize ((180, 180)), (90 + (230 * m), 45))
+					name_len = i_draw.textlength(str(member['name']), font)
+					calc_size = 0
+					if name_len > 180:
+						calc_size = 180 * 20 / name_len if name_len > 180 else 20
+						font = ImageFont.truetype(font_path, calc_size)
+						name_len = i_draw.textlength(str(member['name']), font)
+					name_loc = ((90 + (230 * m)) + (90 - name_len / 2), 235 + (calc_size/2))
+					name_color = SPONSORSHIP_COLOR_MAP[member['sponsorship']] if member['sponsorship'] in SPONSORSHIP_COLOR_MAP.keys() else main_fill
+					i_draw.text(name_loc, str(member['name']), font=font, fill=name_color)
+			to_save.save(f'res/rooms/{code}.jpg', 'JPEG')
+	except Exception as err:
+		if EXTRA_PRINTS: print(err)
 	finally:
 		# Remove fault job
 		if len(jobs) > 0: jobs.pop()
@@ -383,12 +421,11 @@ async def generate_image(request, code):
 
 @bp.route("/view/<code>")
 async def get_view(request, code):
-	if code in jobs:
-		raise exceptions.SanicException("The room's preview is being generated... Wait a little longer", status_code=409)
 	room_file_name = f"res/rooms/{code}.jpg"
-	
-	if not os.path.exists(room_file_name):
-		await generate_image(request, code)
-	tpl = request.app.ctx.tpl.get_template('viewRoom.html')
-	return html(tpl.render(imgPath=room_file_name))
+	room_data = await get_room(request, code)
+
+	if not os.path.exists(room_file_name) and code not in jobs:
+		await generate_room_preview(request, code, room_data)
+	tpl = request.app.ctx.tpl.get_template('view_room.html')
+	return html(tpl.render(preview=room_file_name, room_data=room_data))
 	
