@@ -65,7 +65,7 @@ class Order:
 				self.has_card = True
 				
 			if p['item'] == ITEMS_ID_MAP['sponsorship_item']:
-				sponsorshipType = keyFromValue(ITEM_VARIATIONS_MAP['sponsorship_item'], p['variation'])
+				sponsorshipType = key_from_value(ITEM_VARIATIONS_MAP['sponsorship_item'], p['variation'])
 				self.sponsorship = sponsorshipType[0].replace ('sponsorship_item_', '') if len(sponsorshipType) > 0 else None
 				
 			if p['attendee_name']:
@@ -79,7 +79,7 @@ class Order:
 				self.has_late = True
 
 			if p['item'] == ITEMS_ID_MAP['bed_in_room']:
-				roomTypeLst = keyFromValue(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
+				roomTypeLst = key_from_value(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
 				roomTypeId = roomTypeLst[0] if len(roomTypeLst) > 0 else None
 				self.bed_in_room = p['variation']
 				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else None
@@ -270,8 +270,8 @@ class OrderManager:
 			self.order_list.remove(code)
 	
 	async def fill_cache(self):
-		await loadItems()
-		await loadQuestions()
+		await load_items()
+		await load_questions()
 		self.empty()
 		p = 0
 			

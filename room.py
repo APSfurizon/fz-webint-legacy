@@ -1,3 +1,6 @@
+from email.mime.text import MIMEText
+from messages import ROOM_ERROR_MESSAGES
+import smtplib
 from sanic.response import html, redirect, text
 from sanic import Blueprint, exceptions
 from random import choice
@@ -207,8 +210,8 @@ async def approve_roomreq(request, code, order: Order):
 	await order.edit_answer('pending_roommates', (','.join([x for x in order.pending_roommates if x != pending_member.code]) or None))
 	
 	await pending_member.send_answers()
-	await order.send_answers()
-	
+	await order.send_answers(order.code)
+	remove_room_preview()
 	return redirect('/manage/welcome')
 	
 @bp.route("/leave")
@@ -232,7 +235,7 @@ async def leave_room(request, order: Order):
 		
 	await room_owner.send_answers()
 	await order.send_answers()
-	
+	remove_room_preview (order.room_id)
 	return redirect('/manage/welcome')
 
 @bp.route("/reject/<code>")
@@ -288,7 +291,7 @@ async def rename_room(request, order: Order):
 
 	await order.edit_answer("room_name", name)
 	await order.send_answers()
-	remove_room_preview (order.code)
+	remove_room_preview(order.code)
 	return redirect('/manage/welcome')
 	
 @bp.route("/confirm")
@@ -357,6 +360,78 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 
 	return redirect('/manage/welcome')
 
+async def unconfirm_room_by_order(order, throw=True, request=None):
+	if not order.room_confirmed and throw:
+		raise exceptions.BadRequest("Room is not confirmed!")
+		
+	ppl = get_people_in_room_by_code(request, order.code)
+	for p in ppl:
+		await p.edit_answer('room_confirmed', "False")
+		await p.send_answers()
+
+async def validate_room(request, order):
+	check, room_errors, member_orders = await check_room(request, order)
+	if check == True: return
+	try:
+		# Build message
+		issues_str = ""
+		for err in room_errors:
+			if err in ROOM_ERROR_MESSAGES:
+				issues_str += f" - {ROOM_ERROR_MESSAGES['err']}"
+		memberMessages = []
+		for member in member_orders:
+			msg = MIMEText(f"Hello {member.name}!\n\nWe had to unconfirm your room {order.room_name} due to th{'ese issues' if len(room_errors) > 1 else 'is issue'}:\n{issues_str}\n\nPlease contact your room's owner or contact our support for further informations at https://furizon.net/contact/.\nThank you")
+			msg['Subject'] = '[Furizon] Your room cannot be confirmed'
+			msg['From'] = 'Furizon <no-reply@furizon.net>'
+			msg['To'] = f"{member.name} <{member.email}>"
+			memberMessages.append(msg)
+
+		if (len(memberMessages) == 0): return
+
+		s = smtplib.SMTP_SSL(SMTP_HOST)
+		s.login(SMTP_USER, SMTP_PASSWORD)
+		for message in memberMessages:
+			s.sendmail(message['From'], message['to'], message.as_string())
+		s.quit()
+	except Exception as ex:
+		if EXTRA_PRINTS: print(ex)
+		
+
+async def check_room(request, order):
+	room_errors = []
+	room_members = []
+	if not order or not order.room_id or order.room_id != order.code: return False, room_errors, room_members
+	
+	# This is not needed anymore you buy tickets already 
+	#if quotas.get_left(len(order.room_members)) == 0:
+	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
+
+	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
+	for m in order.room_members:
+		if m == order.code:
+			res = order
+		else:
+			res = await request.app.ctx.om.get_order(code=m)
+		
+		# Room user in another room
+		if res.room_id != order.code:
+			room_errors.append('room_id_mismatch')
+		
+		if res.status != 'paid':
+			room_errors.append('unpaid')
+		
+		if res.bed_in_room != bed_in_room:
+			room_errors.append('type_mismatch')
+		
+		if res.daily:
+			room_errors.append('daily')
+			
+		room_members.append(res)
+	
+	if len(room_members) != order.room_person_no and order.room_person_no != None:
+		room_errors.append('capacity_mismatch')
+	return len(room_errors) == 0, room_errors, room_members
+
 async def get_room (request, code):
 	order_data = await request.app.ctx.om.get_order(code=code)
 	if not order_data or not order_data.room_owner: return None
@@ -369,6 +444,7 @@ async def get_room (request, code):
 	return {'name': order_data.room_name, 
 		 	'confirmed': order_data.room_confirmed,
 			'capacity': order_data.room_person_no,
+			'free_spots': order_data.room_person_no - len(members_map),
 			'members': members_map}
 
 async def get_room_with_order (request, code):
@@ -382,35 +458,67 @@ def remove_room_preview(code):
 	except Exception as ex:
 		if (EXTRA_PRINTS): print(ex)
 
+def draw_profile (source, member, position, font, size=(170, 170), border_width=5):
+	idraw = ImageDraw.Draw(source)
+	source_size = source.size
+	main_fill = (187, 198, 206)
+	propic_x = position[0]
+	propic_y = (source_size[1] // 2) - (size[1] // 2)
+	border_loc = (propic_x, propic_y, propic_x + size[0] + border_width * 2, propic_y + size[1] + border_width *2)
+	profile_location = (propic_x + border_width, propic_y + border_width)
+	propic_name_y = propic_y + size[1] + border_width + 20
+	border_color = SPONSORSHIP_COLOR_MAP[member['sponsorship']] if member['sponsorship'] in SPONSORSHIP_COLOR_MAP.keys() else (84, 110, 122)
+	# Draw border
+	idraw.rounded_rectangle(border_loc, border_width, border_color)
+	# Draw profile picture
+	with Image.open(f'res/propic/{member['propic'] or 'default.png'}') as to_add:
+		source.paste(to_add.resize (size), profile_location)
+	name_len = idraw.textlength(str(member['name']), font)
+	calc_size = 0
+	if name_len > size[0]:
+		calc_size = size[0] * 20 / name_len if name_len > size[0] else 20
+		font = ImageFont.truetype(font.path, calc_size)
+		name_len = idraw.textlength(str(member['name']), font)
+	name_loc = (position[0] + ((size[0] / 2) - name_len / 2), propic_name_y + (calc_size/2))
+	name_color = SPONSORSHIP_COLOR_MAP[member['sponsorship']] if member['sponsorship'] in SPONSORSHIP_COLOR_MAP.keys() else main_fill
+	idraw.text(name_loc, str(member['name']), font=font, fill=name_color)
+
 async def generate_room_preview(request, code, room_data):
-	font_path = f'res/font/pt-serif-caption-latin-400-normal.ttf'
-	main_fill = (16, 149, 193)
+	font_path = f'res/font/NotoSans-Bold.ttf'
+	main_fill = (187, 198, 206)
+	propic_size = (170, 170)
+	logo_size = (200, 43)
+	border_width = 5
+	propic_gap = 50
+	propic_width = propic_size[0] + (border_width * 2)
+	propic_total_width = propic_width + propic_gap
 	jobs.append(code)
 	try:
 		room_data = await get_room(request, code) if not room_data else room_data
-		width = 230 * int(room_data['capacity']) + 130
+		if not room_data: return
+		width = max([(propic_width + propic_gap) * int(room_data['capacity']) + propic_gap, 670])
+		height = int(width * 0.525)
 		font = ImageFont.truetype(font_path, 20)
-		with Image.new('RGB', (width, 270), (17, 25, 31)) as to_save:
-			i_draw = ImageDraw.Draw(to_save)
+
+		# Recalculate gap
+		propic_gap = (width - (propic_width * int(room_data['capacity']))) // (int(room_data['capacity']) + 1)
+		propic_total_width = propic_width + propic_gap
+
+		# Define output image
+		with Image.new('RGB', (width, height), (17, 25, 31)) as source:
+			# Draw logo
+			with (Image.open('res/furizon.png') as logo, logo.resize(logo_size).convert('RGBA') as resized_logo):
+				source.paste(resized_logo, ((source.size[0] // 2) - (logo_size[0] // 2), 10), resized_logo)
+			i_draw = ImageDraw.Draw(source)
 			# Draw room's name
 			room_name_len = i_draw.textlength(room_data['name'], font)
-			i_draw.text((((width / 2) - room_name_len / 2), 10), room_data['name'], font=font, fill=main_fill)
+			i_draw.text((((width / 2) - room_name_len / 2), 55), room_data['name'], font=font, fill=main_fill)
 			# Draw members
 			for m in range (room_data['capacity']):
 				member = room_data['members'][m] if m < len(room_data['members']) else { 'name': 'Empty', 'propic': '../new.png', 'sponsorship': None }
 				font = ImageFont.truetype(font_path, 20)
-				with Image.open(f'res/propic/{member['propic'] or 'default.png'}') as to_add:
-					to_save.paste(to_add.resize ((180, 180)), (90 + (230 * m), 45))
-					name_len = i_draw.textlength(str(member['name']), font)
-					calc_size = 0
-					if name_len > 180:
-						calc_size = 180 * 20 / name_len if name_len > 180 else 20
-						font = ImageFont.truetype(font_path, calc_size)
-						name_len = i_draw.textlength(str(member['name']), font)
-					name_loc = ((90 + (230 * m)) + (90 - name_len / 2), 235 + (calc_size/2))
-					name_color = SPONSORSHIP_COLOR_MAP[member['sponsorship']] if member['sponsorship'] in SPONSORSHIP_COLOR_MAP.keys() else main_fill
-					i_draw.text(name_loc, str(member['name']), font=font, fill=name_color)
-			to_save.save(f'res/rooms/{code}.jpg', 'JPEG')
+				draw_profile(source, member, (propic_gap + (propic_total_width * m), 63), font, propic_size, border_width)
+			source.save(f'res/rooms/{code}.jpg', 'JPEG', quality=60)
 	except Exception as err:
 		if EXTRA_PRINTS: print(err)
 	finally:

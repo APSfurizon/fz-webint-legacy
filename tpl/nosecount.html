@@ -1,5 +1,13 @@
 {% extends "base.html" %}
 {% block title %}Furizon 2024 Nosecount{% endblock %}
+{% block head %}
+	<meta property="og:title" content="Nose count - Furizon" />
+	<meta property="og:image:type" content="image/jpeg" />
+	<meta property="og:image:alt" content="Furizon logo" />
+	<meta property="og:image" content="https://reg.furizon.net/res/furizon.png" />
+	<meta property="og:image:secure_url" content="https://reg.furizon.net/res/furizon.png" />
+	<meta property="og:description" content="Explore this year's rooms, find your friends and plan your meet-ups."/>
+{% endblock %}
 {% block main %}
 	<main class="container">
 		{% if order and order.isAdmin() %}
