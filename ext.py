@@ -98,7 +98,7 @@ class Order:
 		self.payment_provider = data['payment_provider']
 		self.comment = data['comment']
 		self.phone = data['phone']
-		self.room_issues = []
+		self.room_errors = []
 		self.loadAns()
 	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
@@ -133,7 +133,7 @@ class Order:
 		return self.data[var]
 	
 	def set_room_errors (self, to_set):
-			for s in to_set: self.room_issues.append (s)
+			for s in to_set: self.room_errors.append (s)
 
 	def ans(self, name):
 		for p in self.data['positions']:

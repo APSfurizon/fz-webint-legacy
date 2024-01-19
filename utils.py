@@ -3,7 +3,7 @@ from sanic import exceptions
 from config import *
 import httpx
 from email.mime.text import MIMEText
-from messages import ROOM_ERROR_MESSAGES
+from messages import ROOM_ERROR_TYPES
 import smtplib
 
 METADATA_TAG = "meta_data"
@@ -164,7 +164,8 @@ async def validate_room(request, order, om):
 	check, room_errors, member_orders = await check_room(request, order, om)
 	if check == True: return
 	print(f'[ROOM VALIDATION FAILED] {order.code} has failed room validation.', room_errors)
-	order.set_room_errors(room_errors)
+	order.room_errors = room_errors
+	om.add_cache (order)
 	
 	# End here if room is not confirmed
 	if not order.room_confirmed: return
@@ -175,25 +176,10 @@ async def validate_room(request, order, om):
 		# Build message
 		issues_str = ""
 		for err in room_errors:
-			if err in ROOM_ERROR_MESSAGES:
-				issues_str += f" - {ROOM_ERROR_MESSAGES[err]}"
-		
-		memberMessages = []
+			if err in ROOM_ERROR_TYPES:
+				issues_str += f" - {ROOM_ERROR_TYPES[err]}"
 
-		for member in member_orders:
-				msg_text = f"Hello {member.name}!\n\n"
-				msg_text += f"We had to unconfirm your room '{order.room_name}'"
-				msg_text += f" due to th{'ese issues' if len(room_errors) > 1 else 'is issue'}:\n{issues_str}\n\n"
-				msg_text += f"Please contact your room's owner or contact our support for further informations at https://furizon.net/contact/.\nThank you"
-				msg = MIMEText(msg_text)
-				msg['Subject'] = '[Furizon] Your room cannot be confirmed'
-				msg['From'] = 'Furizon <no-reply@furizon.net>'
-				msg['To'] = f"{member.name} <{member.email}>"
-				memberMessages.append(msg)
-
-		if len(memberMessages) == 0: return
-
-		s = smtplib.SMTP_SSL(SMTP_HOST, 587)
+		s = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT)
 		s.login(SMTP_USER, SMTP_PASSWORD)
 		for message in memberMessages:
 			s.sendmail(message['From'], message['to'], message.as_string())

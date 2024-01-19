@@ -139,8 +139,10 @@ async def welcome(request, order: Order, quota: Quotas):
 			else:
 				room_members.append(await app.ctx.om.get_order(code=member_id, cached=True))		
 
+	print (order.room_errors)
+
 	tpl = app.ctx.tpl.get_template('welcome.html')
-	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_MESSAGES))
+	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_TYPES))
 
 
 @app.route("/manage/download_ticket")
