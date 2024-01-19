@@ -2,6 +2,9 @@ from os.path import join
 from sanic import exceptions
 from config import *
 import httpx
+from email.mime.text import MIMEText
+from messages import ROOM_ERROR_MESSAGES
+import smtplib
 
 METADATA_TAG = "meta_data"
 VARIATIONS_TAG = "variations"
@@ -133,10 +136,104 @@ async def get_order_by_code(request, code, throwException=False):
 		raise exceptions.BadRequest(f"[getOrderByCode] Code {code} not found!")
 	return res
 
-def get_people_in_room_by_code(request, code):
-	c = request.app.ctx.om.cache
+def get_people_in_room_by_code(request, code, om=None):
+	if not om: om = request.app.ctx.om
+	c = om.cache
 	ret = []
 	for person in c.values():
 		if person.room_id == code:
 			ret.append(person)
 	return ret
+
+async def unconfirm_room_by_order(order, throw=True, request=None, om=None):
+	if not om: om = request.app.ctx.om
+	if not order.room_confirmed:
+		if throw:
+			raise exceptions.BadRequest("Room is not confirmed!")
+		else:
+			return
+		
+	ppl = get_people_in_room_by_code(request, order.code, om)
+	for p in ppl:
+		await p.edit_answer('room_confirmed', "False")
+		await p.send_answers()
+
+async def validate_room(request, order, om):
+	if not om: om = request.app.ctx.om
+	# Validate room
+	check, room_errors, member_orders = await check_room(request, order, om)
+	if check == True: return
+	print(f'[ROOM VALIDATION FAILED] {order.code} has failed room validation.', room_errors)
+	order.set_room_errors(room_errors)
+	
+	# End here if room is not confirmed
+	if not order.room_confirmed: return
+
+	# Unconfirm and email users about the room
+	await unconfirm_room_by_order(order, False, None, om)
+	try:
+		# Build message
+		issues_str = ""
+		for err in room_errors:
+			if err in ROOM_ERROR_MESSAGES:
+				issues_str += f" - {ROOM_ERROR_MESSAGES[err]}"
+		
+		memberMessages = []
+
+		for member in member_orders:
+				msg_text = f"Hello {member.name}!\n\n"
+				msg_text += f"We had to unconfirm your room '{order.room_name}'"
+				msg_text += f" due to th{'ese issues' if len(room_errors) > 1 else 'is issue'}:\n{issues_str}\n\n"
+				msg_text += f"Please contact your room's owner or contact our support for further informations at https://furizon.net/contact/.\nThank you"
+				msg = MIMEText(msg_text)
+				msg['Subject'] = '[Furizon] Your room cannot be confirmed'
+				msg['From'] = 'Furizon <no-reply@furizon.net>'
+				msg['To'] = f"{member.name} <{member.email}>"
+				memberMessages.append(msg)
+
+		if len(memberMessages) == 0: return
+
+		s = smtplib.SMTP_SSL(SMTP_HOST, 587)
+		s.login(SMTP_USER, SMTP_PASSWORD)
+		for message in memberMessages:
+			s.sendmail(message['From'], message['to'], message.as_string())
+		s.quit()
+	except Exception as ex:
+		if EXTRA_PRINTS: print('could not send emails', ex)
+		
+
+async def check_room(request, order, om=None):
+	room_errors = []
+	room_members = []
+	if not om: om = request.app.ctx.om
+	if not order or not order.room_id or order.room_id != order.code: return False, room_errors, room_members
+	
+	# This is not needed anymore you buy tickets already 
+	#if quotas.get_left(len(order.room_members)) == 0:
+	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
+
+	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
+	for m in order.room_members:
+		if m == order.code:
+			res = order
+		else:
+			res = await om.get_order(code=m)
+		
+		# Room user in another room
+		if res.room_id != order.code:
+			room_errors.append('room_id_mismatch')
+		
+		if res.status != 'paid':
+			room_errors.append('unpaid')
+		
+		if res.bed_in_room != bed_in_room:
+			room_errors.append('type_mismatch')
+		
+		if res.daily:
+			room_errors.append('daily')
+			
+		room_members.append(res)
+	
+	if len(room_members) != order.room_person_no and order.room_person_no != None:
+		room_errors.append('capacity_mismatch')
+	return len(room_errors) == 0, room_errors, room_members

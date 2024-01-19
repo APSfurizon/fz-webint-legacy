@@ -14,6 +14,15 @@
 	{% if order.room_id and not order.room_confirmed %}
 		<p class="notice">⚠️ Your room hasn't been confirmed yet. Unconfirmed rooms are subject to changes by the staff as we optimize for hotel capacity.</p>
 	{% endif %}
+	{% if order.room_id and len(order.room_issues) > 0 %}
+		<p class="notice">⚠️ There are some issues with your room:
+			<ul>
+			{% for issue in issues %}
+				<li>{{ROOM_ERROR_MESSAGES[issue]}}</li>	
+			{% endfor %}
+			</ul>
+		</p>
+	{% endif %}
 	
 	{# Show notice if the room is confirmed #}
 	{% if order.room_confirmed %}

@@ -1,6 +1,3 @@
-from email.mime.text import MIMEText
-from messages import ROOM_ERROR_MESSAGES
-import smtplib
 from sanic.response import html, redirect, text
 from sanic import Blueprint, exceptions
 from random import choice
@@ -359,78 +356,6 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		await rm.send_answers()
 
 	return redirect('/manage/welcome')
-
-async def unconfirm_room_by_order(order, throw=True, request=None):
-	if not order.room_confirmed and throw:
-		raise exceptions.BadRequest("Room is not confirmed!")
-		
-	ppl = get_people_in_room_by_code(request, order.code)
-	for p in ppl:
-		await p.edit_answer('room_confirmed', "False")
-		await p.send_answers()
-
-async def validate_room(request, order):
-	check, room_errors, member_orders = await check_room(request, order)
-	if check == True: return
-	try:
-		# Build message
-		issues_str = ""
-		for err in room_errors:
-			if err in ROOM_ERROR_MESSAGES:
-				issues_str += f" - {ROOM_ERROR_MESSAGES['err']}"
-		memberMessages = []
-		for member in member_orders:
-			msg = MIMEText(f"Hello {member.name}!\n\nWe had to unconfirm your room {order.room_name} due to th{'ese issues' if len(room_errors) > 1 else 'is issue'}:\n{issues_str}\n\nPlease contact your room's owner or contact our support for further informations at https://furizon.net/contact/.\nThank you")
-			msg['Subject'] = '[Furizon] Your room cannot be confirmed'
-			msg['From'] = 'Furizon <no-reply@furizon.net>'
-			msg['To'] = f"{member.name} <{member.email}>"
-			memberMessages.append(msg)
-
-		if (len(memberMessages) == 0): return
-
-		s = smtplib.SMTP_SSL(SMTP_HOST)
-		s.login(SMTP_USER, SMTP_PASSWORD)
-		for message in memberMessages:
-			s.sendmail(message['From'], message['to'], message.as_string())
-		s.quit()
-	except Exception as ex:
-		if EXTRA_PRINTS: print(ex)
-		
-
-async def check_room(request, order):
-	room_errors = []
-	room_members = []
-	if not order or not order.room_id or order.room_id != order.code: return False, room_errors, room_members
-	
-	# This is not needed anymore you buy tickets already 
-	#if quotas.get_left(len(order.room_members)) == 0:
-	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
-
-	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
-	for m in order.room_members:
-		if m == order.code:
-			res = order
-		else:
-			res = await request.app.ctx.om.get_order(code=m)
-		
-		# Room user in another room
-		if res.room_id != order.code:
-			room_errors.append('room_id_mismatch')
-		
-		if res.status != 'paid':
-			room_errors.append('unpaid')
-		
-		if res.bed_in_room != bed_in_room:
-			room_errors.append('type_mismatch')
-		
-		if res.daily:
-			room_errors.append('daily')
-			
-		room_members.append(res)
-	
-	if len(room_members) != order.room_person_no and order.room_person_no != None:
-		room_errors.append('capacity_mismatch')
-	return len(room_errors) == 0, room_errors, room_members
 
 async def get_room (request, code):
 	order_data = await request.app.ctx.om.get_order(code=code)

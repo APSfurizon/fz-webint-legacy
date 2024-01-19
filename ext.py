@@ -98,6 +98,7 @@ class Order:
 		self.payment_provider = data['payment_provider']
 		self.comment = data['comment']
 		self.phone = data['phone']
+		self.room_issues = []
 		self.loadAns()
 	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
@@ -130,6 +131,9 @@ class Order:
 		self.telegram_username = self.ans('telegram_username').strip('@') if self.ans('telegram_username') else None
 	def __getitem__(self, var):
 		return self.data[var]
+	
+	def set_room_errors (self, to_set):
+			for s in to_set: self.room_issues.append (s)
 
 	def ans(self, name):
 		for p in self.data['positions']:
@@ -220,6 +224,7 @@ class Order:
 		self.pending_update = False
 		self.time = -1
 		self.loadAns()
+			
 
 @dataclass
 class Quotas:
@@ -255,9 +260,9 @@ class OrderManager:
 	async def updateCache(self):
 		t = time()
 		if(t - self.lastCacheUpdate > CACHE_EXPIRE_TIME):
-			print("Re-filling cache!")
+			print("[TIME] Re-filling cache!")
 			await self.fill_cache()
-			self.lastCacheUpdate = t			
+			self.lastCacheUpdate = t
 
 	def add_cache(self, order):
 		self.cache[order.code] = order
@@ -289,6 +294,11 @@ class OrderManager:
 						self.remove_cache(o.code)
 					else:
 						self.add_cache(Order(o))
+			self.lastCacheUpdate = time()
+			for o in self.cache.values():
+				if o.code == o.room_id:
+					print(o.room_name)
+					await validate_room(None, o, self)
 	
 	async def get_order(self, request=None, code=None, secret=None, nfc_id=None, cached=False):
 
