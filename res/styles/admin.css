@@ -1,4 +1,5 @@
 div.room-actions {
+    container-name: room-actions;
     float: right;
 }
 

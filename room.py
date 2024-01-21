@@ -204,8 +204,8 @@ async def approve_roomreq(request, code, order: Order):
 	await order.edit_answer('pending_roommates', (','.join([x for x in order.pending_roommates if x != pending_member.code]) or None))
 	
 	await pending_member.send_answers()
-	await order.send_answers(order.code)
-	remove_room_preview()
+	await order.send_answers()
+	remove_room_preview(order.code)
 	return redirect('/manage/welcome')
 	
 @bp.route("/leave")
@@ -363,14 +363,14 @@ def remove_room_preview(code):
 	try:
 		if os.path.exists(preview_file): os.remove(preview_file)
 	except Exception as ex:
-		if (EXTRA_PRINTS): print(ex)
+		if (EXTRA_PRINTS): logger.exception(str(ex))
 
 @bp.route("/view/<code>")
 async def get_view(request, code):
 	room_file_name = f"res/rooms/{code}.jpg"
 	room_data = await get_room(request, code)
-
-	if not os.path.exists(room_file_name) and code not in jobs:
+	if not room_data: raise exceptions.NotFound("No room was found with that code.")
+	if not os.path.exists(room_file_name):
 		await generate_room_preview(request, code, room_data)
 	tpl = request.app.ctx.tpl.get_template('view_room.html')
 	return html(tpl.render(preview=room_file_name, room_data=room_data))

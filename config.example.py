@@ -12,6 +12,20 @@ PROPIC_MAX_FILE_SIZE = 5 * 1024 * 1024 # 5MB
 PROPIC_MAX_SIZE = (2048, 2048) # (Width, Height)
 PROPIC_MIN_SIZE = (125, 125) # (Width, Height)
 
+# This is used for feedback sending inside of the app. Feedbacks will be sent to the specified chat using the bot api id.
+TG_BOT_API = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
+TG_CHAT_ID = -1234567
+
+# These order codes have additional functions.
+ADMINS = ['XXXXX', 'YYYYY']
+# A list of staff_roles 
+ADMINS_PRETIX_ROLE_NAMES = ["Reserved Area admin", "main staff"]
+
+SMTP_HOST = 'host'
+SMTP_PORT = 0
+SMTP_USER = 'user'
+SMTP_PASSWORD = 'pw'
+
 FILL_CACHE = True
 CACHE_EXPIRE_TIME = 60 * 60 * 4
 
@@ -23,6 +37,11 @@ EXTRA_PRINTS = True
 METADATA_NAME = "item_name"
 # Metadata property for internal category mapping (not related to pretix's category)
 METADATA_CATEGORY = "category_name"
+
+SPONSORSHIP_COLOR_MAP = {
+    'super': (251, 140, 0),
+    'normal': (142, 36, 170)
+}
 
 # Maps Products metadata name <--> ID
 ITEMS_ID_MAP = {
@@ -108,15 +127,3 @@ ROOM_CAPACITY_MAP = {
 
 # Autofilled
 ROOM_TYPE_NAMES = { }
-
-# This is used for feedback sending inside of the app. Feedbacks will be sent to the specified chat using the bot api id.
-TG_BOT_API = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
-TG_CHAT_ID = -1234567
-
-# These order codes have additional functions.
-ADMINS = ['XXXXX', 'YYYYY']
-
-SMTP_HOST = 'host'
-SMTP_PORT = 0
-SMTP_USER = 'user'
-SMTP_PASSWORD = 'pw'

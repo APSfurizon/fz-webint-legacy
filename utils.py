@@ -2,9 +2,9 @@ from os.path import join
 from sanic import exceptions
 from config import *
 import httpx
-from email.mime.text import MIMEText
 from messages import ROOM_ERROR_TYPES
-import smtplib
+from email_util import send_unconfirm_message
+from sanic.log import logger
 
 METADATA_TAG = "meta_data"
 VARIATIONS_TAG = "variations"
@@ -77,26 +77,22 @@ async def load_items():
 				if not categoryName: continue
 				CATEGORIES_LIST_MAP[categoryName].append(q['id'])
 		if (EXTRA_PRINTS):
-			print (f'Mapped Items:')
-			print (ITEMS_ID_MAP)
-			print (f'Mapped Variations:')
-			print (ITEM_VARIATIONS_MAP)
-			print (f'Mapped categories:')
-			print (CATEGORIES_LIST_MAP)
-			print (f'Mapped Rooms:')
-			print (ROOM_TYPE_NAMES)
+			logger.debug(f'Mapped Items: %s', ITEMS_ID_MAP)
+			logger.debug(f'Mapped Variations: %s', ITEM_VARIATIONS_MAP)
+			logger.debug(f'Mapped categories: %s', CATEGORIES_LIST_MAP)
+			logger.debug(f'Mapped Rooms: %s', ROOM_TYPE_NAMES)
 
 # Tries to get an item name from metadata. Prints a warning if an item has no metadata
 def check_and_get_name(type, q):
 	itemName = extract_metadata_name(q)
 	if not itemName and EXTRA_PRINTS:			
-		print (type + ' ' + q['id'] + ' has not been mapped.')
+		logger.warning('%s %s has not been mapped.', type, q['id'])
 	return itemName
 
 def check_and_get_category (type, q):
 	categoryName = extract_category (q)
 	if not categoryName and EXTRA_PRINTS:
-		print (type + ' ' + q['id'] + ' has no category set.')
+		logger.warning('%s %s has no category set.', type, q['id'])
 	return categoryName
 
 # Checks if the item has specified metadata name
@@ -136,16 +132,12 @@ async def get_order_by_code(request, code, throwException=False):
 		raise exceptions.BadRequest(f"[getOrderByCode] Code {code} not found!")
 	return res
 
-def get_people_in_room_by_code(request, code, om=None):
+async def get_people_in_room_by_code(request, code, om=None):
 	if not om: om = request.app.ctx.om
-	c = om.cache
-	ret = []
-	for person in c.values():
-		if person.room_id == code:
-			ret.append(person)
-	return ret
+	await om.update_cache()
+	return filter(lambda rm: rm.room_id == code, om.cache.values())
 
-async def unconfirm_room_by_order(order, throw=True, request=None, om=None):
+async def unconfirm_room_by_order(order, room_members:[]=None, throw=True, request=None, om=None):
 	if not om: om = request.app.ctx.om
 	if not order.room_confirmed:
 		if throw:
@@ -153,46 +145,70 @@ async def unconfirm_room_by_order(order, throw=True, request=None, om=None):
 		else:
 			return
 		
-	ppl = get_people_in_room_by_code(request, order.code, om)
-	for p in ppl:
+	room_members = await get_people_in_room_by_code(request, order.code, om) if not room_members or len(room_members) == 0 else room_members
+	for p in room_members:
 		await p.edit_answer('room_confirmed', "False")
 		await p.send_answers()
 
-async def validate_room(request, order, om):
+async def validate_rooms(request, rooms, om):
+	logger.info('Validating rooms...')
 	if not om: om = request.app.ctx.om
-	# Validate room
-	check, room_errors, member_orders = await check_room(request, order, om)
-	if check == True: return
-	print(f'[ROOM VALIDATION FAILED] {order.code} has failed room validation.', room_errors)
-	order.room_errors = room_errors
-	om.add_cache (order)
+
+	failed_rooms = []
+
+	# Validate rooms
+	for order in rooms:
+		# returns tuple (room owner order, check, room error list, room members orders)
+		result = await check_room(request, order, om)
+		order = result[0]
+		check = result[1]
+		if check != None and check == False:
+			failed_rooms.append(result)
 	
-	# End here if room is not confirmed
-	if not order.room_confirmed: return
+	# End here if no room has failed check
+	if len(failed_rooms) == 0: 
+		logger.info('[ROOM VALIDATION] Every room passed the check.')
+		return
 
-	# Unconfirm and email users about the room
-	await unconfirm_room_by_order(order, False, None, om)
-	try:
-		# Build message
-		issues_str = ""
-		for err in room_errors:
-			if err in ROOM_ERROR_TYPES:
-				issues_str += f" - {ROOM_ERROR_TYPES[err]}"
+	logger.warning(f'[ROOM VALIDATION] Room validation failed for orders: ', list(map(lambda rf: rf[0].code, failed_rooms)))
+	
+	# Get confirmed rooms that fail validation
+	failed_confirmed_rooms = list(filter(lambda fr: (fr[0].room_confirmed == True), failed_rooms))
 
-		s = smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT)
-		s.login(SMTP_USER, SMTP_PASSWORD)
-		for message in memberMessages:
-			s.sendmail(message['From'], message['to'], message.as_string())
-		s.quit()
-	except Exception as ex:
-		if EXTRA_PRINTS: print('could not send emails', ex)
+	if len(failed_confirmed_rooms) == 0:
+		logger.info('[ROOM VALIDATION] No rooms to unconfirm.')
+		return
+
+	logger.info(f"[ROOM VALIDATION] Trying to unconfirm {len(failed_confirmed_rooms)} rooms...")
+
+	# Try unconfirming them
+	for rtu in failed_confirmed_rooms:
+		order = rtu[0]
+		member_orders = rtu[2]
+		
+		# Unconfirm and email users about the room
+		await unconfirm_room_by_order(order, member_orders, False, None, om)
+
+	logger.info(f"[ROOM VALIDATION] Sending unconfirm notice to room members...")
+	sent_count = 0
+	# Send unconfirm notice via email
+	for rtu in failed_confirmed_rooms:
+		order = rtu[0]
+		member_orders = rtu[2]
+		try:
+			await send_unconfirm_message (order, member_orders)
+			sent_count += len(member_orders)
+		except Exception as ex:
+			if EXTRA_PRINTS: logger.exception(str(ex))
+	logger.info(f"[ROOM VALIDATION] Sent {sent_count} emails")
 		
 
 async def check_room(request, order, om=None):
 	room_errors = []
 	room_members = []
+	use_cached = request == None
 	if not om: om = request.app.ctx.om
-	if not order or not order.room_id or order.room_id != order.code: return False, room_errors, room_members
+	if not order or not order.room_id or order.room_id != order.code: return (order, False, room_members)
 	
 	# This is not needed anymore you buy tickets already 
 	#if quotas.get_left(len(order.room_members)) == 0:
@@ -203,7 +219,7 @@ async def check_room(request, order, om=None):
 		if m == order.code:
 			res = order
 		else:
-			res = await om.get_order(code=m)
+			res = await om.get_order(code=m, cached=use_cached)
 		
 		# Room user in another room
 		if res.room_id != order.code:
@@ -222,4 +238,5 @@ async def check_room(request, order, om=None):
 	
 	if len(room_members) != order.room_person_no and order.room_person_no != None:
 		room_errors.append('capacity_mismatch')
-	return len(room_errors) == 0, room_errors, room_members
+	order.set_room_errors(room_errors)
+	return (order, len(room_errors) == 0, room_members)

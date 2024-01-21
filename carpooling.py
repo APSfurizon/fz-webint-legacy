@@ -10,7 +10,6 @@ async def carpooling_list(request, order: Order, error=None):
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	
 	orders = [value for value in request.app.ctx.om.cache.values() if value.status not in ['c', 'e'] and value.carpooling_message]
-	print(orders)
 
 	tpl = request.app.ctx.tpl.get_template('carpooling.html')
 	

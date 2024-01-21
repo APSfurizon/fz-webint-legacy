@@ -1,7 +1,7 @@
 from config import *
 from PIL import Image, ImageDraw, ImageFont
 from sanic import Blueprint, exceptions
-import textwrap
+from sanic.log import logger
 
 jobs = []
 
@@ -31,6 +31,7 @@ def draw_profile (source, member, position, font, size=(170, 170), border_width=
 	idraw.text(name_loc, str(member['name']), font=font, fill=name_color)
 
 async def generate_room_preview(request, code, room_data):
+	if code in jobs: raise exceptions.SanicException("Please try again later!", status_code=409)
 	font_path = f'res/font/NotoSans-Bold.ttf'
 	main_fill = (187, 198, 206)
 	propic_size = (170, 170)
@@ -67,7 +68,7 @@ async def generate_room_preview(request, code, room_data):
 				draw_profile(source, member, (propic_gap + (propic_total_width * m), 63), font, propic_size, border_width)
 			source.save(f'res/rooms/{code}.jpg', 'JPEG', quality=60)
 	except Exception as err:
-		if EXTRA_PRINTS: print(err)
+		if EXTRA_PRINTS: logger.exception(str(err))
 	finally:
 		# Remove fault job
 		if len(jobs) > 0: jobs.pop()

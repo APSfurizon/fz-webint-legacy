@@ -20,8 +20,11 @@
 			</picture>
 		</header>
 		<p>Welcome to the nosecount page! Here you can see all of the available rooms at the convention, as well as the occupants currently staying in each room. Use this page to find your friends and plan your meet-ups.</p>
-		{% for o in orders.values() %}
-			{% if o.code == o.room_id and o.room_confirmed %}
+		{% for o in orders.values() if (o.code == o.room_id and o.room_confirmed) %}
+			{% if loop.first %}
+				<hr />
+				<h1>Confirmed rooms{% if order and order.isAdmin() %}<span> ({{loop.length}})</span>{% endif %}</h1>
+			{% endif %}
 				<h4 style="margin-top:1em;">
 					<span>{{o.room_name}}</span>
 					{% if order and order.isAdmin() %}
@@ -46,15 +49,14 @@
 						{% endif %}
 					{% endfor %}
 				</div>
-			{% endif %}
 		{% endfor %}
 		{% for o in orders.values() if (o.code == o.room_id and not o.room_confirmed) %}
 			{% if loop.first %}
 				<hr />
-				<h1>Unconfirmed rooms</h1>
+				<h1>Unconfirmed rooms{% if order and order.isAdmin() %}<span> ({{loop.length}})</span>{% endif %}</h1>
 				<p>These unconfirmed rooms are still being organized and may be subject to change. These rooms may also have openings for additional roommates. If you are interested in sharing a room, you can use this page to find potential roommates</p>
 			{% endif %}
-			<h3>
+			<h4>
 				<span>{{o.room_name}}</span>
 				{% if o.room_person_no - len(o.room_members) > 0 %} <span class="nsc-room-counter"> - Remaining slots: {{o.room_person_no - len(o.room_members)}}</span> {% endif %}
 				{% if order and order.isAdmin() %}
@@ -63,7 +65,7 @@
 						<a class="act-del" onclick="confirmAction('delete', this)" action="/manage/admin/room/delete/{{o.code}}"><img src="/res/icons/delete.svg" class="icon" /><span>Delete</span></a>
 					</div>
 				{% endif %}
-			</h3>
+			</h4>
 			<div class="grid people" style="padding-bottom:1em;">
 				{% for m in o.room_members %}
 					{% if m in orders %}
@@ -84,7 +86,7 @@
 		{% for person in orders.values() if not person.room_id and (not person.room_confirmed) and not person.daily %}
 			{% if loop.first %}
 				<hr />
-				<h1>Roomless furs</h1>
+				<h1>Roomless furs{% if order and order.isAdmin() %}<span> ({{loop.length}})</span>{% endif %}</h1>
 				<p>These furs have not yet secured a room for the convention. If you see your name on this list, please make sure to secure a room before the deadline to avoid being placed in a random room. If you are looking for a roommate or have an open spot in your room, you can use this page to find and connect with other furries who are also looking for housing 🎲</p>
 				<div class="grid people" style="padding-bottom:1em;">
 			{% endif %}
@@ -101,7 +103,7 @@
 		{% for person in orders.values() if person.daily %}
 			{% if loop.first %}
 				<hr />
-				<h1>Daily furs!</h1>
+				<h1>Daily furs!{% if order and order.isAdmin() %}<span> ({{loop.length}})</span>{% endif %}</h1>
 				<p>These furs will not stay in our hotels, but may be there with us just a few days!</p>
 				<div class="grid people" style="padding-bottom:1em;">
 			{% endif %}

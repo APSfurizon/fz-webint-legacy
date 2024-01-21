@@ -3,39 +3,34 @@ from room import unconfirm_room_by_order
 from config import *
 from utils import *
 from ext import *
-import sqlite3
-import smtplib
-import random
-import string
-import httpx
-import json
+from sanic.log import logger
 
 bp = Blueprint("admin", url_prefix="/manage/admin")
 
-def credentials_check(request, order:Order):
+@bp.middleware
+async def credentials_check(request: Request):
+	order = await get_order(request)
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	if EXTRA_PRINTS:
-		print(f"Checking admin credentials of {order.code} with secret {order.secret}")
+		logger.info(f"Checking admin credentials of {order.code} with secret {order.secret}")
 	if not order.isAdmin() : raise exceptions.Forbidden("Birichino :)")
 
 
 
 @bp.get('/cache/clear')
 async def clear_cache(request, order:Order):
-	credentials_check(request, order)
 	await request.app.ctx.om.fill_cache()
 	return redirect(f'/manage/admin')
 
 @bp.get('/loginas/<code>')
 async def login_as(request, code, order:Order):
-	credentials_check(request, order)
 	dOrder = await get_order_by_code(request, code, throwException=True)
 	if(dOrder.isAdmin()):
 		raise exceptions.Forbidden("You can't login as another admin!")
 
 	if EXTRA_PRINTS:
-		print(f"Swapping login: {order.secret} {order.code} -> {dOrder.secret} {code}")
+		logger.info(f"Swapping login: {order.secret} {order.code} -> {dOrder.secret} {code}")
 	r = redirect(f'/manage/welcome')
 	r.cookies['foxo_code_ORG'] = order.code
 	r.cookies['foxo_secret_ORG'] = order.secret
@@ -43,19 +38,25 @@ async def login_as(request, code, order:Order):
 	r.cookies['foxo_secret'] = dOrder.secret
 	return r
 
+@bp.get('/room/verify')
+async def verify_rooms(request, order:Order):
+	already_checked = await request.app.ctx.om.update_cache()
+	if not already_checked:
+		orders = filter(lambda x: x.status not in ['c', 'e'] and x.room_id == x.code, request.app.ctx.om.cache.values())
+		await validate_rooms(request, orders, None)
+	return redirect(f'/manage/admin')
+
 @bp.get('/room/unconfirm/<code>')
 async def unconfirm_room(request, code, order:Order):
-	credentials_check(request, order)
 	dOrder = await get_order_by_code(request, code, throwException=True)
-	unconfirm_room_by_order(dOrder, True, request)
+	await unconfirm_room_by_order(order=dOrder, throw=True, request=request)
 	return redirect(f'/manage/nosecount')
 
 @bp.get('/room/delete/<code>')
 async def delete_room(request, code, order:Order):
-	credentials_check(request, order)
 	dOrder = await get_order_by_code(request, code, throwException=True)
 
-	ppl = get_people_in_room_by_code(request, code)
+	ppl = await get_people_in_room_by_code(request, code)
 	for p in ppl:
 		await p.edit_answer('room_id', None)
 		await p.edit_answer('room_confirmed', "False")
@@ -72,7 +73,6 @@ async def delete_room(request, code, order:Order):
 
 @bp.post('/room/rename/<code>')
 async def rename_room(request, code, order:Order):
-	credentials_check(request, order)
 	dOrder = await get_order_by_code(request, code, throwException=True)
 
 	name = request.form.get('name')

@@ -13,7 +13,7 @@ bp = Blueprint("propic", url_prefix="/manage/propic")
 async def resetDefaultPropic(request, order: Order, isFursuiter, sendAnswer=True):
 	s = "_fursuiter" if isFursuiter else ""
 	if (EXTRA_PRINTS): 
-		print("Resetting {fn} picture for {orderCod}".format(fn="Badge" if not isFursuiter else "fursuit", orderCod = order.code))
+		logger.info("Resetting {fn} picture for {orderCod}".format(fn="Badge" if not isFursuiter else "fursuit", orderCod = order.code))
 	with open("res/propic/default.png", "rb") as f:
 		data = f.read()
 		f.close()
@@ -56,7 +56,7 @@ async def upload_propic(request, order: Order):
 			
 			# Check max file size
 			if EXTRA_PRINTS:
-				print(f"Image {fn} weight: {len(body[0].body)} bytes")
+				logger.debug (f"Image {fn} weight: {len(body[0].body)} bytes")
 			if len(body[0].body) > PROPIC_MAX_FILE_SIZE:
 				raise exceptions.BadRequest("File size too large for " + ("Profile picture" if fn == 'propic' else 'Fursuit picture'))
 			

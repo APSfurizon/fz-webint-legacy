@@ -9,6 +9,7 @@ import random
 import string
 import httpx
 import json
+from sanic.log import logger
 
 bp = Blueprint("api", url_prefix="/manage/api")
 
@@ -185,7 +186,8 @@ async def nfc_scan(request, nfc_id):
 @bp.get("/get_token/<code>/<login_code>")
 async def get_token_from_code(request, code, login_code):
 	if not code in request.app.ctx.login_codes:
-		print(request.app.ctx.login_codes)
+		if DEV_MODE and EXTRA_PRINTS:
+			logger.debug(request.app.ctx.login_codes)
 		return response.json({'ok': False, 'error': 'You need to reauthenticate. The code has expired.'}, status=401)
 		
 	if request.app.ctx.login_codes[code][1] == 0:

@@ -3,9 +3,6 @@ from sanic.response import text, html, redirect, raw
 from jinja2 import Environment, FileSystemLoader
 from time import time
 import httpx
-import re
-import json
-import logging
 from os.path import join
 from ext import *
 from config import *
@@ -14,8 +11,7 @@ from propic import resetDefaultPropic
 from io import BytesIO
 from asyncio import Queue
 import sqlite3
-
-log = logging.getLogger()
+from sanic.log import logger
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -47,15 +43,13 @@ async def clear_session(request, exception):
 
 @app.before_server_start
 async def main_start(*_):
-	print(">>>>>> main_start <<<<<<")
+	logger.info(f"[{app.name}] >>>>>> main_start <<<<<<")
 
 	app.config.REQUEST_MAX_SIZE = PROPIC_MAX_FILE_SIZE * 3
 	
 	app.ctx.om = OrderManager()
 	if FILL_CACHE:
-		log.info("Filling cache!")
-		await app.ctx.om.updateCache()
-		log.info("Cache fill done!")
+		await app.ctx.om.update_cache()
 	
 	app.ctx.nfc_counts = sqlite3.connect('data/nfc_counts.db')
 	
@@ -90,7 +84,7 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 	if not order:
 		async with httpx.AsyncClient() as client:
 			res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
-			print(res.json())
+			
 			if res.status_code != 200:
 				raise exceptions.NotFound("This order code does not exist. Check that your order wasn't deleted, or the link is correct.")
 			
@@ -137,9 +131,7 @@ async def welcome(request, order: Order, quota: Quotas):
 			if member_id == order.code:
 				room_members.append(order)
 			else:
-				room_members.append(await app.ctx.om.get_order(code=member_id, cached=True))		
-
-	print (order.room_errors)
+				room_members.append(await app.ctx.om.get_order(code=member_id, cached=True))
 
 	tpl = app.ctx.tpl.get_template('welcome.html')
 	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_TYPES))
@@ -166,17 +158,17 @@ async def download_ticket(request, order: Order):
 
 @app.route("/manage/admin")
 async def admin(request, order: Order):
-	await request.app.ctx.om.updateCache()
+	await request.app.ctx.om.update_cache()
 	if not order:
 		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	if EXTRA_PRINTS:
-		print(f"Checking admin credentials of {order.code} with secret {order.secret}")
+		logger.info(f"Checking admin credentials of {order.code} with secret {order.secret}")
 	if not order.isAdmin(): raise exceptions.Forbidden("Birichino :)")
 	tpl = app.ctx.tpl.get_template('admin.html')
 	return html(tpl.render(order=order))
 	
 @app.route("/manage/logout")
-async def logour(request):
+async def logout(request):
 	orgCode = request.cookies.get("foxo_code_ORG")
 	orgSecret = request.cookies.get("foxo_secret_ORG")
 	if orgCode != None and orgSecret != None:
@@ -185,8 +177,6 @@ async def logour(request):
 		r.cookies['foxo_secret'] = orgSecret
 		r.delete_cookie("foxo_code_ORG")
 		r.delete_cookie("foxo_secret_ORG")
-		del r.cookies['foxo_code_ORG']
-		del r.cookies['foxo_secret_ORG']
 		return r
 
 	raise exceptions.Forbidden("You have been logged out.")
