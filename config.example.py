@@ -33,6 +33,11 @@ DEV_MODE = True
 ACCESS_LOG = True
 EXTRA_PRINTS = True
 
+# Additional configured locales.
+# If an order has a country that's not listed here,
+# Will default to an english preference.
+AVAILABLE_LOCALES = ['it',]
+
 # Metadata property for item-id mapping
 METADATA_NAME = "item_name"
 # Metadata property for internal category mapping (not related to pretix's category)

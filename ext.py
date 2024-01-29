@@ -131,6 +131,7 @@ class Order:
 		self.actual_room = self.ans('actual_room')
 		self.staff_role = self.ans('staff_role')
 		self.telegram_username = self.ans('telegram_username').strip('@') if self.ans('telegram_username') else None
+		self.shuttle_bus = self.ans('shuttle_bus')
 	def __getitem__(self, var):
 		return self.data[var]
 	
@@ -215,7 +216,7 @@ class Order:
 			if res.status_code != 200:
 				for ans, err in zip(self.answers, res.json()['answers']):
 					if err:
-						logger.error ('[ANSWERS SENDING] ERROR ON', ans, err)
+						logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
 
 				raise exceptions.ServerError('There has been an error while updating this answers.')
 			
@@ -226,7 +227,9 @@ class Order:
 		self.pending_update = False
 		self.time = -1
 		self.loadAns()
-			
+		
+	def get_language(self):
+		return self.country.lower() if self.country.lower() in AVAILABLE_LOCALES else 'en'
 
 @dataclass
 class Quotas:

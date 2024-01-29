@@ -11,3 +11,14 @@ ROOM_UNCONFIRM_TEXT = {
     'html': "Hello <b>{0}</b><br>We had to <b>unconfirm</b> your room <i>'{1}'</i> due to the following issues:<br></p>{2}<br><p>Please contact your room's owner or contact our support for further informations at <a href=\"https://furizon.net/contact/\"> https://furizon.net/contact/</a>.<br>Thank you.<br><br><a class=\"link\" style=\"background-color: #1095c1; color: #fff;\" href=\"https://reg.furizon.net/manage/welcome\">Manage booking</a>",
     'plain': "Hello {0}\nWe had to unconfirm your room '{1}' due to the following issues:\n{2}\nPlease contact your room's owner or contact our support for further informations at https://furizon.net/contact/.\nThank you\n\nTo manage your booking: https://reg.furizon.net/manage/welcome"
 }
+
+LOCALES = {
+    'shuttle_link': {
+        'en': 'Book now',
+        'it': 'Prenota ora'
+    },
+    'shuttle_link_url': {
+        'en': 'https://visitfiemme.regiondo.com/furizon?_ga=2.129644046.307369854.1705325023-235291123.1705325023',
+        'it': 'https://experience.visitfiemme.it/furizon'
+    }
+}

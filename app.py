@@ -10,6 +10,7 @@ from aztec_code_generator import AztecCode
 from propic import resetDefaultPropic
 from io import BytesIO
 from asyncio import Queue
+from messages import LOCALES
 import sqlite3
 from sanic.log import logger
 
@@ -58,6 +59,7 @@ async def main_start(*_):
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
+	app.ctx.tpl.globals.update(LOCALES=LOCALES)
 	app.ctx.tpl.globals.update(ITEMS_ID_MAP=ITEMS_ID_MAP)
 	app.ctx.tpl.globals.update(ITEM_VARIATIONS_MAP=ITEM_VARIATIONS_MAP)
 	app.ctx.tpl.globals.update(ROOM_TYPE_NAMES=ROOM_TYPE_NAMES)

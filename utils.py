@@ -170,7 +170,7 @@ async def validate_rooms(request, rooms, om):
 		logger.info('[ROOM VALIDATION] Every room passed the check.')
 		return
 
-	logger.warning(f'[ROOM VALIDATION] Room validation failed for orders: ', list(map(lambda rf: rf[0].code, failed_rooms)))
+	logger.warning(f'[ROOM VALIDATION] Room validation failed for orders: %s', list(map(lambda rf: rf[0].code, failed_rooms)))
 	
 	# Get confirmed rooms that fail validation
 	failed_confirmed_rooms = list(filter(lambda fr: (fr[0].room_confirmed == True), failed_rooms))
