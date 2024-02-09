@@ -1,6 +1,16 @@
 {% extends "base.html" %}
 {% block title %}{{order.name}}'s Booking{% endblock %}
+{% block head %}
+    <!--Open Graph tags here-->
+    <meta property="og:title" content="Furizon booking management" />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:alt" content="Furizon's logo" />
+	<meta property="og:image" content="https://reg.furizon.net/res/furizon.png" />
+	<meta property="og:image:secure_url" content="https://reg.furizon.net/res/furizon.png" />
+
+{% endblock %}
 {% block main %}
+{% set locale = order.get_language() %}
 	<main class="container">
 		<header>
 			<picture>
@@ -58,6 +68,15 @@
 					{% endif %}
 				</td>
 			</tr>
+			{% if order.shuttle_bus %}
+			<tr>
+				<th>Shuttle</th>
+				<td>
+					<img src="/res/icons/bus.svg" class="icon" />
+					{{order.shuttle_bus}}
+				</td>
+			</tr>
+			{% endif %}
 		</table>
 		
 		<h2>Manage your booking</h2>
@@ -67,6 +86,12 @@
 		{% endif %}
 		{% include 'blocks/badge.html' %}
 		
+		<details id="shuttle">
+			<summary role="button"><img src="/res/icons/bus.svg" class="icon" />Shuttle</summary>
+			<p>This year we teamed up with VisitFiemme to take our guests to the convention.</p>
+			<p style="text-align:right;"><a href="{{LOCALES['shuttle_link_url'][locale]}}" target="_blank" role="button">Book now</a></p>
+		</details>
+
 		<details id="barcard">
 			<summary role="button"><img src="/res/icons/bar.svg" class="icon" />Barcard</summary>
 			<p>This year's badges will be NFC-enabled and serve as a digital barcard, allowing you to load 'drinks' onto your badge and use it to purchase beverages at the bar without the need for physical cash or the risk of losing a paper barcard. The barcard system will be enabled closer to the convention, so you will have the opportunity to load your badge in advance and enjoy a convenient, cashless experience at the event. Keep an eye out for updates on when the system will be live and available for use.</p>

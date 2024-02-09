@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{room_data['name']}}{% endblock %}
+{% block head %}
+    <!--Open Graph tags here-->
+    <meta property="og:title" content="View room - Furizon" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="View of a room" />
+	<meta property="og:image" content="http://localhost:8188/{{preview}}" />
+	<meta property="og:image:secure_url" content="http://localhost:8188/{{preview}}" />
+	<meta property="og:image:width" content="{{230 * room_data['capacity'] + 130}}"/>
+	<meta property="og:image:height" content="270"/>
+	<meta property="og:description" content="Room {{room_data['name']}} has {{'been confirmed.' if room_data['confirmed'] else ('been filled.' if room_data['free_spots'] == 0 else (room_data['free_spots'] | string) + ' free spots out of ' + (room_data['capacity'] | string )) }}"/>
+{% endblock %}
+{% block main %}
+	<main class="container">
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;" onload="window.location.href = '/manage/nosecount/'">
+			</picture>
+		</header>
+	</main>
+	
+{% endblock %}

@@ -1,12 +1,14 @@
 from dataclasses import dataclass
-from sanic import Request, exceptions
+from sanic import Request, exceptions, Sanic
 import httpx
 import re
 from utils import *
 from config import *
 from os.path import join
 import json
+from sanic.log import logger
 from time import time
+import asyncio
 
 @dataclass
 class Order:
@@ -65,7 +67,7 @@ class Order:
 				self.has_card = True
 				
 			if p['item'] == ITEMS_ID_MAP['sponsorship_item']:
-				sponsorshipType = keyFromValue(ITEM_VARIATIONS_MAP['sponsorship_item'], p['variation'])
+				sponsorshipType = key_from_value(ITEM_VARIATIONS_MAP['sponsorship_item'], p['variation'])
 				self.sponsorship = sponsorshipType[0].replace ('sponsorship_item_', '') if len(sponsorshipType) > 0 else None
 				
 			if p['attendee_name']:
@@ -79,7 +81,7 @@ class Order:
 				self.has_late = True
 
 			if p['item'] == ITEMS_ID_MAP['bed_in_room']:
-				roomTypeLst = keyFromValue(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
+				roomTypeLst = key_from_value(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
 				roomTypeId = roomTypeLst[0] if len(roomTypeLst) > 0 else None
 				self.bed_in_room = p['variation']
 				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else None
@@ -98,6 +100,7 @@ class Order:
 		self.payment_provider = data['payment_provider']
 		self.comment = data['comment']
 		self.phone = data['phone']
+		self.room_errors = []
 		self.loadAns()
 	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
@@ -128,8 +131,12 @@ class Order:
 		self.actual_room = self.ans('actual_room')
 		self.staff_role = self.ans('staff_role')
 		self.telegram_username = self.ans('telegram_username').strip('@') if self.ans('telegram_username') else None
+		self.shuttle_bus = self.ans('shuttle_bus')
 	def __getitem__(self, var):
 		return self.data[var]
+	
+	def set_room_errors (self, to_set):
+			for s in to_set: self.room_errors.append (s)
 
 	def ans(self, name):
 		for p in self.data['positions']:
@@ -165,11 +172,11 @@ class Order:
 		for key in range(len(self.answers)):
 			if self.answers[key].get('question_identifier', None) == name:
 				if new_answer != None:
-					print('EXISTING ANSWER UPDATE', name, '=>', new_answer)
+					if DEV_MODE and EXTRA_PRINTS: logger.debug('[ANSWER EDIT] EXISTING ANSWER UPDATE %s => %s', name, new_answer)
 					self.answers[key]['answer'] = new_answer
 					found = True
 				else:
-					print('DEL ANSWER', name, '=>', new_answer)
+					if DEV_MODE and EXTRA_PRINTS: logger.debug('[ANSWER EDIT] DEL ANSWER %s => %s', name, new_answer)
 					del self.answers[key]
 
 				break
@@ -182,7 +189,7 @@ class Order:
 			for r in res['results']:
 				if r['identifier'] != name: continue
 			
-				print('ANSWER UPDATE', name, '=>', new_answer)
+				if DEV_MODE and EXTRA_PRINTS: logger.debug(f'[ANSWER EDIT] %s => %s', name, new_answer)
 				self.answers.append({
 					'question': r['id'],
 					'answer': new_answer,
@@ -192,7 +199,7 @@ class Order:
 			
 	async def send_answers(self):
 		async with httpx.AsyncClient() as client:
-			print("POSITION ID IS", self.position_id)
+			if DEV_MODE and EXTRA_PRINTS: logger.debug("[ANSWER POST] POSITION ID IS %s", self.position_id)
 			
 			for i, ans in enumerate(self.answers):
 				if TYPE_OF_QUESTIONS[ans['question']] == QUESTION_TYPES["multiple_choice_from_list"]: # if multiple choice
@@ -209,7 +216,7 @@ class Order:
 			if res.status_code != 200:
 				for ans, err in zip(self.answers, res.json()['answers']):
 					if err:
-						print('ERROR ON', ans, err)
+						logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
 
 				raise exceptions.ServerError('There has been an error while updating this answers.')
 			
@@ -220,6 +227,9 @@ class Order:
 		self.pending_update = False
 		self.time = -1
 		self.loadAns()
+		
+	def get_language(self):
+		return self.country.lower() if self.country.lower() in AVAILABLE_LOCALES else 'en'
 
 @dataclass
 class Quotas:
@@ -246,18 +256,21 @@ async def get_order(request: Request=None):
 class OrderManager:
 	def __init__(self):
 		self.lastCacheUpdate = 0
+		self.updating = False
 		self.empty()
 
 	def empty(self):
 		self.cache = {}
 		self.order_list = []
 
-	async def updateCache(self):
+	# Will fill cache once the last cache update is greater than cache expire time
+	async def update_cache(self):
 		t = time()
-		if(t - self.lastCacheUpdate > CACHE_EXPIRE_TIME):
-			print("Re-filling cache!")
+		to_return = False
+		if(t - self.lastCacheUpdate > CACHE_EXPIRE_TIME and not self.updating):
+			to_return = True
 			await self.fill_cache()
-			self.lastCacheUpdate = t			
+		return to_return
 
 	def add_cache(self, order):
 		self.cache[order.code] = order
@@ -270,25 +283,44 @@ class OrderManager:
 			self.order_list.remove(code)
 	
 	async def fill_cache(self):
-		await loadItems()
-		await loadQuestions()
+		# Check cache lock
+		if self.updating == True: return
+		# Set cache lock
+		self.updating = True
+		start_time = time()
+		logger.info("[CACHE] Filling cache...")
+		# Index item's ids
+		await load_items()
+
+		# Index questions' types
+		await load_questions()
+
+		# Clear cache data completely
 		self.empty()
 		p = 0
-			
-		async with httpx.AsyncClient() as client:
-			while 1:
-				p += 1
-				res = await client.get(join(base_url_event, f"orders/?page={p}"), headers=headers)
-		
-				if res.status_code == 404: break
-		
-				data = res.json()
-				for o in data['results']:
-					o = Order(o)
-					if o.status in ['canceled', 'expired']:
-						self.remove_cache(o.code)
-					else:
-						self.add_cache(Order(o))
+		try:
+			async with httpx.AsyncClient() as client:
+				while 1:
+					p += 1
+					res = await client.get(join(base_url_event, f"orders/?page={p}"), headers=headers)
+					if res.status_code == 404: break
+					# Parse order data
+					data = res.json()
+					for o in data['results']:
+						o = Order(o)
+						if o.status in ['canceled', 'expired']:
+							self.remove_cache(o.code)
+						else:
+							self.add_cache(Order(o))
+				self.lastCacheUpdate = time()
+				logger.info(f"[CACHE] Cache filled in {self.lastCacheUpdate - start_time}s.")
+		except Exception as ex:
+			logger.error("[CACHE] Error while refreshing cache.", ex)
+		finally:
+			self.updating = False
+		# Validating rooms
+		rooms = list(filter(lambda o: (o.code == o.room_id), self.cache.values()))
+		asyncio.create_task(validate_rooms(None, rooms, self))
 	
 	async def get_order(self, request=None, code=None, secret=None, nfc_id=None, cached=False):
 
@@ -298,7 +330,7 @@ class OrderManager:
 				if order.nfc_id == nfc_id:
 					return order
 	
-		await self.updateCache()
+		await self.update_cache()
 		# If a cached order is needed, just get it if available
 		if code and cached and code in self.cache and time()-self.cache[code].time < 3600:
 			return self.cache[code]
@@ -309,7 +341,7 @@ class OrderManager:
 			secret = request.cookies.get("foxo_secret")
 		
 		if re.match('^[A-Z0-9]{5}$', code or '') and (secret is None or re.match('^[a-z0-9]{16,}$', secret)):
-			print('Fetching', code, 'with secret', secret)
+			if DEV_MODE and EXTRA_PRINTS: logger.debug(f'Fetching {code} with secret {secret}')
 
 			async with httpx.AsyncClient() as client:
 				res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)

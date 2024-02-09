@@ -6,7 +6,7 @@ bp = Blueprint("stats", url_prefix="/manage")
 
 @bp.route("/sponsorcount")
 async def sponsor_count(request, order: Order):
-	await request.app.ctx.om.updateCache()
+	await request.app.ctx.om.update_cache()
 	orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: x[1].ans('fursona_name')) if value.status not in ['c', 'e']}
 
 	tpl = request.app.ctx.tpl.get_template('sponsorcount.html')
@@ -14,7 +14,7 @@ async def sponsor_count(request, order: Order):
 
 @bp.route("/nosecount")
 async def nose_count(request, order: Order):
-	await request.app.ctx.om.updateCache()
+	await request.app.ctx.om.update_cache()
 	orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e']}
 
 	tpl = request.app.ctx.tpl.get_template('nosecount.html')
@@ -22,7 +22,7 @@ async def nose_count(request, order: Order):
 
 @bp.route("/fursuitcount")
 async def fursuit_count(request, order: Order):
-	await request.app.ctx.om.updateCache()
+	await request.app.ctx.om.update_cache()
 	orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: x[1].ans('fursona_name')) if value.status not in ['c', 'e']}
 
 	tpl = request.app.ctx.tpl.get_template('fursuitcount.html')

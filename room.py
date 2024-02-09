@@ -3,6 +3,8 @@ from sanic import Blueprint, exceptions
 from random import choice
 from ext import *
 from config import headers
+import os
+from image_util import generate_room_preview, get_room
 
 bp = Blueprint("room", url_prefix="/manage/room")
 
@@ -63,6 +65,7 @@ async def delete_room(request, order: Order):
 	await order.edit_answer('room_members', None)
 	await order.edit_answer('room_secret', None)
 	await order.send_answers()
+	remove_room_preview (order.code)
 	return redirect('/manage/welcome')	
 	
 @bp.post("/join")
@@ -112,7 +115,7 @@ async def join_room(request, order: Order):
 	
 	await room_owner.edit_answer('pending_roommates', ','.join(pending_roommates))
 	await room_owner.send_answers()
-	
+	remove_room_preview (code)
 	return redirect('/manage/welcome')
 
 @bp.route("/kick/<code>")
@@ -135,7 +138,7 @@ async def kick_member(request, code, order: Order):
 
 	await order.send_answers()	
 	await to_kick.send_answers()
-	
+	remove_room_preview (order.code)
 	return redirect('/manage/welcome')
 
 @bp.route("/renew_secret")
@@ -202,7 +205,7 @@ async def approve_roomreq(request, code, order: Order):
 	
 	await pending_member.send_answers()
 	await order.send_answers()
-	
+	remove_room_preview(order.code)
 	return redirect('/manage/welcome')
 	
 @bp.route("/leave")
@@ -226,7 +229,7 @@ async def leave_room(request, order: Order):
 		
 	await room_owner.send_answers()
 	await order.send_answers()
-	
+	remove_room_preview (order.room_id)
 	return redirect('/manage/welcome')
 
 @bp.route("/reject/<code>")
@@ -282,7 +285,7 @@ async def rename_room(request, order: Order):
 
 	await order.edit_answer("room_name", name)
 	await order.send_answers()
-
+	remove_room_preview(order.code)
 	return redirect('/manage/welcome')
 	
 @bp.route("/confirm")
@@ -350,3 +353,24 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		await rm.send_answers()
 
 	return redirect('/manage/welcome')
+
+async def get_room_with_order (request, code):
+	order_data = await request.app.ctx.om.get_order(code=code)
+	if not order_data or not order_data.room_owner: return None
+
+def remove_room_preview(code):
+	preview_file = f"res/rooms/{code}.jpg"
+	try:
+		if os.path.exists(preview_file): os.remove(preview_file)
+	except Exception as ex:
+		if (EXTRA_PRINTS): logger.exception(str(ex))
+
+@bp.route("/view/<code>")
+async def get_view(request, code):
+	room_file_name = f"res/rooms/{code}.jpg"
+	room_data = await get_room(request, code)
+	if not room_data: raise exceptions.NotFound("No room was found with that code.")
+	if not os.path.exists(room_file_name):
+		await generate_room_preview(request, code, room_data)
+	tpl = request.app.ctx.tpl.get_template('view_room.html')
+	return html(tpl.render(preview=room_file_name, room_data=room_data))
