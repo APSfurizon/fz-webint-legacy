@@ -1,13 +1,60 @@
 from sanic import Sanic
+from sanic.log import logger
+import ssl
+from ssl import SSLContext
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from messages import ROOM_ERROR_TYPES
 import smtplib
 from messages import *
-from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+from config import *
 from jinja2 import Environment, FileSystemLoader
+from threading import Timer, Lock
 
-async def send_unconfirm_message (room_order, orders):
+def killSmptClient():
+	global sslLock
+	global sslTimer
+	global smptSender
+	sslTimer.cancel()
+	sslLock.acquire()
+	if(smptSender is not None):
+		logger.debug('[SMPT] Closing smpt client')
+		smptSender.quit() # it calls close() inside
+		smptSender = None
+	sslLock.release()
+
+async def openSmptClient():
+	global sslLock
+	global sslTimer
+	global sslContext
+	global smptSender
+	sslTimer.cancel()
+	sslLock.acquire()
+	if(smptSender is None):
+		logger.debug('[SMPT] Opening smpt client')
+		client : smtplib.SMTP = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+		client.starttls(context=sslContext)
+		client.login(SMTP_USER, SMTP_PASSWORD)
+		smptSender = client
+	sslLock.release()
+	sslTimer = createTimer()
+	sslTimer.start()
+
+def createTimer():
+	return Timer(SMPT_CLIENT_CLOSE_TIMEOUT, killSmptClient)
+sslLock : Lock = Lock()
+sslTimer : Timer = createTimer()
+sslContext : SSLContext = ssl.create_default_context()
+smptSender : smtplib.SMTP = None
+
+async def sendEmail(message : MIMEMultipart):
+	await openSmptClient()
+	logger.debug(f"[SMPT] Sending mail {message['From']} -> {message['to']} '{message['Subject']}'")
+	sslLock.acquire()
+	smptSender.sendmail(message['From'], message['to'], message.as_string())
+	sslLock.release()
+
+async def send_unconfirm_message(room_order, orders):
 	memberMessages = []
 
 	issues_plain = ""
@@ -32,17 +79,15 @@ async def send_unconfirm_message (room_order, orders):
 		message = MIMEMultipart("alternative")
 		message.attach(plain_text)
 		message.attach(html_text)
-		message['Subject'] = '[Furizon] Your room cannot be confirmed'
-		message['From'] = 'Furizon <no-reply@furizon.net>'
+		message['Subject'] = f'[{EMAIL_SENDER_NAME}] Your room cannot be confirmed'
+		message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
 		message['To'] = f"{member.name} <{member.email}>"
 		memberMessages.append(message)
 
 	if len(memberMessages) == 0: return
 
-	with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as sender:
-		sender.login(SMTP_USER, SMTP_PASSWORD)
-		for message in memberMessages:
-			sender.sendmail(message['From'], message['to'], message.as_string())
+	for message in memberMessages:
+		await sendEmail(message)
 
 def render_email_template(title = "", body = ""):
 	tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=False).get_template('email/comunication.html')

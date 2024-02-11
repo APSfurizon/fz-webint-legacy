@@ -12,7 +12,7 @@ from io import BytesIO
 from asyncio import Queue
 from messages import LOCALES
 import sqlite3
-from sanic.log import logger
+from sanic.log import logger, logging
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -45,6 +45,7 @@ async def clear_session(request, exception):
 @app.before_server_start
 async def main_start(*_):
 	logger.info(f"[{app.name}] >>>>>> main_start <<<<<<")
+	logger.setLevel(LOG_LEVEL)
 
 	app.config.REQUEST_MAX_SIZE = PROPIC_MAX_FILE_SIZE * 3
 	

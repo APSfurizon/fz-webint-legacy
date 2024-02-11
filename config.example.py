@@ -1,3 +1,6 @@
+from sanic.log import logging
+LOG_LEVEL = logging.DEBUG
+
 API_TOKEN = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 ORGANIZER = 'furizon'
 EVENT_NAME = 'overlord'
@@ -25,6 +28,9 @@ SMTP_HOST = 'host'
 SMTP_PORT = 0
 SMTP_USER = 'user'
 SMTP_PASSWORD = 'pw'
+EMAIL_SENDER_NAME = "Fantastic Furcon Wow"
+EMAIL_SENDER_MAIL = "no-reply@thisIsAFantasticFurconWowItIsWonderful.cuteFurries.ovh"
+SMPT_CLIENT_CLOSE_TIMEOUT = 60 * 15 # 15 minutes
 
 FILL_CACHE = True
 CACHE_EXPIRE_TIME = 60 * 60 * 4
@@ -109,11 +115,6 @@ CATEGORIES_LIST_MAP = {
     'extra_days': [],
     'rooms': [],
     'dailys': []
-}
-
-SPONSORSHIP_COLOR_MAP = {
-    'super': (251, 140, 0),
-    'normal': (142, 36, 170)
 }
 
 # Create a bunch of "room" items which will get added to the order once somebody gets a room.
