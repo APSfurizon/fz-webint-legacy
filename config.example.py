@@ -7,7 +7,8 @@ EVENT_NAME = 'overlord'
 HOSTNAME = 'reg.furizon.net'
 
 headers = {'Host': HOSTNAME, 'Authorization': f'Token {API_TOKEN}'}
-base_url = "http://urlllllllllllllllllllll/api/v1/"
+domain = "http://urlllllllllllllllllllll/"
+base_url = "{domain}api/v1/"
 base_url_event = f"{base_url}organizers/{ORGANIZER}/events/{EVENT_NAME}/"
 
 PROPIC_DEADLINE = 9999999999

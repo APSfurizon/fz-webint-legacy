@@ -199,7 +199,10 @@ if __name__ == "__main__":
 			res = requests.get(base_url_event, headers=headers)
 			res = res.json()
 			if(res['slug'] == EVENT_NAME):
-				break
+				print("Healtchecking...", file=sys.stderr)
+				res = requests.get(join(domain, "healthcheck"), headers=headers)
+				if(res.status_code == 200):
+					break
 		except:
 			pass
 		sleep(5)
