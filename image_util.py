@@ -18,7 +18,8 @@ def draw_profile (source, member, position, font, size=(170, 170), border_width=
 	# Draw border
 	idraw.rounded_rectangle(border_loc, border_width, border_color)
 	# Draw profile picture
-	with Image.open(f'res/propic/{member['propic'] or 'default.png'}') as to_add:
+	fileName = member['propic'] or 'default.png'
+	with Image.open(f'res/propic/{fileName}') as to_add:
 		source.paste(to_add.resize (size), profile_location)
 	name_len = idraw.textlength(str(member['name']), font)
 	calc_size = 0

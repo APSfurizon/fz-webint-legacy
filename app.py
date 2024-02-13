@@ -1,7 +1,7 @@
 from sanic import Sanic, response, exceptions
 from sanic.response import text, html, redirect, raw
 from jinja2 import Environment, FileSystemLoader
-from time import time
+from time import time, sleep
 import httpx
 from os.path import join
 from ext import *
@@ -12,7 +12,9 @@ from io import BytesIO
 from asyncio import Queue
 from messages import LOCALES
 import sqlite3
-from sanic.log import logger
+import requests
+import sys
+from sanic.log import logger, logging
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -45,6 +47,7 @@ async def clear_session(request, exception):
 @app.before_server_start
 async def main_start(*_):
 	logger.info(f"[{app.name}] >>>>>> main_start <<<<<<")
+	logger.setLevel(LOG_LEVEL)
 
 	app.config.REQUEST_MAX_SIZE = PROPIC_MAX_FILE_SIZE * 3
 	
@@ -184,4 +187,24 @@ async def logout(request):
 	raise exceptions.Forbidden("You have been logged out.")
 
 if __name__ == "__main__":
-	app.run(host="0.0.0.0", port=8188, dev=DEV_MODE, access_log=ACCESS_LOG)
+	# Wait for pretix in server reboot
+	# Using a docker configuration, pretix may be unable to talk with postgres if postgres' service started before it. 
+	# To fix this issue I added a After=pretix.service to the [Unit] section of /lib/systemd/system/postgresql@.service
+	# to let it start in the correct order. The following piece of code makes sure that pretix is running and can talk to 
+	# postgres before actually starting the reserved area, since this operation requires a cache-fill in startup
+	print("Waiting for pretix to be up and running", file=sys.stderr)
+	while True:
+		print("Trying connecting to pretix...", file=sys.stderr)
+		try:
+			res = requests.get(base_url_event, headers=headers)
+			res = res.json()
+			if(res['slug'] == EVENT_NAME):
+				print("Healtchecking...", file=sys.stderr)
+				res = requests.get(join(domain, "healthcheck"), headers=headers)
+				if(res.status_code == 200):
+					break
+		except:
+			pass
+		sleep(5)
+	print("Connected to pretix!", file=sys.stderr)
+	app.run(host="127.0.0.1", port=8188, dev=DEV_MODE, access_log=ACCESS_LOG)

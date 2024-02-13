@@ -1,44 +1,94 @@
 from sanic import Sanic
+from sanic.log import logger
+import ssl
+from ssl import SSLContext
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from messages import ROOM_ERROR_TYPES
 import smtplib
 from messages import *
-from config import SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASSWORD
+from config import *
 from jinja2 import Environment, FileSystemLoader
+from threading import Timer, Lock
 
-async def send_unconfirm_message (room_order, orders):
-    memberMessages = []
+def killSmptClient():
+	global sslLock
+	global sslTimer
+	global smptSender
+	sslTimer.cancel()
+	sslLock.acquire()
+	if(smptSender is not None):
+		logger.debug('[SMPT] Closing smpt client')
+		smptSender.quit() # it calls close() inside
+		smptSender = None
+	sslLock.release()
 
-    issues_plain = ""
-    issues_html = "<ul>"
+async def openSmptClient():
+	global sslLock
+	global sslTimer
+	global sslContext
+	global smptSender
+	sslTimer.cancel()
+	sslLock.acquire()
+	if(smptSender is None):
+		logger.debug('[SMPT] Opening smpt client')
+		client : smtplib.SMTP = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+		client.starttls(context=sslContext)
+		client.login(SMTP_USER, SMTP_PASSWORD)
+		smptSender = client
+	sslLock.release()
+	sslTimer = createTimer()
+	sslTimer.start()
 
-    for err in room_order.room_errors:
-        if err in ROOM_ERROR_TYPES.keys():
-            issues_plain += f" • {ROOM_ERROR_TYPES[err]}\n"
-            issues_html += f"<li>{ROOM_ERROR_TYPES[err]}</li>"
-        issues_html += "</ul>"
+def createTimer():
+	return Timer(SMPT_CLIENT_CLOSE_TIMEOUT, killSmptClient)
+sslLock : Lock = Lock()
+sslTimer : Timer = createTimer()
+sslContext : SSLContext = ssl.create_default_context()
+smptSender : smtplib.SMTP = None
 
-    for member in orders:
-        plain_body = ROOM_UNCONFIRM_TEXT['plain'].format(member.name, room_order.room_name, issues_plain)
-        html_body = render_email_template(ROOM_UNCONFIRM_TITLE, ROOM_UNCONFIRM_TEXT['html'].format(member.name, room_order.room_name, issues_html))
-        plain_text = MIMEText(plain_body, "plain")
-        html_text = MIMEText(html_body, "html")
-        message = MIMEMultipart("alternative")
-        message.attach(plain_text)
-        message.attach(html_text)
-        message['Subject'] = '[Furizon] Your room cannot be confirmed'
-        message['From'] = 'Furizon <no-reply@furizon.net>'
-        message['To'] = f"{member.name} <{member.email}>"
-        memberMessages.append(message)
+async def sendEmail(message : MIMEMultipart):
+	await openSmptClient()
+	logger.debug(f"[SMPT] Sending mail {message['From']} -> {message['to']} '{message['Subject']}'")
+	sslLock.acquire()
+	smptSender.sendmail(message['From'], message['to'], message.as_string())
+	sslLock.release()
 
-    if len(memberMessages) == 0: return
+async def send_unconfirm_message(room_order, orders):
+	memberMessages = []
 
-    with smtplib.SMTP_SSL(SMTP_HOST, SMTP_PORT) as sender:
-        sender.login(SMTP_USER, SMTP_PASSWORD)
-        for message in memberMessages:
-            sender.sendmail(message['From'], message['to'], message.as_string())
+	issues_plain = ""
+	issues_html = "<ul>"
+
+	for err in room_order.room_errors:
+		errId = err[1]
+		order = err[0]
+		orderStr = ""
+		if order is not None:
+			orderStr = f"{order}: "
+		if errId in ROOM_ERROR_TYPES.keys():
+			issues_plain += f" • {orderStr}{ROOM_ERROR_TYPES[errId]}\n"
+			issues_html += f"<li>{orderStr}{ROOM_ERROR_TYPES[errId]}</li>"
+	issues_html += "</ul>"
+
+	for member in orders:
+		plain_body = ROOM_UNCONFIRM_TEXT['plain'].format(member.name, room_order.room_name, issues_plain)
+		html_body = render_email_template(ROOM_UNCONFIRM_TITLE, ROOM_UNCONFIRM_TEXT['html'].format(member.name, room_order.room_name, issues_html))
+		plain_text = MIMEText(plain_body, "plain")
+		html_text = MIMEText(html_body, "html")
+		message = MIMEMultipart("alternative")
+		message.attach(plain_text)
+		message.attach(html_text)
+		message['Subject'] = f'[{EMAIL_SENDER_NAME}] Your room cannot be confirmed'
+		message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
+		message['To'] = f"{member.name} <{member.email}>"
+		memberMessages.append(message)
+
+	if len(memberMessages) == 0: return
+
+	for message in memberMessages:
+		await sendEmail(message)
 
 def render_email_template(title = "", body = ""):
-    tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=False).get_template('email/comunication.html')
-    return str(tpl.render(title=title, body=body))
+	tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=False).get_template('email/comunication.html')
+	return str(tpl.render(title=title, body=body))

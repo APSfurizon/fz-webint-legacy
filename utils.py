@@ -154,26 +154,32 @@ async def validate_rooms(request, rooms, om):
 	logger.info('Validating rooms...')
 	if not om: om = request.app.ctx.om
 
-	failed_rooms = []
+	# rooms_to_unconfirm is the room that MUST be unconfirmed, room_with_errors is a less strict set containing all rooms with kind-ish errors
+	rooms_to_unconfirm = []
+	room_with_errors = []
 
 	# Validate rooms
 	for order in rooms:
-		# returns tuple (room owner order, check, room error list, room members orders)
 		result = await check_room(request, order, om)
-		order = result[0]
+		if(len(order.room_errors) > 0):
+			room_with_errors.append(result)
 		check = result[1]
 		if check != None and check == False:
-			failed_rooms.append(result)
+			rooms_to_unconfirm.append(result)
 	
 	# End here if no room has failed check
-	if len(failed_rooms) == 0: 
+	if len(room_with_errors) == 0: 
 		logger.info('[ROOM VALIDATION] Every room passed the check.')
 		return
 
-	logger.warning(f'[ROOM VALIDATION] Room validation failed for orders: %s', list(map(lambda rf: rf[0].code, failed_rooms)))
+	roomErrListSrts = []
+	for fr in room_with_errors:
+		for error in fr[0].room_errors:
+			roomErrListSrts.append(f"[ROOM VALIDATION] [ERR] Parent room: {fr[0].code} {'C' if fr[0].room_confirmed else 'N'} | Order {error[0] if error[0] else '-----'} with code {error[1]}")
+	logger.warning(f'[ROOM VALIDATION] Room validation failed for orders: \n%s', "\n".join(roomErrListSrts))
 	
 	# Get confirmed rooms that fail validation
-	failed_confirmed_rooms = list(filter(lambda fr: (fr[0].room_confirmed == True), failed_rooms))
+	failed_confirmed_rooms = list(filter(lambda fr: (fr[0].room_confirmed == True), rooms_to_unconfirm))
 
 	if len(failed_confirmed_rooms) == 0:
 		logger.info('[ROOM VALIDATION] No rooms to unconfirm.')
@@ -213,6 +219,7 @@ async def check_room(request, order, om=None):
 	# This is not needed anymore you buy tickets already 
 	#if quotas.get_left(len(order.room_members)) == 0:
 	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
+	allOk = True
 
 	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
 	for m in order.room_members:
@@ -223,20 +230,27 @@ async def check_room(request, order, om=None):
 		
 		# Room user in another room
 		if res.room_id != order.code:
-			room_errors.append('room_id_mismatch')
+			room_errors.append((res.code, 'room_id_mismatch'))
+			allOk = False
 		
 		if res.status != 'paid':
-			room_errors.append('unpaid')
+			room_errors.append((res.code, 'unpaid'))
 		
 		if res.bed_in_room != bed_in_room:
-			room_errors.append('type_mismatch')
+			room_errors.append((res.code, 'type_mismatch'))
+			if order.room_confirmed:
+				allOk = False
 		
 		if res.daily:
-			room_errors.append('daily')
+			room_errors.append((res.code, 'daily'))
+			if order.room_confirmed:
+				allOk = False
 			
 		room_members.append(res)
 	
 	if len(room_members) != order.room_person_no and order.room_person_no != None:
-		room_errors.append('capacity_mismatch')
+		room_errors.append((None, 'capacity_mismatch'))
+		if order.room_confirmed:
+			allOk = False
 	order.set_room_errors(room_errors)
-	return (order, len(room_errors) == 0, room_members)
+	return (order, allOk, room_members)
