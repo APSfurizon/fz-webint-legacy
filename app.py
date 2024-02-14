@@ -16,6 +16,9 @@ import requests
 import sys
 from sanic.log import logger, logging
 
+if METRICS:
+	from sanic_prometheus import monitor
+
 app = Sanic(__name__)
 app.static("/res", "res/")
 
@@ -36,6 +39,8 @@ app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carp
 				
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
+	print(exception)
+	print(request)
 	tpl = app.ctx.tpl.get_template('error.html')
 	r = html(tpl.render(exception=exception))
 	
@@ -207,4 +212,13 @@ if __name__ == "__main__":
 			pass
 		sleep(5)
 	print("Connected to pretix!", file=sys.stderr)
+
+	if(METRICS):
+		if(METRICS_USE_ANOTHER_SOCKET):
+			print(f"Startin metrics server on {METRICS_IP}:{METRICS_PORT} on path '{METRICS_PATH}'")
+			monitor(app, metrics_path=METRICS_PATH).start_server(addr=METRICS_IP, port=METRICS_PORT)
+		else:
+			print(f"Startin metrics server on path '{METRICS_PATH}'")
+			monitor(app, metrics_path=METRICS_PATH).expose_endpoint()
+
 	app.run(host="127.0.0.1", port=8188, dev=DEV_MODE, access_log=ACCESS_LOG)

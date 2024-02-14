@@ -40,6 +40,12 @@ DEV_MODE = True
 ACCESS_LOG = True
 EXTRA_PRINTS = True
 
+METRICS = True
+METRICS_USE_ANOTHER_SOCKET = True
+METRICS_IP = "172.17.0.1"
+METRICS_PORT = "1211"
+METRICS_PATH = "/metrics"
+
 # Additional configured locales.
 # If an order has a country that's not listed here,
 # Will default to an english preference.
