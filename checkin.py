@@ -11,6 +11,7 @@ from hashlib import sha224
 from time import time
 from urllib.parse import unquote
 import json
+from metrics import *
 
 bp = Blueprint("checkin", url_prefix="/checkin")
 
@@ -64,6 +65,7 @@ async def do_checkin(request):
 	
 	if not order.checked_in:
 		async with httpx.AsyncClient() as client:
+			incPretixWrite()
 			res = await client.post(base_url_event.replace(f'events/{EVENT_NAME}/', 'checkinrpc/redeem/'), json={'secret': order.barcode, 'source_type': 'barcode', 'type': 'entry', 'lists': [3,]}, headers=headers)
 	
 	tpl = request.app.ctx.tpl.get_template('checkin_3.html')

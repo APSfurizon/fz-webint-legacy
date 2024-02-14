@@ -5,4 +5,3 @@ Pillow
 aztec_code_generator
 Jinja2
 Requests
-sanic_prometheus 

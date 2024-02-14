@@ -14,10 +14,8 @@ from messages import LOCALES
 import sqlite3
 import requests
 import sys
-from sanic.log import logger, logging
-
-if METRICS:
-	from sanic_prometheus import monitor
+from sanic.log import logger, logging, access_logger
+from metrics import *
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -39,8 +37,7 @@ app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carp
 				
 @app.exception(exceptions.SanicException)
 async def clear_session(request, exception):
-	print(exception)
-	print(request)
+	logger.warning(f"{request} -> {exception}")
 	tpl = app.ctx.tpl.get_template('error.html')
 	r = html(tpl.render(exception=exception))
 	
@@ -53,6 +50,7 @@ async def clear_session(request, exception):
 async def main_start(*_):
 	logger.info(f"[{app.name}] >>>>>> main_start <<<<<<")
 	logger.setLevel(LOG_LEVEL)
+	access_logger.addFilter(MetricsFilter())
 
 	app.config.REQUEST_MAX_SIZE = PROPIC_MAX_FILE_SIZE * 3
 	
@@ -93,6 +91,7 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 
 	if not order:
 		async with httpx.AsyncClient() as client:
+			incPretixRead()
 			res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
 			
 			if res.status_code != 200:
@@ -157,6 +156,7 @@ async def download_ticket(request, order: Order):
 		raise exceptions.Forbidden("You are not allowed to download this ticket.")
 		
 	async with httpx.AsyncClient() as client:
+		incPretixRead()
 		res = await client.get(join(base_url_event, f"orders/{order.code}/download/pdf/"), headers=headers)
 	
 	if res.status_code == 409:
@@ -191,6 +191,16 @@ async def logout(request):
 
 	raise exceptions.Forbidden("You have been logged out.")
 
+@app.get(METRICS_PATH)
+async def metrics(request):
+	return text(getMetricsText() + "\n" + getRoomCountersText(request))
+
+@app.on_request
+async def countReqs(request : Request):
+	global METRICS_REQ_NO
+	if(request.path != METRICS_PATH):
+		incReqNo()
+
 if __name__ == "__main__":
 	# Wait for pretix in server reboot
 	# Using a docker configuration, pretix may be unable to talk with postgres if postgres' service started before it. 
@@ -201,10 +211,12 @@ if __name__ == "__main__":
 	while True:
 		print("Trying connecting to pretix...", file=sys.stderr)
 		try:
+			incPretixRead()
 			res = requests.get(base_url_event, headers=headers)
 			res = res.json()
 			if(res['slug'] == EVENT_NAME):
 				print("Healtchecking...", file=sys.stderr)
+				incPretixRead()
 				res = requests.get(join(domain, "healthcheck"), headers=headers)
 				if(res.status_code == 200):
 					break
@@ -212,13 +224,5 @@ if __name__ == "__main__":
 			pass
 		sleep(5)
 	print("Connected to pretix!", file=sys.stderr)
-
-	if(METRICS):
-		if(METRICS_USE_ANOTHER_SOCKET):
-			print(f"Startin metrics server on {METRICS_IP}:{METRICS_PORT} on path '{METRICS_PATH}'")
-			monitor(app, metrics_path=METRICS_PATH).start_server(addr=METRICS_IP, port=METRICS_PORT)
-		else:
-			print(f"Startin metrics server on path '{METRICS_PATH}'")
-			monitor(app, metrics_path=METRICS_PATH).expose_endpoint()
 
 	app.run(host="127.0.0.1", port=8188, dev=DEV_MODE, access_log=ACCESS_LOG)
