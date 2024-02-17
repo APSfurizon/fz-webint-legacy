@@ -344,6 +344,7 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 	# }
 	# 
 	# async with httpx.AsyncClient() as client:
+	#	incPretixRead()
 	# 	res = await client.post(join(base_url_event, "orderpositions/"), headers=headers, json=thing)
 	# 	
 	# 	if res.status_code != 201:

@@ -8,6 +8,7 @@ from os.path import join
 import json
 from sanic.log import logger
 from time import time
+from metrics import *
 import asyncio
 
 @dataclass
@@ -159,6 +160,7 @@ class Order:
 				localHeaders = dict(headers)
 				localHeaders['Content-Type'] = mimeType
 				localHeaders['Content-Disposition'] = f'attachment; filename="{fileName}"'
+				incPretixWrite()
 				res = await client.post(join(base_url, 'upload'), headers=localHeaders, content=data)
 				res = res.json()
 				await self.edit_answer(name, res['id'])
@@ -184,6 +186,7 @@ class Order:
 		if (not found) and (new_answer is not None):
 			
 			async with httpx.AsyncClient() as client:
+				incPretixRead()
 				res = await client.get(join(base_url_event, 'questions/'), headers=headers)
 				res = res.json()
 			for r in res['results']:
@@ -211,6 +214,7 @@ class Order:
 				#	del self.answers[i]['options']
 				#	del self.answers[i]['option_identifiers']
 			
+			incPretixWrite()
 			res = await client.patch(join(base_url_event, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
 			
 			if res.status_code != 200:
@@ -244,6 +248,7 @@ class Quotas:
 
 async def get_quotas(request: Request=None):
 	async with httpx.AsyncClient() as client:
+		incPretixRead()
 		res = await client.get(join(base_url_event, 'quotas/?order=id&with_availability=true'), headers=headers)
 		res = res.json()
 		
@@ -302,6 +307,7 @@ class OrderManager:
 			async with httpx.AsyncClient() as client:
 				while 1:
 					p += 1
+					incPretixRead()
 					res = await client.get(join(base_url_event, f"orders/?page={p}"), headers=headers)
 					if res.status_code == 404: break
 					# Parse order data
@@ -344,6 +350,7 @@ class OrderManager:
 			if DEV_MODE and EXTRA_PRINTS: logger.debug(f'Fetching {code} with secret {secret}')
 
 			async with httpx.AsyncClient() as client:
+				incPretixRead()
 				res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
 				if res.status_code != 200:
 					if request:

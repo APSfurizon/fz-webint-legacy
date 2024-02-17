@@ -4,7 +4,9 @@ from config import *
 import httpx
 from messages import ROOM_ERROR_TYPES
 from email_util import send_unconfirm_message
+from sanic.response import text, html, redirect, raw
 from sanic.log import logger
+from metrics import *
 
 METADATA_TAG = "meta_data"
 VARIATIONS_TAG = "variations"
@@ -33,6 +35,7 @@ async def load_questions():
 		p = 0
 		while 1:
 			p += 1
+			incPretixRead()
 			res = await client.get(join(base_url_event, f"questions/?page={p}"), headers=headers)
 
 			if res.status_code == 404: break
@@ -50,6 +53,7 @@ async def load_items():
 		p = 0
 		while 1:
 			p += 1
+			incPretixRead()
 			res = await client.get(join(base_url_event, f"items/?page={p}"), headers=headers)
 
 			if res.status_code == 404: break

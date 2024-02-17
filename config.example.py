@@ -40,6 +40,8 @@ DEV_MODE = True
 ACCESS_LOG = True
 EXTRA_PRINTS = True
 
+METRICS_PATH = "/welcome/metrics"
+
 # Additional configured locales.
 # If an order has a country that's not listed here,
 # Will default to an english preference.
@@ -132,5 +134,5 @@ ROOM_CAPACITY_MAP = {
     'bed_in_room_overflow1_2': 2,
 }
 
-# Autofilled
+# Autofilled. Maps roomTypeId -> roomName
 ROOM_TYPE_NAMES = { }
