@@ -5,6 +5,7 @@ API_TOKEN = 'AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 ORGANIZER = 'furizon'
 EVENT_NAME = 'overlord'
 HOSTNAME = 'reg.furizon.net'
+SKIP_HEALTHCHECK = False
 
 headers = {'Host': HOSTNAME, 'Authorization': f'Token {API_TOKEN}'}
 domain = "http://urlllllllllllllllllllll/"

@@ -20,6 +20,24 @@
 			</picture>
 		</header>
 		<p>Welcome to the nosecount page! Here you can see all of the available rooms at the convention, as well as the occupants currently staying in each room. Use this page to find your friends and plan your meet-ups.</p>
+		{% if filtered and order %}
+			{% for person in filtered.values() %}
+			{% if loop.first %}
+				<hr />
+				<p>{{filter_header}}</p>
+				<div class="grid people" style="padding-bottom:1em;">
+			{% endif %}
+				<div style="margin-bottom: 1em;">
+					{% with current=order, order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = true, flag = true %}
+						{% include 'blocks/propic.html' %}
+					{% endwith %}
+					
+					<h5>{{person.ans('fursona_name')}}</h5>
+				</div>
+			{% if loop.last %}</div>{% endif %}
+			{% endfor %}
+		{% endif %}
+
 		{% for o in orders.values() if (o.code == o.room_id and o.room_confirmed) %}
 			{% if loop.first %}
 				<hr />

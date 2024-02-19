@@ -218,7 +218,7 @@ if __name__ == "__main__":
 				print("Healtchecking...", file=sys.stderr)
 				incPretixRead()
 				res = requests.get(join(domain, "healthcheck"), headers=headers)
-				if(res.status_code == 200):
+				if(res.status_code == 200 or SKIP_HEALTHCHECK):
 					break
 		except:
 			pass

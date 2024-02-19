@@ -12,6 +12,12 @@ ROOM_UNCONFIRM_TEXT = {
     'plain': "Hello {0}\nWe had to unconfirm your room '{1}' due to the following issues:\n{2}\nPlease contact your room's owner or contact our support for further informations at https://furizon.net/contact/.\nThank you\n\nTo manage your booking: https://reg.furizon.net/manage/welcome"
 }
 
+NOSECOUNT = {
+    'filters': {
+        'capacity': "Here are some furs that share your room type and don't have a confirmed room."
+    }
+}
+
 LOCALES = {
     'shuttle_link': {
         'en': 'Book now',
