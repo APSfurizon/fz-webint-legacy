@@ -137,7 +137,7 @@ class Order:
 		return self.data[var]
 	
 	def set_room_errors (self, to_set):
-			for s in to_set: self.room_errors.append (s)
+			self.room_errors = to_set
 
 	def ans(self, name):
 		for p in self.data['positions']:
