@@ -7,6 +7,8 @@ from email_util import send_unconfirm_message
 from sanic.response import text, html, redirect, raw
 from sanic.log import logger
 from metrics import *
+import pretixClient
+import traceback
 
 METADATA_TAG = "meta_data"
 VARIATIONS_TAG = "variations"
@@ -28,34 +30,38 @@ QUESTION_TYPES = { #https://docs.pretix.eu/en/latest/api/resources/questions.htm
 TYPE_OF_QUESTIONS = {} # maps questionId -> type
 
 
-async def load_questions():
+async def load_questions() -> bool:
 	global TYPE_OF_QUESTIONS
-	TYPE_OF_QUESTIONS.clear()
-	async with httpx.AsyncClient() as client:
+	# TYPE_OF_QUESTIONS.clear() It should not be needed
+	logger.info("[QUESTIONS] Loading questions...")
+	success = True
+	try:
 		p = 0
 		while 1:
 			p += 1
-			incPretixRead()
-			res = await client.get(join(base_url_event, f"questions/?page={p}"), headers=headers)
-
+			res = await pretixClient.get(f"questions/?page={p}", expectedStatusCodes=[200, 404])
 			if res.status_code == 404: break
 
 			data = res.json()
 			for q in data['results']:
 				TYPE_OF_QUESTIONS[q['id']] = q['type']
+	except Exception:
+		logger.warning(f"[QUESTIONS] Error while loading questions.\n{traceback.format_exc()}")
+		success = False
+	return success
 
-async def load_items():
+async def load_items() -> bool:
 	global ITEMS_ID_MAP
 	global ITEM_VARIATIONS_MAP
 	global CATEGORIES_LIST_MAP
 	global ROOM_TYPE_NAMES
-	async with httpx.AsyncClient() as client:
+	logger.info("[ITEMS] Loading items...")
+	success = True
+	try:
 		p = 0
 		while 1:
 			p += 1
-			incPretixRead()
-			res = await client.get(join(base_url_event, f"items/?page={p}"), headers=headers)
-
+			res = await pretixClient.get(f"items/?page={p}", expectedStatusCodes=[200, 404])
 			if res.status_code == 404: break
 
 			data = res.json()
@@ -85,6 +91,10 @@ async def load_items():
 			logger.debug(f'Mapped Variations: %s', ITEM_VARIATIONS_MAP)
 			logger.debug(f'Mapped categories: %s', CATEGORIES_LIST_MAP)
 			logger.debug(f'Mapped Rooms: %s', ROOM_TYPE_NAMES)
+	except Exception:
+		logger.warning(f"[ITEMS] Error while loading items.\n{traceback.format_exc()}")
+		success = False
+	return success
 
 # Tries to get an item name from metadata. Prints a warning if an item has no metadata
 def check_and_get_name(type, q):

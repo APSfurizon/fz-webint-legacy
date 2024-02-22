@@ -12,6 +12,7 @@ from time import time
 from urllib.parse import unquote
 import json
 from metrics import *
+import pretixClient
 
 bp = Blueprint("checkin", url_prefix="/checkin")
 
@@ -64,9 +65,7 @@ async def do_checkin(request):
 	await order.send_answers()
 	
 	if not order.checked_in:
-		async with httpx.AsyncClient() as client:
-			incPretixWrite()
-			res = await client.post(base_url_event.replace(f'events/{EVENT_NAME}/', 'checkinrpc/redeem/'), json={'secret': order.barcode, 'source_type': 'barcode', 'type': 'entry', 'lists': [3,]}, headers=headers)
+		await pretixClient.post("", baseUrl=base_url_event.replace(f'events/{EVENT_NAME}/', 'checkinrpc/redeem/'), json={'secret': order.barcode, 'source_type': 'barcode', 'type': 'entry', 'lists': [3,]})
 	
 	tpl = request.app.ctx.tpl.get_template('checkin_3.html')
 	return html(tpl.render(order=order, room_owner=room_owner, roommates=roommates))

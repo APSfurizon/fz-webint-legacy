@@ -335,21 +335,6 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		await rm.edit_answer('pending_roommates', None)
 		await rm.edit_answer('pending_room', None)
 	
-	# This should now be useless because in the ticket there already is the ticket/room type
-	# thing = {
-	# 	'order': order.code,
-	# 	'addon_to': order.position_positionid,
-	# 	'item': ITEM_IDS['room'],
-	# 	'variation': ROOM_MAP[len(room_members)]
-	# }
-	# 
-	# async with httpx.AsyncClient() as client:
-	#	incPretixRead()
-	# 	res = await client.post(join(base_url_event, "orderpositions/"), headers=headers, json=thing)
-	# 	
-	# 	if res.status_code != 201:
-	# 		raise exceptions.BadRequest("Something has gone wrong! Please contact support immediately")
-	
 	for rm in room_members:
 		await rm.send_answers()
 

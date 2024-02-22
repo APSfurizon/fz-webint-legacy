@@ -20,7 +20,8 @@ async def credentials_check(request: Request):
 
 @bp.get('/cache/clear')
 async def clear_cache(request, order:Order):
-	await request.app.ctx.om.fill_cache()
+	success = await request.app.ctx.om.fill_cache()
+	if not success: raise exceptions.ServerError("An error occurred while loading the cache")
 	return redirect(f'/manage/admin')
 
 @bp.get('/loginas/<code>')
@@ -40,8 +41,8 @@ async def login_as(request, code, order:Order):
 
 @bp.get('/room/verify')
 async def verify_rooms(request, order:Order):
-	already_checked = await request.app.ctx.om.update_cache()
-	if not already_checked:
+	already_checked, success = await request.app.ctx.om.update_cache()
+	if not already_checked and success:
 		orders = filter(lambda x: x.status not in ['c', 'e'] and x.room_id == x.code, request.app.ctx.om.cache.values())
 		await validate_rooms(request, orders, None)
 	return redirect(f'/manage/admin')

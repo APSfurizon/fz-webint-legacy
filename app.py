@@ -16,6 +16,8 @@ import requests
 import sys
 from sanic.log import logger, logging, access_logger
 from metrics import *
+import pretixClient
+import traceback
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -34,17 +36,27 @@ from checkin import bp as checkin_bp
 from admin import bp as admin_bp
 
 app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, checkin_bp, admin_bp])
-				
-@app.exception(exceptions.SanicException)
-async def clear_session(request, exception):
+
+
+async def clear_session(response):
+	response.delete_cookie("foxo_code")
+	response.delete_cookie("foxo_secret")
+
+@app.exception(exceptions.SanicException if DEV_MODE else Exception)
+async def handleException(request, exception):
+	incErrorNo()
 	logger.warning(f"{request} -> {exception}")
-	tpl = app.ctx.tpl.get_template('error.html')
-	r = html(tpl.render(exception=exception))
-	
-	if exception.status_code == 403:
-		r.delete_cookie("foxo_code")
-		r.delete_cookie("foxo_secret")
+	statusCode = exception.status_code if hasattr(exception, 'status_code') else 500
+	try:
+		tpl = app.ctx.tpl.get_template('error.html')
+		r = html(tpl.render(exception=exception, status_code=statusCode))
+	except:
+		traceback.print_exc()
+
+	if statusCode == 403:
+		clear_session(r)
 	return r
+
 
 @app.before_server_start
 async def main_start(*_):
@@ -56,7 +68,10 @@ async def main_start(*_):
 	
 	app.ctx.om = OrderManager()
 	if FILL_CACHE:
-		await app.ctx.om.update_cache()
+		checked, success = await app.ctx.om.update_cache(check_itemsQuestions=True)
+		if checked and not success:
+			logger.error(f"[{app.name}] Failure in app startup: An error occurred while loading items or questions or cache.")
+			app.stop()
 	
 	app.ctx.nfc_counts = sqlite3.connect('data/nfc_counts.db')
 	
@@ -90,18 +105,16 @@ async def redirect_explore(request, code, secret, order: Order, secret2=None):
 	if order and order.code != code: order = None
 
 	if not order:
-		async with httpx.AsyncClient() as client:
-			incPretixRead()
-			res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
-			
-			if res.status_code != 200:
-				raise exceptions.NotFound("This order code does not exist. Check that your order wasn't deleted, or the link is correct.")
-			
-			res = res.json()
-			if secret != res['secret']:
-				raise exceptions.Forbidden("The secret part of the url is not correct. Check your E-Mail for the correct link, or contact support!")
-			r.cookies['foxo_code'] = code
-			r.cookies['foxo_secret'] = secret
+		res = await pretixClient.get(f"orders/{code}/", expectedStatusCodes=None)
+		
+		if res.status_code != 200:
+			raise exceptions.NotFound("This order code does not exist. Check that your order wasn't deleted, or the link is correct.")
+		
+		res = res.json()
+		if secret != res['secret']:
+			raise exceptions.Forbidden("The secret part of the url is not correct. Check your E-Mail for the correct link, or contact support!")
+		r.cookies['foxo_code'] = code
+		r.cookies['foxo_secret'] = secret
 	return r
 
 @app.route("/manage/privacy")
@@ -155,11 +168,9 @@ async def download_ticket(request, order: Order):
 	if not order.status != 'confirmed':
 		raise exceptions.Forbidden("You are not allowed to download this ticket.")
 		
-	async with httpx.AsyncClient() as client:
-		incPretixRead()
-		res = await client.get(join(base_url_event, f"orders/{order.code}/download/pdf/"), headers=headers)
+	res = await pretixClient.get(f"orders/{order.code}/download/pdf/", expectedStatusCodes=[200, 404, 409, 403])
 	
-	if res.status_code == 409:
+	if res.status_code == 409 or res.status_code == 404:
 		raise exceptions.SanicException("Your ticket is still being generated. Please try again later!", status_code=res.status_code)
 	elif res.status_code == 403:
 		raise exceptions.SanicException("You can download your ticket only after the order has been confirmed and paid. Try later!", status_code=400)
@@ -208,7 +219,7 @@ if __name__ == "__main__":
 	# to let it start in the correct order. The following piece of code makes sure that pretix is running and can talk to 
 	# postgres before actually starting the reserved area, since this operation requires a cache-fill in startup
 	print("Waiting for pretix to be up and running", file=sys.stderr)
-	while True:
+	while not SKIP_HEALTHCHECK:
 		print("Trying connecting to pretix...", file=sys.stderr)
 		try:
 			incPretixRead()
@@ -218,7 +229,7 @@ if __name__ == "__main__":
 				print("Healtchecking...", file=sys.stderr)
 				incPretixRead()
 				res = requests.get(join(domain, "healthcheck"), headers=headers)
-				if(res.status_code == 200 or SKIP_HEALTHCHECK):
+				if(res.status_code == 200):
 					break
 		except:
 			pass

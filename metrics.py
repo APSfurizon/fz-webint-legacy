@@ -3,8 +3,10 @@ from logging import LogRecord
 from config import *
 
 METRICS_REQ_NO = 0
+METRICS_ERR_NO = 0 # Errors served to the clients
 METRICS_PRETIX_READ = 0
 METRICS_PRETIX_WRITE = 0
+METRICS_PRETIX_ERRORS = 0 # Errors requesting pretix's backend
 
 def incPretixRead():
 	global METRICS_PRETIX_READ
@@ -14,19 +16,32 @@ def incPretixWrite():
 	global METRICS_PRETIX_WRITE
 	METRICS_PRETIX_WRITE += 1
 
+def incPretixErrors():
+	global METRICS_PRETIX_ERRORS
+	METRICS_PRETIX_ERRORS += 1
+
 def incReqNo():
 	global METRICS_REQ_NO
 	METRICS_REQ_NO += 1
 
+def incErrorNo(): # Errors served to the clients
+	global METRICS_ERR_NO
+	METRICS_ERR_NO += 1
+
+
 def getMetricsText():
 	global METRICS_REQ_NO
+	global METRICS_ERR_NO
 	global METRICS_PRETIX_READ
 	global METRICS_PRETIX_WRITE
+	global METRICS_PRETIX_ERRORS
 	out = []
 
 	out.append(f'sanic_request_count{{}} {METRICS_REQ_NO}')
+	out.append(f'sanic_error_count{{}} {METRICS_ERR_NO}')
 	out.append(f'webint_pretix_read_count{{}} {METRICS_PRETIX_READ}')
 	out.append(f'webint_pretix_write_count{{}} {METRICS_PRETIX_WRITE}')
+	out.append(f'webint_pretix_error_count{{}} {METRICS_PRETIX_ERRORS}')
 
 	return "\n".join(out)
 
