@@ -12,6 +12,21 @@ summary:has(span.status) {
     background-color: #ffaf0377;
 }
 
+.rainbow-text {
+    background-image: repeating-linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+    background-size: 2000% 2000%;
+    color: transparent;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: rainbow 4s linear infinite;
+}
+
+@keyframes rainbow { 
+    0% { background-position:0% 0%; }
+    100% { background-position:57.75% 0%; }
+}
+
 /* Dark theme */
 @media only screen and (prefers-color-scheme: dark) {
     .icon {filter: invert(1);}
