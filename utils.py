@@ -151,7 +151,7 @@ async def get_people_in_room_by_code(request, code, om=None):
 	await om.update_cache()
 	return filter(lambda rm: rm.room_id == code, om.cache.values())
 
-async def unconfirm_room_by_order(order, room_members:[]=None, throw=True, request=None, om=None):
+async def unconfirm_room_by_order(order, room_members=None, throw=True, request=None, om=None):
 	if not om: om = request.app.ctx.om
 	if not order.room_confirmed:
 		if throw:
@@ -216,7 +216,7 @@ async def validate_rooms(request, rooms, om):
 		order = rtu[0]
 		member_orders = rtu[2]
 		try:
-			await send_unconfirm_message (order, member_orders)
+			await send_unconfirm_message(order, member_orders)
 			sent_count += len(member_orders)
 		except Exception as ex:
 			if EXTRA_PRINTS: logger.exception(str(ex))

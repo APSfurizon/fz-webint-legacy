@@ -1,4 +1,5 @@
 from sanic import response, redirect, Blueprint, exceptions
+from email_util import send_missing_propic_message
 from room import unconfirm_room_by_order
 from config import *
 from utils import *
@@ -83,3 +84,18 @@ async def rename_room(request, code, order:Order):
 	await dOrder.edit_answer("room_name", name)
 	await dOrder.send_answers()
 	return redirect(f'/manage/nosecount')
+
+@bp.get('/propic/remind')
+async def propic_remind_missing(request, order:Order):
+	await clear_cache(request, order)
+
+	orders = request.app.ctx.om.cache.values()
+	order: Order
+	for order in orders:
+		missingPropic = order.propic is None
+		missingFursuitPropic = order.is_fursuiter and order.propic_fursuiter is None
+		if(missingPropic or missingFursuitPropic):
+			# print(f"{order.code}: prp={missingPropic} fpr={missingFursuitPropic} - {order.name}")
+			await send_missing_propic_message(order, missingPropic, missingFursuitPropic)
+
+	return redirect(f'/manage/admin')
