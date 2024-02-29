@@ -16,6 +16,7 @@ import requests
 import sys
 from sanic.log import logger, logging, access_logger
 from metrics import *
+from email_util import killSmptClient
 import pretixClient
 import traceback
 
@@ -201,6 +202,10 @@ async def logout(request):
 		return r
 
 	raise exceptions.Forbidden("You have been logged out.")
+
+@app.signal("server.shutdown.before")
+async def sigintHandler(app, loop):
+	killSmptClient()
 
 @app.get(METRICS_PATH)
 async def metrics(request):
