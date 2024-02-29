@@ -50,17 +50,29 @@ def getRoomCountersText(request):
 	try :
 		daily = 0
 		counters = {}
+		counters_early = {}
+		counters_late = {}
 		for id in ROOM_TYPE_NAMES.keys():
 			counters[id] = 0
+			counters_early[id] = 0
+			counters_late[id] = 0
 
 		for order in request.app.ctx.om.cache.values():
 			if(order.daily):
 				daily += 1
 			else:
 				counters[order.bed_in_room] += 1
+				if(order.has_early):
+					counters_early[order.bed_in_room] += 1
+				if(order.has_late):
+					counters_late[order.bed_in_room] += 1
 
 		for id, count in counters.items():
-			out.append(f'webint_order_room_counter{{label="{ROOM_TYPE_NAMES[id]}"}} {count}')
+			out.append(f'webint_order_room_counter{{days="normal", label="{ROOM_TYPE_NAMES[id]}"}} {count}')
+		for id, count in counters_early.items():
+			out.append(f'webint_order_room_counter{{days="early", label="{ROOM_TYPE_NAMES[id]}"}} {count}')
+		for id, count in counters_late.items():
+			out.append(f'webint_order_room_counter{{days="late", label="{ROOM_TYPE_NAMES[id]}"}} {count}')
 		out.append(f'webint_order_room_counter{{label="Daily"}} {daily}')
 
 	except Exception as e:
