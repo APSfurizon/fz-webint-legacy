@@ -162,7 +162,7 @@ class Order:
 			localHeaders = dict(headers)
 			localHeaders['Content-Type'] = mimeType
 			localHeaders['Content-Disposition'] = f'attachment; filename="{fileName}"'
-			res = await pretixClient.post("upload", baseUrl=base_url, headers=localHeaders, content=data)
+			res = await pretixClient.post("upload", baseUrl=base_url, headers=localHeaders, content=data, expectedStatusCodes=[201])
 			res = res.json()
 			await self.edit_answer(name, res['id'])
 		else:
