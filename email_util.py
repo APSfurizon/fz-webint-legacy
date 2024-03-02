@@ -54,6 +54,13 @@ async def sendEmail(message : MIMEMultipart):
 	smptSender.sendmail(message['From'], message['to'], message.as_string())
 	sslLock.release()
 
+def render_email_template(title = "", body = ""):
+	tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=False).get_template('email/comunication.html')
+	return str(tpl.render(title=title, body=body))
+
+
+
+
 async def send_unconfirm_message(room_order, orders):
 	memberMessages = []
 
@@ -72,8 +79,8 @@ async def send_unconfirm_message(room_order, orders):
 	issues_html += "</ul>"
 
 	for member in orders:
-		plain_body = ROOM_UNCONFIRM_TEXT['plain'].format(member.name, room_order.room_name, issues_plain)
-		html_body = render_email_template(ROOM_UNCONFIRM_TITLE, ROOM_UNCONFIRM_TEXT['html'].format(member.name, room_order.room_name, issues_html))
+		plain_body = EMAILS_TEXT["ROOM_UNCONFIRM_TEXT"]['plain'].format(member.name, room_order.room_name, issues_plain)
+		html_body = render_email_template(EMAILS_TEXT["ROOM_UNCONFIRM_TITLE"], EMAILS_TEXT["ROOM_UNCONFIRM_TEXT"]['html'].format(member.name, room_order.room_name, issues_html))
 		plain_text = MIMEText(plain_body, "plain")
 		html_text = MIMEText(html_body, "html")
 		message = MIMEMultipart("alternative")
@@ -89,6 +96,22 @@ async def send_unconfirm_message(room_order, orders):
 	for message in memberMessages:
 		await sendEmail(message)
 
-def render_email_template(title = "", body = ""):
-	tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=False).get_template('email/comunication.html')
-	return str(tpl.render(title=title, body=body))
+async def send_missing_propic_message(order, missingPropic, missingFursuitPropic):
+	t = []
+	if(missingPropic): t.append("your propic")
+	if(missingFursuitPropic): t.append("your fursuit's badge")
+	missingText = " and ".join(t)
+
+	plain_body = EMAILS_TEXT["MISSING_PROPIC_TEXT"]['plain'].format(order.name, missingText)
+	html_body = render_email_template(EMAILS_TEXT["MISSING_PROPIC_TITLE"], EMAILS_TEXT["MISSING_PROPIC_TEXT"]['html'].format(order.name, missingText))
+	plain_text = MIMEText(plain_body, "plain")
+	html_text = MIMEText(html_body, "html")
+	message = MIMEMultipart("alternative")
+	message.attach(plain_text)
+	message.attach(html_text)
+	message['Subject'] = f"[{EMAIL_SENDER_NAME}] You haven't uploaded your badges yet!"
+	message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
+	message['To'] = f"{order.name} <{order.email}>"
+
+	await sendEmail(message)
+	

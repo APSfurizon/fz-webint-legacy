@@ -21,6 +21,11 @@ PROPIC_MIN_SIZE = (125, 125) # (Width, Height)
 TG_BOT_API = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 TG_CHAT_ID = -1234567
 
+import httpx
+# Number of tries for a request to the pretix's backend
+PRETIX_REQUESTS_MAX = 3
+PRETIX_REQUESTS_TIMEOUT = httpx.Timeout(15.0, read=30.0, connect=45.0, pool=None) # Timeout for httpx requests in seconds
+
 # These order codes have additional functions.
 ADMINS = ['XXXXX', 'YYYYY']
 # A list of staff_roles 

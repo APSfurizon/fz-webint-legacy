@@ -10,6 +10,9 @@ from sanic.log import logger
 from time import time
 from metrics import *
 import asyncio
+from threading import Lock
+import pretixClient
+import traceback
 
 @dataclass
 class Order:
@@ -156,14 +159,12 @@ class Order:
 		
 	async def edit_answer_fileUpload(self, name, fileName, mimeType, data : bytes):
 		if(mimeType != None and data != None):
-			async with httpx.AsyncClient() as client:
-				localHeaders = dict(headers)
-				localHeaders['Content-Type'] = mimeType
-				localHeaders['Content-Disposition'] = f'attachment; filename="{fileName}"'
-				incPretixWrite()
-				res = await client.post(join(base_url, 'upload'), headers=localHeaders, content=data)
-				res = res.json()
-				await self.edit_answer(name, res['id'])
+			localHeaders = dict(headers)
+			localHeaders['Content-Type'] = mimeType
+			localHeaders['Content-Disposition'] = f'attachment; filename="{fileName}"'
+			res = await pretixClient.post("upload", baseUrl=base_url, headers=localHeaders, content=data)
+			res = res.json()
+			await self.edit_answer(name, res['id'])
 		else:
 			await self.edit_answer(name, None)
 		self.loadAns()
@@ -184,11 +185,8 @@ class Order:
 				break
 					
 		if (not found) and (new_answer is not None):
-			
-			async with httpx.AsyncClient() as client:
-				incPretixRead()
-				res = await client.get(join(base_url_event, 'questions/'), headers=headers)
-				res = res.json()
+			res = await pretixClient.get("questions/")
+			res = res.json()
 			for r in res['results']:
 				if r['identifier'] != name: continue
 			
@@ -201,32 +199,30 @@ class Order:
 		self.loadAns()
 			
 	async def send_answers(self):
-		async with httpx.AsyncClient() as client:
-			if DEV_MODE and EXTRA_PRINTS: logger.debug("[ANSWER POST] POSITION ID IS %s", self.position_id)
-			
-			for i, ans in enumerate(self.answers):
-				if TYPE_OF_QUESTIONS[ans['question']] == QUESTION_TYPES["multiple_choice_from_list"]: # if multiple choice
-					identifier = ans['question_identifier']
-					if self.ans(identifier) == "": #if empty answer 
-						await self.edit_answer(identifier, None)
-				# Fix for karaoke fields
-				#if ans['question'] == 40:
-				#	del self.answers[i]['options']
-				#	del self.answers[i]['option_identifiers']
-			
-			incPretixWrite()
-			res = await client.patch(join(base_url_event, f'orderpositions/{self.position_id}/'), headers=headers, json={'answers': self.answers})
-			
-			if res.status_code != 200:
-				for ans, err in zip(self.answers, res.json()['answers']):
-					if err:
-						logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
+		if DEV_MODE and EXTRA_PRINTS: logger.debug("[ANSWER POST] POSITION ID IS %s", self.position_id)
+		
+		for i, ans in enumerate(self.answers):
+			if TYPE_OF_QUESTIONS[ans['question']] == QUESTION_TYPES["multiple_choice_from_list"]: # if multiple choice
+				identifier = ans['question_identifier']
+				if self.ans(identifier) == "": #if empty answer 
+					await self.edit_answer(identifier, None)
+			# Fix for karaoke fields
+			#if ans['question'] == 40:
+			#	del self.answers[i]['options']
+			#	del self.answers[i]['option_identifiers']
+		
+		res = await pretixClient.patch(f'orderpositions/{self.position_id}/', json={'answers': self.answers}, expectedStatusCodes=None)
+		
+		if res.status_code != 200:
+			for ans, err in zip(self.answers, res.json()['answers']):
+				if err:
+					logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
 
-				raise exceptions.ServerError('There has been an error while updating this answers.')
-			
-			for i, ans in enumerate(self.answers):
-				if(TYPE_OF_QUESTIONS[self.answers[i]['question']] == QUESTION_TYPES['file_upload']):
-					self.answers[i]['answer'] = "file:keep"
+			raise exceptions.ServerError('There has been an error while updating this answers.')
+		
+		for i, ans in enumerate(self.answers):
+			if(TYPE_OF_QUESTIONS[self.answers[i]['question']] == QUESTION_TYPES['file_upload']):
+				self.answers[i]['answer'] = "file:keep"
 			
 		self.pending_update = False
 		self.time = -1
@@ -247,12 +243,10 @@ class Quotas:
 		return 0	
 
 async def get_quotas(request: Request=None):
-	async with httpx.AsyncClient() as client:
-		incPretixRead()
-		res = await client.get(join(base_url_event, 'quotas/?order=id&with_availability=true'), headers=headers)
-		res = res.json()
-		
-		return Quotas(res)
+	res = await pretixClient.get('quotas/?order=id&with_availability=true')
+	res = res.json()
+	
+	return Quotas(res)
 
 async def get_order(request: Request=None):
 	await request.receive_body()
@@ -261,7 +255,7 @@ async def get_order(request: Request=None):
 class OrderManager:
 	def __init__(self):
 		self.lastCacheUpdate = 0
-		self.updating = False
+		self.updating : Lock = Lock()
 		self.empty()
 
 	def empty(self):
@@ -269,64 +263,89 @@ class OrderManager:
 		self.order_list = []
 
 	# Will fill cache once the last cache update is greater than cache expire time
-	async def update_cache(self):
+	async def update_cache(self, check_itemsQuestions=False):
 		t = time()
 		to_return = False
-		if(t - self.lastCacheUpdate > CACHE_EXPIRE_TIME and not self.updating):
+		success = True
+		if(t - self.lastCacheUpdate > CACHE_EXPIRE_TIME and not self.updating.locked()):
 			to_return = True
-			await self.fill_cache()
-		return to_return
+			success = await self.fill_cache(check_itemsQuestions=check_itemsQuestions)
+		return (to_return, success)
 
-	def add_cache(self, order):
-		self.cache[order.code] = order
-		if not order.code in self.order_list:
-			self.order_list.append(order.code)
+	def add_cache(self, order, cache=None, orderList=None):
+		# Extra params for dry runs
+		if(cache is None):
+			cache = self.cache
+		if(orderList is None):
+			orderList = self.order_list
 
-	def remove_cache(self, code):
-		if code in self.cache:
-			del self.cache[code]
-			self.order_list.remove(code)
+		cache[order.code] = order
+		if not order.code in orderList:
+			orderList.append(order.code)
+
+	def remove_cache(self, code, cache=None, orderList=None):
+		# Extra params for dry runs
+		if(cache is None):
+			cache = self.cache
+		if(orderList is None):
+			orderList = self.order_list
+
+		if code in cache:
+			del cache[code]
+			orderList.remove(code)
 	
-	async def fill_cache(self):
+	async def fill_cache(self, check_itemsQuestions=False) -> bool:
 		# Check cache lock
-		if self.updating == True: return
-		# Set cache lock
-		self.updating = True
+		self.updating.acquire()
 		start_time = time()
 		logger.info("[CACHE] Filling cache...")
 		# Index item's ids
-		await load_items()
+		r = await load_items()
+		if(not r and check_itemsQuestions):
+			logger.error("[CACHE] Items were not loading correctly. Aborting filling cache...")
+			return False
 
 		# Index questions' types
-		await load_questions()
+		r = await load_questions()
+		if(not r and check_itemsQuestions):
+			logger.error("[CACHE] Questions were not loading correctly. Aborting filling cache...")
+			return False
 
-		# Clear cache data completely
-		self.empty()
+		cache = {}
+		orderList = []
+		success = True
 		p = 0
 		try:
-			async with httpx.AsyncClient() as client:
-				while 1:
-					p += 1
-					incPretixRead()
-					res = await client.get(join(base_url_event, f"orders/?page={p}"), headers=headers)
-					if res.status_code == 404: break
-					# Parse order data
-					data = res.json()
-					for o in data['results']:
-						o = Order(o)
-						if o.status in ['canceled', 'expired']:
-							self.remove_cache(o.code)
-						else:
-							self.add_cache(Order(o))
-				self.lastCacheUpdate = time()
-				logger.info(f"[CACHE] Cache filled in {self.lastCacheUpdate - start_time}s.")
-		except Exception as ex:
-			logger.error("[CACHE] Error while refreshing cache.", ex)
+			while 1:
+				p += 1
+				res = await pretixClient.get(f"orders/?page={p}", expectedStatusCodes=[200, 404])
+				if res.status_code == 404: break
+				# Parse order data
+				data = res.json()
+				for o in data['results']:
+					o = Order(o)
+					if o.status in ['canceled', 'expired']:
+						self.remove_cache(o.code, cache=cache, orderList=orderList)
+					else:
+						self.add_cache(Order(o), cache=cache, orderList=orderList)
+			self.lastCacheUpdate = time()
+			logger.info(f"[CACHE] Cache filled in {self.lastCacheUpdate - start_time}s.")
+		except Exception:
+			logger.error(f"[CACHE] Error while refreshing cache.\n{traceback.format_exc()}")
+			success = False
 		finally:
-			self.updating = False
+			self.updating.release()
+
+		# Apply new cache if there were no errors
+		if(success):
+			self.cache = cache
+			self.order_list = orderList
+
 		# Validating rooms
 		rooms = list(filter(lambda o: (o.code == o.room_id), self.cache.values()))
 		asyncio.create_task(validate_rooms(None, rooms, self))
+
+		return success
 	
 	async def get_order(self, request=None, code=None, secret=None, nfc_id=None, cached=False):
 
@@ -349,26 +368,24 @@ class OrderManager:
 		if re.match('^[A-Z0-9]{5}$', code or '') and (secret is None or re.match('^[a-z0-9]{16,}$', secret)):
 			if DEV_MODE and EXTRA_PRINTS: logger.debug(f'Fetching {code} with secret {secret}')
 
-			async with httpx.AsyncClient() as client:
-				incPretixRead()
-				res = await client.get(join(base_url_event, f"orders/{code}/"), headers=headers)
-				if res.status_code != 200:
-					if request:
-						raise exceptions.Forbidden("Your session has expired due to order deletion or change! Please check your E-Mail for more info.")
-					else:
-						self.remove_cache(code)
-						return None
-
-				res = res.json()
-			
-				order = Order(res)
-				if order.status in ['canceled', 'expired']:
-					self.remove_cache(order.code)
-					if request:
-						raise exceptions.Forbidden(f"Your order has been deleted. Contact support with your order identifier ({res['code']}) for further info.")
+			res = await pretixClient.get(f"orders/{code}/", expectedStatusCodes=None)
+			if res.status_code != 200:
+				if request:
+					raise exceptions.Forbidden("Your session has expired due to order deletion or change! Please check your E-Mail for more info.")
 				else:
-					self.add_cache(order)
-			
-				if request and secret != res['secret']:
-					raise exceptions.Forbidden("Your session has expired due to a token change. Please check your E-Mail for an updated link!")
-				return order
+					self.remove_cache(code)
+					return None
+
+			res = res.json()
+		
+			order = Order(res)
+			if order.status in ['canceled', 'expired']:
+				self.remove_cache(order.code)
+				if request:
+					raise exceptions.Forbidden(f"Your order has been deleted. Contact support with your order identifier ({res['code']}) for further info.")
+			else:
+				self.add_cache(order)
+		
+			if request and secret != res['secret']:
+				raise exceptions.Forbidden("Your session has expired due to a token change. Please check your E-Mail for an updated link!")
+			return order

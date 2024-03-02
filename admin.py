@@ -1,4 +1,5 @@
 from sanic import response, redirect, Blueprint, exceptions
+from email_util import send_missing_propic_message
 from room import unconfirm_room_by_order
 from config import *
 from utils import *
@@ -20,7 +21,8 @@ async def credentials_check(request: Request):
 
 @bp.get('/cache/clear')
 async def clear_cache(request, order:Order):
-	await request.app.ctx.om.fill_cache()
+	success = await request.app.ctx.om.fill_cache()
+	if not success: raise exceptions.ServerError("An error occurred while loading the cache")
 	return redirect(f'/manage/admin')
 
 @bp.get('/loginas/<code>')
@@ -40,8 +42,8 @@ async def login_as(request, code, order:Order):
 
 @bp.get('/room/verify')
 async def verify_rooms(request, order:Order):
-	already_checked = await request.app.ctx.om.update_cache()
-	if not already_checked:
+	already_checked, success = await request.app.ctx.om.update_cache()
+	if not already_checked and success:
 		orders = filter(lambda x: x.status not in ['c', 'e'] and x.room_id == x.code, request.app.ctx.om.cache.values())
 		await validate_rooms(request, orders, None)
 	return redirect(f'/manage/admin')
@@ -82,3 +84,18 @@ async def rename_room(request, code, order:Order):
 	await dOrder.edit_answer("room_name", name)
 	await dOrder.send_answers()
 	return redirect(f'/manage/nosecount')
+
+@bp.get('/propic/remind')
+async def propic_remind_missing(request, order:Order):
+	await clear_cache(request, order)
+
+	orders = request.app.ctx.om.cache.values()
+	order: Order
+	for order in orders:
+		missingPropic = order.propic is None
+		missingFursuitPropic = order.is_fursuiter and order.propic_fursuiter is None
+		if(missingPropic or missingFursuitPropic):
+			# print(f"{order.code}: prp={missingPropic} fpr={missingFursuitPropic} - {order.name}")
+			await send_missing_propic_message(order, missingPropic, missingFursuitPropic)
+
+	return redirect(f'/manage/admin')
