@@ -30,11 +30,12 @@ async def doReq(url, httpxFunc, metricsFunc, expectedStatusCodes, opLogString) -
 		for requests in range(PRETIX_REQUESTS_MAX):
 			try:
 				metricsFunc()
-				res = await httpxFunc(client)
+				res : httpx.Response = await httpxFunc(client)
 
 				if expectedStatusCodes is not None and res.status_code not in expectedStatusCodes:
 					incPretixErrors()
-					logger.warning(f"[PRETIX] Got an unexpected status code ({res.status_code}) while {opLogString} '{url}'. Allowed status codes: {', '.join(expectedStatusCodes)}")
+					logger.warning(f"[PRETIX] Got an unexpected status code ({res.status_code}) while {opLogString} '{url}'. Allowed status codes: {', '.join(map(str, expectedStatusCodes))}")
+					logger.debug(f"Response: '{res.text}'")
 					continue
 				break
 			except Exception as e:
