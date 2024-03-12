@@ -35,16 +35,21 @@ class Order:
 		self.sponsorship = None
 		self.has_early = False
 		self.has_late = False
-		self.first_name = None
-		self.last_name = None
+		self.first_name = "None"
+		self.last_name = "None"
 		self.country = 'xx'
 		self.address = None
 		self.checked_in = False
 		self.room_type = None
 		self.daily = False
 		self.dailyDays = []
+		self.bed_in_room = -1
 		self.room_person_no = 0
 		self.answers = []
+		self.position_id = -1
+		self.position_positionid = -1
+		self.position_positiontypeid = -1
+		self.barcode = "None"
 		
 		idata = data['invoice_address']
 		if idata:
@@ -106,6 +111,9 @@ class Order:
 		self.phone = data['phone']
 		self.room_errors = []
 		self.loadAns()
+		
+		if(self.bed_in_room < 0):
+			self.status = "canceled" # Must refer to the previous status assignment
 	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
