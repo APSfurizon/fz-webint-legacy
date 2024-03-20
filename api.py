@@ -9,7 +9,9 @@ import random
 import string
 import httpx
 import json
+import traceback
 from sanic.log import logger
+from email_util import send_app_login_attempt
 
 bp = Blueprint("api", url_prefix="/manage/api")
 
@@ -221,16 +223,9 @@ async def get_token(request, code):
 	request.app.ctx.login_codes[code] = [''.join(random.choice(string.digits) for _ in range(6)), 3]
 
 	try:
-		msg = MIMEText(f"Hello {user.name}!\n\nWe have received a request to login in the app. If you didn't do this, please ignore this email. Somebody is probably playing with you.\n\nYour login code is: {request.app.ctx.login_codes[code][0]}\n\nPlease do not tell this to anybody!")
-		msg['Subject'] = '[Furizon] Your login code'
-		msg['From'] = 'Furizon <no-reply@furizon.net>'
-		msg['To'] = f"{user.name} <{user.email}>"
-
-		s = smtplib.SMTP_SSL(SMTP_HOST)
-		s.login(SMTP_USER, SMTP_PASSWORD)
-		s.sendmail(msg['From'], msg['to'], msg.as_string())
-		s.quit()
-	except:
+		await send_app_login_attempt(user, request.app.ctx.login_codes[code][0])
+	except Exception:
+		logger.error(f"[API] [GET_TOKEN] Error while sending email.\n{traceback.format_exc()}")
 		return response.json({'ok': False, 'error': 'There has been an issue sending your e-mail. Please try again later or report to an admin.'}, status=500)
 	
 	return response.json({'ok': True, 'message': 'A login code has been sent to your email.'})

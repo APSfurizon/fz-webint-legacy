@@ -44,7 +44,7 @@ class Order:
 		self.daily = False
 		self.dailyDays = []
 		self.bed_in_room = -1
-		self.room_person_no = 0
+		self.room_person_no = -1
 		self.answers = []
 		self.position_id = -1
 		self.position_positionid = -1
@@ -93,7 +93,7 @@ class Order:
 				roomTypeLst = key_from_value(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
 				roomTypeId = roomTypeLst[0] if len(roomTypeLst) > 0 else None
 				self.bed_in_room = p['variation']
-				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else None
+				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else self.room_person_no
 		
 		self.total = float(data['total'])
 		self.fees = 0

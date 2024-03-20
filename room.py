@@ -326,7 +326,7 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 		room_members.append(res)
 	
 
-	if len(room_members) != order.room_person_no and order.room_person_no != None:
+	if len(room_members) != order.room_person_no:
 		raise exceptions.BadRequest("The number of people in your room mismatches your type of ticket!")
 
 	for rm in room_members:
