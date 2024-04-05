@@ -205,9 +205,11 @@ async def validate_rooms(request, rooms, om):
 	for rtu in failed_confirmed_rooms:
 		order = rtu[0]
 		member_orders = rtu[2]
+		logger.warning(f"[ROOM VALIDATION] [UNCONFIRMING] Unconfirming room {order.code}...")
 		
 		# Unconfirm and email users about the room
-		await unconfirm_room_by_order(order, member_orders, False, None, om)
+		if UNCONFIRM_ROOMS_ENABLE:
+			await unconfirm_room_by_order(order, member_orders, False, None, om)
 
 	logger.info(f"[ROOM VALIDATION] Sending unconfirm notice to room members...")
 	sent_count = 0
@@ -216,7 +218,8 @@ async def validate_rooms(request, rooms, om):
 		order = rtu[0]
 		member_orders = rtu[2]
 		try:
-			await send_unconfirm_message(order, member_orders)
+			if UNCONFIRM_ROOMS_ENABLE:
+				await send_unconfirm_message(order, member_orders)
 			sent_count += len(member_orders)
 		except Exception as ex:
 			if EXTRA_PRINTS: logger.exception(str(ex))
@@ -262,7 +265,7 @@ async def check_room(request, order, om=None):
 			
 		room_members.append(res)
 	
-	if len(room_members) != order.room_person_no and order.room_person_no != None:
+	if len(room_members) != order.room_person_no and order.room_person_no != None and order.room_person_no >= 0:
 		room_errors.append((None, 'capacity_mismatch'))
 		if order.room_confirmed:
 			allOk = False

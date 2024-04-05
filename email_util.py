@@ -48,6 +48,7 @@ sslContext : SSLContext = ssl.create_default_context()
 smptSender : smtplib.SMTP = None
 
 async def sendEmail(message : MIMEMultipart):
+	message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
 	await openSmptClient()
 	logger.debug(f"[SMPT] Sending mail {message['From']} -> {message['to']} '{message['Subject']}'")
 	sslLock.acquire()
@@ -87,7 +88,6 @@ async def send_unconfirm_message(room_order, orders):
 		message.attach(plain_text)
 		message.attach(html_text)
 		message['Subject'] = f'[{EMAIL_SENDER_NAME}] Your room cannot be confirmed'
-		message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
 		message['To'] = f"{member.name} <{member.email}>"
 		memberMessages.append(message)
 
@@ -110,8 +110,14 @@ async def send_missing_propic_message(order, missingPropic, missingFursuitPropic
 	message.attach(plain_text)
 	message.attach(html_text)
 	message['Subject'] = f"[{EMAIL_SENDER_NAME}] You haven't uploaded your badges yet!"
-	message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
 	message['To'] = f"{order.name} <{order.email}>"
 
 	await sendEmail(message)
 	
+async def send_app_login_attempt(user, loginCode):
+	#TODO: Format a proper email and add it to messages.py
+	msg = MIMEText(f"Hello {user.name}!\n\nWe have received a request to login in the app. If you didn't do this, please ignore this email. Somebody is probably playing with you.\n\nYour login code is: {loginCode}\n\nPlease do not tell this to anybody!")
+	msg['Subject'] = '[Furizon] Your login code'
+	msg['To'] = f"{user.name} <{user.email}>"
+
+	await sendEmail(msg)

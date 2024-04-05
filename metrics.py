@@ -1,6 +1,7 @@
 from sanic.log import logger, logging
 from logging import LogRecord
 from config import *
+import traceback
 
 METRICS_REQ_NO = 0
 METRICS_ERR_NO = 0 # Errors served to the clients
@@ -47,7 +48,7 @@ def getMetricsText():
 
 def getRoomCountersText(request):
 	out = []
-	try :
+	try:
 		daily = 0
 		counters = {}
 		counters_early = {}
@@ -61,11 +62,13 @@ def getRoomCountersText(request):
 			if(order.daily):
 				daily += 1
 			else:
-				counters[order.bed_in_room] += 1
-				if(order.has_early):
-					counters_early[order.bed_in_room] += 1
-				if(order.has_late):
-					counters_late[order.bed_in_room] += 1
+				# Order.status must reflect the one in the Order() constructor inside ext.py
+				if(order.status in ["pending", "paid"] and hasattr(order, "bed_in_room") and order.bed_in_room in counters):
+					counters[order.bed_in_room] += 1
+					if(order.has_early):
+						counters_early[order.bed_in_room] += 1
+					if(order.has_late):
+						counters_late[order.bed_in_room] += 1
 
 		for id, count in counters.items():
 			out.append(f'webint_order_room_counter{{days="normal", label="{ROOM_TYPE_NAMES[id]}"}} {count}')
@@ -76,7 +79,8 @@ def getRoomCountersText(request):
 		out.append(f'webint_order_room_counter{{label="Daily"}} {daily}')
 
 	except Exception as e:
-		print(e)
+		print(traceback.format_exc())
+
 		logger.warning("Error in loading metrics rooms")
 	return "\n".join(out)
 
