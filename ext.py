@@ -112,7 +112,7 @@ class Order:
 		self.room_errors = []
 		self.loadAns()
 		
-		if(self.bed_in_room < 0):
+		if(self.bed_in_room < 0 and not self.daily):
 			self.status = "canceled" # Must refer to the previous status assignment
 	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
