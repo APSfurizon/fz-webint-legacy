@@ -222,9 +222,13 @@ class Order:
 		res = await pretixClient.patch(f'orderpositions/{self.position_id}/', json={'answers': self.answers}, expectedStatusCodes=None)
 		
 		if res.status_code != 200:
-			for ans, err in zip(self.answers, res.json()['answers']):
-				if err:
-					logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
+			e = res.json()
+			if "answers" in e:
+				for ans, err in zip(self.answers, res.json()['answers']):
+					if err:
+						logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
+			else:
+				logger.error("[ANSWERS SENDING] GENERIC ERROR. Response: '%s'", str(e))
 
 			raise exceptions.ServerError('There has been an error while updating this answers.')
 		
