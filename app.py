@@ -55,7 +55,7 @@ async def handleException(request, exception):
 		traceback.print_exc()
 
 	if statusCode == 403:
-		clear_session(r)
+		await clear_session(r)
 	return r
 
 

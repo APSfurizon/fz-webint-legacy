@@ -54,6 +54,15 @@ async def unconfirm_room(request, code, order:Order):
 	await unconfirm_room_by_order(order=dOrder, throw=True, request=request)
 	return redirect(f'/manage/nosecount')
 
+@bp.get('/room/autoconfirm')
+async def autoconfirm_room(request, code, order:Order):
+	orders = request.app.ctx.om.cache.values()
+	for order in orders:
+		if(order.code == order.room_id and not order.room_confirmed and len(order.room_members) == order.room_person_no):
+			logger.info(f"Auto-Confirming room {order.room_id}")
+			await confirm_room_by_order(order, request)
+	return redirect(f'/manage/admin')
+
 @bp.get('/room/delete/<code>')
 async def delete_room(request, code, order:Order):
 	dOrder = await get_order_by_code(request, code, throwException=True)

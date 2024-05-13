@@ -151,6 +151,42 @@ async def get_people_in_room_by_code(request, code, om=None):
 	await om.update_cache()
 	return filter(lambda rm: rm.room_id == code, om.cache.values())
 
+async def confirm_room_by_order(order, request):
+	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
+	room_members = []
+	for m in order.room_members:
+		if m == order.code:
+			res = order
+		else:
+			res = await request.app.ctx.om.get_order(code=m)
+		
+		if res.room_id != order.code:
+			raise exceptions.BadRequest("Please contact support: some of the members in your room are actually somewhere else")	
+		
+		if res.status != 'paid':
+			raise exceptions.BadRequest("Somebody hasn't paid.")
+		
+		if res.bed_in_room != bed_in_room:
+			raise exceptions.BadRequest("Somebody has a ticket for a different type of room!")
+		
+		if res.daily:
+			raise exceptions.BadRequest("Somebody in your room has a daily ticket!") 
+			
+		room_members.append(res)
+	
+
+	if len(room_members) != order.room_person_no:
+		raise exceptions.BadRequest("The number of people in your room mismatches your type of ticket!")
+
+	for rm in room_members:
+		await rm.edit_answer('room_id', order.code)
+		await rm.edit_answer('room_confirmed', "True")
+		await rm.edit_answer('pending_roommates', None)
+		await rm.edit_answer('pending_room', None)
+	
+	for rm in room_members:
+		await rm.send_answers()
+
 async def unconfirm_room_by_order(order, room_members=None, throw=True, request=None, om=None):
 	if not om: om = request.app.ctx.om
 	if not order.room_confirmed:
@@ -164,6 +200,17 @@ async def unconfirm_room_by_order(order, room_members=None, throw=True, request=
 		await p.edit_answer('room_confirmed', "False")
 		await p.send_answers()
 
+async def remove_members_from_room(order, removeMembers):
+	didSomething = False
+	for member in removeMembers:
+		if (member in order.room_members):
+			order.room_members.remove(member)
+			didSomething = True
+	if(didSomething):
+		await order.edit_answer("room_members", ','.join(order.room_members))
+		await order.send_answers()
+	return didSomething
+
 async def validate_rooms(request, rooms, om):
 	logger.info('Validating rooms...')
 	if not om: om = request.app.ctx.om
@@ -171,6 +218,7 @@ async def validate_rooms(request, rooms, om):
 	# rooms_to_unconfirm is the room that MUST be unconfirmed, room_with_errors is a less strict set containing all rooms with kind-ish errors
 	rooms_to_unconfirm = []
 	room_with_errors = []
+	remove_members = []
 
 	# Validate rooms
 	for order in rooms:
@@ -195,43 +243,58 @@ async def validate_rooms(request, rooms, om):
 	# Get confirmed rooms that fail validation
 	failed_confirmed_rooms = list(filter(lambda fr: (fr[0].room_confirmed == True), rooms_to_unconfirm))
 
+	didSomething = False
+
 	if len(failed_confirmed_rooms) == 0:
 		logger.info('[ROOM VALIDATION] No rooms to unconfirm.')
-		return
+	else:
+		didSomething = True
+		logger.info(f"[ROOM VALIDATION] Trying to unconfirm {len(failed_confirmed_rooms)} rooms...")
 
-	logger.info(f"[ROOM VALIDATION] Trying to unconfirm {len(failed_confirmed_rooms)} rooms...")
-
-	# Try unconfirming them
-	for rtu in failed_confirmed_rooms:
-		order = rtu[0]
-		member_orders = rtu[2]
-		logger.warning(f"[ROOM VALIDATION] [UNCONFIRMING] Unconfirming room {order.code}...")
-		
-		# Unconfirm and email users about the room
-		if UNCONFIRM_ROOMS_ENABLE:
-			await unconfirm_room_by_order(order, member_orders, False, None, om)
-
-	logger.info(f"[ROOM VALIDATION] Sending unconfirm notice to room members...")
-	sent_count = 0
-	# Send unconfirm notice via email
-	for rtu in failed_confirmed_rooms:
-		order = rtu[0]
-		member_orders = rtu[2]
-		try:
+		# Try unconfirming them
+		for rtu in failed_confirmed_rooms:
+			order = rtu[0]
+			member_orders = rtu[2]
+			logger.warning(f"[ROOM VALIDATION] [UNCONFIRMING] Unconfirming room {order.code}...")
+			
+			# Unconfirm and email users about the room
 			if UNCONFIRM_ROOMS_ENABLE:
-				await send_unconfirm_message(order, member_orders)
-			sent_count += len(member_orders)
-		except Exception as ex:
-			if EXTRA_PRINTS: logger.exception(str(ex))
-	logger.info(f"[ROOM VALIDATION] Sent {sent_count} emails")
+				await unconfirm_room_by_order(order, member_orders, False, None, om)
+
+	for r in rooms_to_unconfirm:
+		order = r[0]
+		removeMembers = r[3]
+		if len(removeMembers) > 0:
+			logger.warning(f"[ROOM VALIDATION] [REMOVING] Removing members '{','.join(removeMembers)}' from room {order.code}")
+
+			if UNCONFIRM_ROOMS_ENABLE:
+				didSomething |= await remove_members_from_room(order, removeMembers)
+			if(r not in failed_confirmed_rooms): failed_confirmed_rooms.append(r)
+
+
+	if(didSomething):
+		logger.info(f"[ROOM VALIDATION] Sending unconfirm notice to room members...")
+		sent_count = 0
+		# Send unconfirm notice via email
+		for rtu in failed_confirmed_rooms:
+			order = rtu[0]
+			member_orders = rtu[2]
+			try:
+				if UNCONFIRM_ROOMS_ENABLE:
+					await send_unconfirm_message(order, member_orders)
+				sent_count += len(member_orders)
+			except Exception as ex:
+				if EXTRA_PRINTS: logger.exception(str(ex))
+		logger.info(f"[ROOM VALIDATION] Sent {sent_count} emails")
 		
 
 async def check_room(request, order, om=None):
 	room_errors = []
 	room_members = []
+	remove_members = []
 	use_cached = request == None
 	if not om: om = request.app.ctx.om
-	if not order or not order.room_id or order.room_id != order.code: return (order, False, room_members)
+	if not order or not order.room_id or order.room_id != order.code: return (order, False, room_members, remove_members)
 	
 	# This is not needed anymore you buy tickets already 
 	#if quotas.get_left(len(order.room_members)) == 0:
@@ -249,8 +312,12 @@ async def check_room(request, order, om=None):
 		if res.room_id != order.code:
 			room_errors.append((res.code, 'room_id_mismatch'))
 			allOk = False
-		
-		if res.status != 'paid':
+
+		if res.status == 'canceled':
+			room_errors.append((res.code, 'canceled'))
+			remove_members.append(res.code)
+			allOk = False
+		elif res.status != 'paid':
 			room_errors.append((res.code, 'unpaid'))
 		
 		if res.bed_in_room != bed_in_room:
@@ -270,4 +337,4 @@ async def check_room(request, order, om=None):
 		if order.room_confirmed:
 			allOk = False
 	order.set_room_errors(room_errors)
-	return (order, allOk, room_members)
+	return (order, allOk, room_members, remove_members)

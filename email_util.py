@@ -80,16 +80,17 @@ async def send_unconfirm_message(room_order, orders):
 	issues_html += "</ul>"
 
 	for member in orders:
-		plain_body = EMAILS_TEXT["ROOM_UNCONFIRM_TEXT"]['plain'].format(member.name, room_order.room_name, issues_plain)
-		html_body = render_email_template(EMAILS_TEXT["ROOM_UNCONFIRM_TITLE"], EMAILS_TEXT["ROOM_UNCONFIRM_TEXT"]['html'].format(member.name, room_order.room_name, issues_html))
-		plain_text = MIMEText(plain_body, "plain")
-		html_text = MIMEText(html_body, "html")
-		message = MIMEMultipart("alternative")
-		message.attach(plain_text)
-		message.attach(html_text)
-		message['Subject'] = f'[{EMAIL_SENDER_NAME}] Your room cannot be confirmed'
-		message['To'] = f"{member.name} <{member.email}>"
-		memberMessages.append(message)
+		if(member.status != 'canceled'):
+			plain_body = EMAILS_TEXT["ROOM_UNCONFIRM_TEXT"]['plain'].format(member.name, room_order.room_name, issues_plain)
+			html_body = render_email_template(EMAILS_TEXT["ROOM_UNCONFIRM_TITLE"], EMAILS_TEXT["ROOM_UNCONFIRM_TEXT"]['html'].format(member.name, room_order.room_name, issues_html))
+			plain_text = MIMEText(plain_body, "plain")
+			html_text = MIMEText(html_body, "html")
+			message = MIMEMultipart("alternative")
+			message.attach(plain_text)
+			message.attach(html_text)
+			message['Subject'] = f'[{EMAIL_SENDER_NAME}] Your room cannot be confirmed'
+			message['To'] = f"{member.name} <{member.email}>"
+			memberMessages.append(message)
 
 	if len(memberMessages) == 0: return
 
