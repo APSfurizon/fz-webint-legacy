@@ -5,6 +5,7 @@ from ext import *
 from config import headers
 import os
 from image_util import generate_room_preview, get_room
+from utils import confirm_room_by_order
 
 bp = Blueprint("room", url_prefix="/manage/room")
 
@@ -303,40 +304,7 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 	#if quotas.get_left(len(order.room_members)) == 0:
 	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
 
-	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room
-	room_members = []
-	for m in order.room_members:
-		if m == order.code:
-			res = order
-		else:
-			res = await request.app.ctx.om.get_order(code=m)
-		
-		if res.room_id != order.code:
-			raise exceptions.BadRequest("Please contact support: some of the members in your room are actually somewhere else")	
-		
-		if res.status != 'paid':
-			raise exceptions.BadRequest("Somebody hasn't paid.")
-		
-		if res.bed_in_room != bed_in_room:
-			raise exceptions.BadRequest("Somebody has a ticket for a different type of room!")
-		
-		if res.daily:
-			raise exceptions.BadRequest("Somebody in your room has a daily ticket!") 
-			
-		room_members.append(res)
-	
-
-	if len(room_members) != order.room_person_no:
-		raise exceptions.BadRequest("The number of people in your room mismatches your type of ticket!")
-
-	for rm in room_members:
-		await rm.edit_answer('room_id', order.code)
-		await rm.edit_answer('room_confirmed', "True")
-		await rm.edit_answer('pending_roommates', None)
-		await rm.edit_answer('pending_room', None)
-	
-	for rm in room_members:
-		await rm.send_answers()
+	confirm_room_by_order(order, request)
 
 	return redirect('/manage/welcome')
 
