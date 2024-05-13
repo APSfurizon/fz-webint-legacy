@@ -16,6 +16,8 @@
 		<a href="/manage/admin/room/verify" role="button" title="Will unconfirm rooms that fail the default check. Useful when editing answers from Pretix">Verify Rooms</a>
 		<a href="#" onclick="confirmAction('propicReminder', this)" role="button" title="Will remind via mail all people who event uploaded a badge to do it" action="/manage/admin/propic/remind">Remind badge upload</a>
 		<a href="/manage/admin/room/autoconfirm" role="button" title="Will confirm all the full rooms that are still unconfirmed">Auto-confirm Rooms</a>
+		<a download href="/manage/admin/export/export" role="button" title="Will export most of informations about the orders">Export CSV</a>
+		<a download href="/manage/admin/export/hotel" role="button" title="Will export a CSV for the hotel accomodation">Export hotel CSV</a>
 		<hr>
 		{% include 'components/confirm_action_modal.html' %}
 	</main>
