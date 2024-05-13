@@ -57,7 +57,7 @@ class Order:
 		
 		idata = data['invoice_address']
 		if idata:
-			self.address = f"{idata['street']} - {idata['zipcode']} {idata['city']} - {idata['country']}"
+			self.address = f"{idata['street'].strip()} - {idata['zipcode'].strip()} {idata['city'].strip()} - {idata['country'].strip()}".replace("\n", "").replace("\r", "")
 			self.country = idata['country']
 		
 		for p in self.data['positions']:
