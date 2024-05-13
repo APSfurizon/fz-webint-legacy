@@ -20,6 +20,10 @@ class Order:
 	
 		self.time = time()
 		self.data = data
+		if(len(self.data['positions']) == 0):
+			for fee in data['fees']:
+				if(fee['fee_type'] == "cancellation"):
+					self.data['status'] = 'c'
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
 		self.secret = data['secret']
 
@@ -218,8 +222,9 @@ class Order:
 			#if ans['question'] == 40:
 			#	del self.answers[i]['options']
 			#	del self.answers[i]['option_identifiers']
-		
-		res = await pretixClient.patch(f'orderpositions/{self.position_id}/', json={'answers': self.answers}, expectedStatusCodes=None)
+
+		ans = [] if self.status == "canceled" else self.answers 
+		res = await pretixClient.patch(f'orderpositions/{self.position_id}/', json={'answers': ans}, expectedStatusCodes=None)
 		
 		if res.status_code != 200:
 			e = res.json()
