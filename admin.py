@@ -108,10 +108,59 @@ async def room_wizard(request, order:Order):
 	await clear_cache(request, order)
 
 	#Separate orders which have incomplete rooms and which have no rooms
-	orders : list[Order]
 	orders = request.app.ctx.om.cache.items()
+	orders = {key:value for key,value in sorted(orders, key=lambda x: x[1].ans('fursona_name')) if value.status not in ['c', 'e'] and not value.room_confirmed}
 	# Orders with incomplete rooms
-	orders_incomplete_rooms = {key:value for key,value in sorted(orders, key=lambda x: x[1].ans('fursona_name')) if value.status not in ['c', 'e'] and value.code == value.room_id and not value.room_confirmed}
+	incomplete_orders = {key:value for key,value in orders.items() if value.code == value.room_id and (value.room_person_no - len(value.room_members)) > 0}
+	# Roomless furs
+	roomless_orders = {key:value for key,value in orders.items() if not value.room_id and not value.daily}
+
+	# Result map
+	result_map = {
+		'A':{
+			'type': 'add_existing',
+			'to_add': ['b', 'c']
+		},
+		'B':{
+			'type': 'new',
+			'to_add': ['B', 'a', 'c']
+		}
+	}
+
+	# Fill already existing rooms
+	for room_order in incomplete_orders.items():
+		room = room_order.value
+		to_add = []
+		missing_slots = room.room_person_no - len(room.room_members)
+		for i in enumerate(missing_slots):
+			compatible_roomates = {key:value for key,value in roomless_orders.items() if value.bed_in_room == room.bed_in_room}
+			if len(compatible_roomates.items()) == 0: break
+			# Try picking a roomate that's from the same country and room type
+			country = room.country.lower()
+			roomless_by_country = {key:value for key,value in compatible_roomates.items() if value.country.lower() == country}
+			if len(roomless_by_country.items()) > 0:
+				code_to_add = roomless_by_country.keys()[0]
+				to_add.append(code_to_add)
+				del roomless_orders[code_to_add]
+			else:
+				# If not, add first roomless there is
+				code_to_add = compatible_roomates.keys()[0]
+				to_add.append(code_to_add)
+				del roomless_orders[code_to_add]
+		result_map[room.code] = {
+			'type': 'add_existing',
+			'to_add': to_add
+		}
+	# Create additional rooms
+
+	print ('Incomplete orders')
+	for order in incomplete_orders.values():
+		print(f'{order.code} - {order.bed_in_room}')
+	print ('Roomless')
+	for order in roomless_orders.values():
+		print(f'{order.code} - {order.bed_in_room}')
+
+	return redirect(f'/manage/admin')
 
 @bp.get('/propic/remind')
 async def propic_remind_missing(request, order:Order):

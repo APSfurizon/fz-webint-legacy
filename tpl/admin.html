@@ -19,11 +19,11 @@
 		<p>Rooms</p>
 		<a href="/manage/nosecount" role="button" title="Shortcut to the nosecount's admin data">Manage rooms</a>
 		<a href="/manage/admin/room/verify" role="button" title="Will unconfirm rooms that fail the default check. Useful when editing answers from Pretix">Verify Rooms</a>
+		<a href="/manage/admin/room/wizard" role="button" title="Will try matching roomless furs together, you can still re-arrange the users before confirming.">Fill Rooms</a>
 		<hr>
 		<p>Profiles</p>
 		<a href="#" onclick="confirmAction('propicReminder', this)" role="button" title="Will remind via mail all people who event uploaded a badge to do it" action="/manage/admin/propic/remind">Remind badge upload</a>
 		<a href="/manage/admin/room/autoconfirm" role="button" title="Will confirm all the full rooms that are still unconfirmed">Auto-confirm Rooms</a>
-		<hr>
 		<hr>
 		{% include 'components/confirm_action_modal.html' %}
 	</main>
