@@ -11,13 +11,19 @@
 		</header>
 		<!-- Quick controls -->
 		<h2>Admin panel</h2>
+		<p>Data</p>
 		<a href="/manage/admin/cache/clear" role="button" title="Reload the orders' data and the re-sync items' indexes from pretix">Clear cache</a>
-		<a href="/manage/nosecount" role="button" title="Shortcut to the nosecount's admin data">Manage rooms</a>
-		<a href="/manage/admin/room/verify" role="button" title="Will unconfirm rooms that fail the default check. Useful when editing answers from Pretix">Verify Rooms</a>
-		<a href="#" onclick="confirmAction('propicReminder', this)" role="button" title="Will remind via mail all people who event uploaded a badge to do it" action="/manage/admin/propic/remind">Remind badge upload</a>
-		<a href="/manage/admin/room/autoconfirm" role="button" title="Will confirm all the full rooms that are still unconfirmed">Auto-confirm Rooms</a>
 		<a download href="/manage/admin/export/export" role="button" title="Will export most of informations about the orders">Export CSV</a>
 		<a download href="/manage/admin/export/hotel" role="button" title="Will export a CSV for the hotel accomodation">Export hotel CSV</a>
+		<hr>
+		<p>Rooms</p>
+		<a href="/manage/nosecount" role="button" title="Shortcut to the nosecount's admin data">Manage rooms</a>
+		<a href="/manage/admin/room/verify" role="button" title="Will unconfirm rooms that fail the default check. Useful when editing answers from Pretix">Verify Rooms</a>
+		<hr>
+		<p>Profiles</p>
+		<a href="#" onclick="confirmAction('propicReminder', this)" role="button" title="Will remind via mail all people who event uploaded a badge to do it" action="/manage/admin/propic/remind">Remind badge upload</a>
+		<a href="/manage/admin/room/autoconfirm" role="button" title="Will confirm all the full rooms that are still unconfirmed">Auto-confirm Rooms</a>
+		<hr>
 		<hr>
 		{% include 'components/confirm_action_modal.html' %}
 	</main>

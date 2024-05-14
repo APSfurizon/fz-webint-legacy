@@ -101,6 +101,18 @@ async def rename_room(request, code, order:Order):
 	await dOrder.send_answers()
 	return redirect(f'/manage/nosecount')
 
+@bp.get('/room/wizard')
+async def room_wizard(request, order:Order):
+	'''Tries to autofill unconfirmed rooms and other matches together'''
+	# Clear cache first
+	await clear_cache(request, order)
+
+	#Separate orders which have incomplete rooms and which have no rooms
+	orders : list[Order]
+	orders = request.app.ctx.om.cache.items()
+	# Orders with incomplete rooms
+	orders_incomplete_rooms = {key:value for key,value in sorted(orders, key=lambda x: x[1].ans('fursona_name')) if value.status not in ['c', 'e'] and value.code == value.room_id and not value.room_confirmed}
+
 @bp.get('/propic/remind')
 async def propic_remind_missing(request, order:Order):
 	await clear_cache(request, order)
