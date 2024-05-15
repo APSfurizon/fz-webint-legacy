@@ -7,7 +7,7 @@
       <div aria-hidden="true" class="propic-border-animation"></div>
     </div>
     {% endif %}
-    {% if current and current.isAdmin () and (not current.code == order.code )%}
+    {% if current and current.isAdmin () and (not current.code == order.code ) and not nologin %}
     <a class="control-login-as" href="/manage/admin/loginas/{{order.code}}">
     {% endif %}
     <img alt="{{order.ans('fursona_name') if order.ans('fursona_name') else 'A user'}}'s profile picture" src="{{imgSrc}}" class="absolute propic {{(('propic-' + order.sponsorship) if not effects else '') if order.sponsorship else 'propic-base'}}"/>

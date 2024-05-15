@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Admin panel{% endblock %}
+{% block main %}
+	<main class="container">
+		<script src="/res/scripts/wizardManager.js"></script>
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<!--order = current order login
+			orders = all non confirmed rooms orders
+			data = assigned rooms -->
+		<h2>Review rooms</h2>
+		<hr>
+		{% for room in data.items() %}
+			{%with room_order = orders[room[0]] %}
+				
+			{% endwith %}
+		{% endfor %}
+	</main>
+	
+{% endblock %}

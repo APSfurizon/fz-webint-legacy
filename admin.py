@@ -123,28 +123,31 @@ async def room_wizard(request, order:Order):
 		},
 		'B':{
 			'type': 'new',
+			'room_type': 5,
 			'to_add': ['B', 'a', 'c']
 		}
 	}
 
+	result_map = {}
+
 	# Fill already existing rooms
 	for room_order in incomplete_orders.items():
-		room = room_order.value
+		room = room_order[1]
 		to_add = []
 		missing_slots = room.room_person_no - len(room.room_members)
-		for i in enumerate(missing_slots):
+		for i in range(missing_slots):
 			compatible_roomates = {key:value for key,value in roomless_orders.items() if value.bed_in_room == room.bed_in_room}
 			if len(compatible_roomates.items()) == 0: break
 			# Try picking a roomate that's from the same country and room type
 			country = room.country.lower()
 			roomless_by_country = {key:value for key,value in compatible_roomates.items() if value.country.lower() == country}
 			if len(roomless_by_country.items()) > 0:
-				code_to_add = roomless_by_country.keys()[0]
+				code_to_add = list(roomless_by_country.keys())[0]
 				to_add.append(code_to_add)
 				del roomless_orders[code_to_add]
 			else:
 				# If not, add first roomless there is
-				code_to_add = compatible_roomates.keys()[0]
+				code_to_add = list(compatible_roomates.keys())[0]
 				to_add.append(code_to_add)
 				del roomless_orders[code_to_add]
 		result_map[room.code] = {
@@ -152,15 +155,33 @@ async def room_wizard(request, order:Order):
 			'to_add': to_add
 		}
 	# Create additional rooms
-
-	print ('Incomplete orders')
-	for order in incomplete_orders.values():
-		print(f'{order.code} - {order.bed_in_room}')
-	print ('Roomless')
-	for order in roomless_orders.values():
-		print(f'{order.code} - {order.bed_in_room}')
-
-	return redirect(f'/manage/admin')
+	while len(roomless_orders.items()) > 0:
+		room = list(roomless_orders.items())[0][1]
+		to_add = []
+		missing_slots = room.room_person_no - len(room.room_members)
+		for i in range(missing_slots):
+			compatible_roomates = {key:value for key,value in roomless_orders.items() if value.bed_in_room == room.bed_in_room}
+			if len(compatible_roomates.items()) == 0: break
+			# Try picking a roomate that's from the same country and room type
+			country = room.country.lower()
+			roomless_by_country = {key:value for key,value in compatible_roomates.items() if value.country.lower() == country}
+			if len(roomless_by_country.items()) > 0:
+				code_to_add = list(roomless_by_country.keys())[0]
+				to_add.append(code_to_add)
+				del roomless_orders[code_to_add]
+			else:
+				# If not, add first roomless there is
+				code_to_add = list(compatible_roomates.keys())[0]
+				to_add.append(code_to_add)
+				del roomless_orders[code_to_add]
+		result_map[room.code] = {
+			'type': 'new',
+			'room_type': room.bed_in_room,
+			'to_add': to_add
+		}
+	
+	tpl = request.app.ctx.tpl.get_template('wizard.html')
+	return html(tpl.render(order=order, orders=orders, data=result_map))
 
 @bp.get('/propic/remind')
 async def propic_remind_missing(request, order:Order):
