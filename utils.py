@@ -84,7 +84,7 @@ async def load_items() -> bool:
 								ROOM_TYPE_NAMES[v['id']] = roomName
 				# Adds itself to the category list
 				categoryName = check_and_get_category ('item', q)
-				if not categoryName: continue
+				if not categoryName or q['id'] in CATEGORIES_LIST_MAP[categoryName]: continue
 				CATEGORIES_LIST_MAP[categoryName].append(q['id'])
 		if (EXTRA_PRINTS):
 			logger.debug(f'Mapped Items: %s', ITEMS_ID_MAP)

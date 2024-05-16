@@ -1,0 +1,23 @@
+div.grid.people div.edit-disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    user-select: none;
+    cursor: not-allowed;
+}
+
+div.grid.people div.edit-drag>div.propic-container {
+    pointer-events: none;
+}
+
+div.drag-over {
+    border-radius: 1rem;
+    border: 0.2rem dashed white;
+}
+
+div.drag-forbidden {
+    border-color: #c92121aa;
+}
+
+div.interactless>*{
+    pointer-events: none;
+}

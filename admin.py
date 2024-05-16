@@ -108,8 +108,8 @@ async def room_wizard(request, order:Order):
 	await clear_cache(request, order)
 
 	#Separate orders which have incomplete rooms and which have no rooms
-	orders = request.app.ctx.om.cache.items()
-	orders = {key:value for key,value in sorted(orders, key=lambda x: x[1].ans('fursona_name')) if value.status not in ['c', 'e'] and not value.room_confirmed}
+	all_orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e']}
+	orders = {key:value for key,value in sorted(all_orders.items(), key=lambda x: x[1].ans('fursona_name')) if not value.room_confirmed}
 	# Orders with incomplete rooms
 	incomplete_orders = {key:value for key,value in orders.items() if value.code == value.room_id and (value.room_person_no - len(value.room_members)) > 0}
 	# Roomless furs
@@ -124,6 +124,7 @@ async def room_wizard(request, order:Order):
 		'B':{
 			'type': 'new',
 			'room_type': 5,
+			'room_name': 'generated 1',
 			'to_add': ['B', 'a', 'c']
 		}
 	}
@@ -154,6 +155,8 @@ async def room_wizard(request, order:Order):
 			'type': 'add_existing',
 			'to_add': to_add
 		}
+	
+	generated_counter = 0
 	# Create additional rooms
 	while len(roomless_orders.items()) > 0:
 		room = list(roomless_orders.items())[0][1]
@@ -174,14 +177,16 @@ async def room_wizard(request, order:Order):
 				code_to_add = list(compatible_roomates.keys())[0]
 				to_add.append(code_to_add)
 				del roomless_orders[code_to_add]
+		generated_counter += 1
 		result_map[room.code] = {
 			'type': 'new',
+			'room_name': f'Generated Room {generated_counter}',
 			'room_type': room.bed_in_room,
 			'to_add': to_add
 		}
 	
 	tpl = request.app.ctx.tpl.get_template('wizard.html')
-	return html(tpl.render(order=order, orders=orders, data=result_map))
+	return html(tpl.render(order=order, all_orders=all_orders, unconfirmed_orders=orders, data=result_map))
 
 @bp.get('/propic/remind')
 async def propic_remind_missing(request, order:Order):
