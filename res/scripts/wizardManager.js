@@ -1,3 +1,9 @@
+var draggingData = {
+    id: 0,
+    roomTypeId: 0,
+    parentRoomId: 0
+}
+
 function initObjects (){
     draggables = document.querySelectorAll("div.grid.people div.edit-drag");
     rooms = document.querySelectorAll("main.container>div.room");
@@ -13,45 +19,36 @@ function initObjects (){
     });
 }
 
+/**
+ * 
+ * @param {DragEvent} e 
+ */
 function dragStart(e) {
     element = e.target;
     room = element.closest('div.room')
-    dataToSave = {
-        id: element.id,
-        type: element.getAttribute('room-type'),
-        parentId: room.id
-    }
-    e.dataTransfer.setData('application/json', JSON.stringify(dataToSave));
-    toggleRoomSelection(true);
+    setData(element.id, element.getAttribute('room-type'), room.id)
+    e.dataTransfer.effectAllowed = 'move';
+    setTimeout(()=>toggleRoomSelection(true), 0);
 }
 
 function dragEnd(e) {
     toggleRoomSelection(false);
+    resetData ();
     e.stopPropagation();
 }
 
 function dragEnter(e) {
     e.preventDefault();
     e.target.classList.add('drag-over');
-    checkDragLocation (decodeData(e), e.target);
+    checkDragLocation (getData(), e.target);
     e.stopPropagation();
 }
 
 function dragOver(e) {
     e.preventDefault();
     e.target.classList.add('drag-over');
-    checkDragLocation (decodeData(e), e.target);
+    checkDragLocation (getData(), e.target)
     e.stopPropagation();
-}
-
-/**
- * @param {DragEvent} e 
- * @returns 
- */
-function decodeData (e) {
-    const raw = e.dataTransfer.getData('application/json');
-    console.log(raw);
-    return JSON.parse(raw);
 }
 
 /**
@@ -62,10 +59,12 @@ function checkDragLocation (data, target) {
     let toReturn = true;
     const isInfinite = target.getAttribute("infinite");
     const maxSizeReached = target.getAttribute("current-size") >= target.getAttribute("room-size");
-    const roomTypeMismatch = data.type !== target.getAttribute("room-type");
+    const roomTypeMismatch = data.roomTypeId !== target.getAttribute("room-type");
     if (!isInfinite && (maxSizeReached || roomTypeMismatch)) {
         target.classList.add('drag-forbidden');
         toReturn = false;
+    } else {
+        target.classList.remove('drag-forbidden');
     }
     return toReturn;
 }
@@ -78,11 +77,10 @@ function dragLeave(e) {
 function drop(e) {
     e.target.classList.remove('drag-over');
     toggleRoomSelection(false);
-    if (checkDragLocation(decodeData(e), e.target) === true) {
-        console.log ()
-        const data = decodeData (e);
+    if (checkDragLocation(getData(), e.target) === true) {
+        const data = getData();
         let item = document.getElementById (data.id)
-        let oldParent = document.getElementById (data.parentId)
+        let oldParent = document.getElementById (data.parentRoomId)
         let newParent = e.target;
         let newParentContainer = newParent.querySelector('div.grid.people')
         newParentContainer.appendChild (item);
@@ -98,6 +96,20 @@ function toggleRoomSelection(newStatus) {
         room.classList.remove('drag-over');
         room.classList.remove('drag-forbidden');
     })
+}
+
+function setData (id, roomType, parentRoomId) {
+    draggingData.id = id;
+    draggingData.roomTypeId = roomType;
+    draggingData.parentRoomId = parentRoomId;
+}
+
+function resetData (){
+    setData(0, 0, 0);
+}
+
+function getData () {
+    return draggingData;
 }
 
 initObjects ();

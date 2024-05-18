@@ -11,7 +11,7 @@ div.grid.people div.edit-drag>div.propic-container {
 
 div.drag-over {
     border-radius: 1rem;
-    border: 0.2rem dashed white;
+    border: 0.2rem dashed #000;
 }
 
 div.drag-forbidden {
@@ -20,4 +20,20 @@ div.drag-forbidden {
 
 div.interactless>*{
     pointer-events: none;
+}
+
+div.room > h4 {
+    user-select: none;
+}
+
+/* Dark theme */
+@media only screen and (prefers-color-scheme: dark) {
+    div.drag-over {
+        border-radius: 1rem;
+        border: 0.2rem dashed #fff;
+    }
+    
+    div.drag-forbidden {
+        border-color: #c92121aa;
+    }
 }
