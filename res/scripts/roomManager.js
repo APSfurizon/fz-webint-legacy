@@ -29,27 +29,3 @@ function confirmAction (intent, sender) {
     }
     document.getElementById('modalOrderEditDialog').setAttribute('open', 'true');
 }
-
-function setLoading (){
-    document.getElementById('loadingIndicator').style.visibility = 'unset';
-}
-
-function setLoaded (){
-    document.getElementById('loadingIndicator').style.visibility = 'hidden';
-}
-
-async function roomGuestEditAction (intent, sender) {
-    if (['new', 'fromOrder'].includes (intent) == false) return
-    setLoaded ();
-    document.getElementById('roomGuestEditorDialog').setAttribute('open', 'true');
-}
-
-async function retrieveUsers (type) {
-    setLoading();
-
-    setLoaded();
-}
-
-function adaptRoomFormat (){
-    
-}

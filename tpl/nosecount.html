@@ -19,15 +19,8 @@
 				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
 			</picture>
 		</header>
-
-		{% if order and order.isAdmin() %}
-		<div class="room-actions admin-actions-header">
-			<a onclick="roomGuestEditAction('new', this)" action="/manage/admin/{{order.code}}"><img src="/res/icons/book-plus.svg" class="icon" /><span>New room</span></a>
-		</div>
-		
-		{% else %}
+				
 		<p>Welcome to the nosecount page! Here you can see all of the available rooms at the convention, as well as the occupants currently staying in each room. Use this page to find your friends and plan your meet-ups.</p>
-		{% endif %}
 
 		{% if filtered and order %}
 			{% for person in filtered.values() %}
@@ -56,7 +49,6 @@
 					<span>{{o.room_name}}</span>
 					{% if order and order.isAdmin() %}
 						<div class="room-actions">
-							<a onclick="roomGuestEditAction('fromOrder', this)" action="/manage/admin/{{o.code}}"><img src="/res/icons/users.svg" class="icon" /><span>Add members</span></a>
 							<a onclick="confirmAction('rename', this)" action="/manage/admin/room/rename/{{o.code}}"><img src="/res/icons/pencil.svg" class="icon" /><span>Rename</span></a>
 							<a onclick="confirmAction('unconfirm', this)" action="/manage/admin/room/unconfirm/{{o.code}}"><img src="/res/icons/door_open.svg" class="icon" /><span>Unconfirm</span></a>
 							<a class="act-del" onclick="confirmAction('delete', this)" action="/manage/admin/room/delete/{{o.code}}"><img src="/res/icons/delete.svg" class="icon" /><span>Delete</span></a>
@@ -157,19 +149,6 @@
 					<footer>
 						<input id="intentSend" type="submit" value="Confirm" />
 					</footer>
-				</article>
-			</dialog>
-		</form>
-
-		<form id="roomFormAction" method="GET" action=""></form>
-			<dialog id="roomGuestEditorDialog">
-				<article>
-					<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
-					<h3 id="intentText"><span>Room editor<img id="loadingIndicator" src="/res/icons/loading.svg" class="icon spin" /></span></h3>
-					<div class="room-members-container">
-
-					</div>
-					<input type="hidden" name="orders">
 				</article>
 			</dialog>
 		</form>

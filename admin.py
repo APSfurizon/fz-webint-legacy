@@ -8,6 +8,8 @@ from io import StringIO
 from sanic.log import logger
 import csv
 import time
+import json
+import math
 
 bp = Blueprint("admin", url_prefix="/manage/admin")
 
@@ -108,7 +110,7 @@ async def room_wizard(request, order:Order):
 	await clear_cache(request, order)
 
 	#Separate orders which have incomplete rooms and which have no rooms
-	all_orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e']}
+	all_orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e'] and not value.daily}
 	orders = {key:value for key,value in sorted(all_orders.items(), key=lambda x: x[1].ans('fursona_name')) if not value.room_confirmed}
 	# Orders with incomplete rooms
 	incomplete_orders = {key:value for key,value in orders.items() if value.code == value.room_id and (value.room_person_no - len(value.room_members)) > 0}
@@ -130,6 +132,15 @@ async def room_wizard(request, order:Order):
 	}
 
 	result_map = {}
+
+	# Get room quotas
+	room_quota_map = {}
+	for key, value in ITEM_VARIATIONS_MAP['bed_in_room'].items():
+		capacity = ROOM_CAPACITY_MAP[key] if key in ROOM_CAPACITY_MAP else 1
+		room_quota_map[value] = math.ceil((len(list(filter(lambda y: y.bed_in_room == value, orders.values())))) / capacity)
+
+	print('RMQ = ')
+	print(room_quota_map)
 
 	# Fill already existing rooms
 	for room_order in incomplete_orders.items():
@@ -185,8 +196,9 @@ async def room_wizard(request, order:Order):
 			'to_add': to_add
 		}
 	
+	result_map["infinite"] = { 'to_add': [] }
 	tpl = request.app.ctx.tpl.get_template('wizard.html')
-	return html(tpl.render(order=order, all_orders=all_orders, unconfirmed_orders=orders, data=result_map))
+	return html(tpl.render(order=order, all_orders=all_orders, unconfirmed_orders=orders, data=result_map, jsondata=json.dumps(result_map, skipkeys=True, ensure_ascii=False)))
 
 @bp.get('/propic/remind')
 async def propic_remind_missing(request, order:Order):

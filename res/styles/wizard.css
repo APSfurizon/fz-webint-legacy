@@ -10,30 +10,63 @@ div.grid.people div.edit-drag>div.propic-container {
 }
 
 div.drag-over {
-    border-radius: 1rem;
-    border: 0.2rem dashed #000;
+    border-color: #000;
+    border-style: dashed;
 }
 
 div.drag-forbidden {
     border-color: #c92121aa;
 }
 
-div.interactless>*{
+div.interactless > * {
     pointer-events: none;
+}
+
+div.room.complete {
+    border-color: #21c929aa;
+    border-style: solid;
+}
+
+div.room {
+    border-radius: var(--border-radius);
+    border: 1px solid transparent;
+    margin-bottom: var(--spacing);
 }
 
 div.room > h4 {
     user-select: none;
+    margin-left: 1.6rem;
+}
+
+div.room:nth-child(2n) {
+    background-color: #ffffff55;
+}
+
+div.room:nth-child(2n) {
+    background-color: #cccccc55;
+}
+
+.align-right {
+    float: right;
 }
 
 /* Dark theme */
 @media only screen and (prefers-color-scheme: dark) {
     div.drag-over {
-        border-radius: 1rem;
-        border: 0.2rem dashed #fff;
+        border-color: #fff;
+        border-style: dashed;
     }
     
     div.drag-forbidden {
         border-color: #c92121aa;
     }
+
+    div.room {
+        background-color: #16161655;
+    }
+    
+    div.room:nth-child(2n) {
+        background-color: #20202055;
+    }
+    
 }
