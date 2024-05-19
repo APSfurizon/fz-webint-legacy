@@ -16,12 +16,13 @@
 			unconfirmed_orders = all non confirmed rooms orders
 			all_orders = all orders
 			data = assigned rooms -->
-		<h2>Review rooms</h2>
+		<h2>Review rooms <a href="#popover-empty-room-tip" onclick="document.querySelector('#popover-wizard-tip').showPopover()">?</a></h2>
+		<div popover id="popover-wizard-tip">This is the preview page. Re-arrange users by dragging and dropping them in the rooms.<br>Once finished, scroll down to either <i>'Confirm'</i> changes or <i>'Undo'</i> them.</div>
 		<hr>
 		{% for room in data.items() %}
 			{% if room[0] in all_orders %}
 				{%with room_order = unconfirmed_orders[room[0]] %}
-				<div class="room" id="room-{{room_order.code}}" room-type="{{room_order.bed_in_room}}" room-size="{{len(room[1]['to_add'])}}" current-size="{{len(room[1]['to_add'])}}">
+				<div class="room" id="room-{{room_order.code}}" room-type="{{room_order.bed_in_room}}" room-size="{{room_order.room_person_no - len(room_order.room_members)}}" current-size="{{len(room[1]['to_add'])}}">
 					<h4 style="margin-top:1em;">
 						<span>{{room_order.room_name if room_order.room_name else room[1]['room_name'] if room[1] and room[1]['room_name'] else ''}}</span>
 					</h4>
@@ -65,14 +66,15 @@
 
 		<dialog id="modalConfirmDialog">
 			<article>
-				<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+				<a href="#close" id="modalClose" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
 				<h3 id="intentText">Confirm arrangement?</h3>
 				<p id="intentDescription">
 					Roomless guests will be moved around existing rooms and newly generated ones.<br>
 					This will also confirm all rooms.
 				</p>
+				<div popover id="popover-status"><span id="popover-status-text"></span></div>
 				<footer>
-					<input id="intentSend" type="submit" value="Confirm" />
+					<button id="intentSend" onclick="submitData(this)">Confirm</button>
 				</footer>
 			</article>
 		</dialog>

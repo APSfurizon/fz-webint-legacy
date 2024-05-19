@@ -118,35 +118,20 @@ async def room_wizard(request, order:Order):
 	roomless_orders = {key:value for key,value in orders.items() if not value.room_id and not value.daily}
 
 	# Result map
-	result_map = {
-		'A':{
-			'type': 'add_existing',
-			'to_add': ['b', 'c']
-		},
-		'B':{
-			'type': 'new',
-			'room_type': 5,
-			'room_name': 'generated 1',
-			'to_add': ['B', 'a', 'c']
-		},
-		'rooms_to_delete': []
-	}
-
 	result_map = {}
 
-	# Get room quotas
-	room_quota_map = {}
+	# Check overflows
 	room_quota_overflow = {}
 	for key, value in ITEM_VARIATIONS_MAP['bed_in_room'].items():
+		room_quota = get_quota(ITEMS_ID_MAP['bed_in_room'], value)
 		capacity = ROOM_CAPACITY_MAP[key] if key in ROOM_CAPACITY_MAP else 1
-		room_quota_map[value] = math.ceil((len(list(filter(lambda y: y.bed_in_room == value, orders.values())))) / capacity)
 		current_quota = len(list(filter(lambda y: y.bed_in_room == value and y.room_owner == True, orders.values())))
-		room_quota_overflow[value] = current_quota - (room_quota_map[value] if value in room_quota_map else 0)
+		room_quota_overflow[value] = current_quota - int(room_quota.size / capacity) if room_quota else 0
 
 	# Init rooms to remove
 	result_map["void"] = []
 
-	# Dismember rooms that are over quota
+	# Remove rooms that are over quota
 	for room_type, overflow_qty in {key:value for key,value in room_quota_overflow.items() if value > 0}.items():
 		sorted_rooms = sorted(incomplete_orders.values(), key=lambda r: len(r.room_members))
 		for room_to_remove in sorted_rooms[:overflow_qty]:
@@ -214,6 +199,13 @@ async def room_wizard(request, order:Order):
 	result_map["infinite"] = { 'to_add': [] }
 	tpl = request.app.ctx.tpl.get_template('wizard.html')
 	return html(tpl.render(order=order, all_orders=all_orders, unconfirmed_orders=orders, data=result_map, jsondata=json.dumps(result_map, skipkeys=True, ensure_ascii=False)))
+
+@bp.post('/room/wizard/submit')
+async def submin_from_room_wizard(request:Request, order:Order):
+	'''Will apply changes to the rooms'''
+	print(request.body)
+	return text('Not implemented', status=500)
+	
 
 @bp.get('/propic/remind')
 async def propic_remind_missing(request, order:Order):

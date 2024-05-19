@@ -29,7 +29,6 @@ QUESTION_TYPES = { #https://docs.pretix.eu/en/latest/api/resources/questions.htm
 }
 TYPE_OF_QUESTIONS = {} # maps questionId -> type
 
-
 async def load_questions() -> bool:
 	global TYPE_OF_QUESTIONS
 	# TYPE_OF_QUESTIONS.clear() It should not be needed

@@ -261,6 +261,32 @@ class Order:
 		return to_return
 
 @dataclass
+class Quota:
+	def __init__(self, data):
+		self.items = data['items'] if 'items' in data else []
+		self.variations = data['variations'] if 'variations' in data else []
+		self.available = data['available'] if 'available' in data else False
+		self.size = data['size'] if 'size' in data else 0
+		self.available_number = data['available_number'] if 'available_number' in data else 0
+
+	def has_item (self, id: int=-1, variation: int=None):
+		return id in self.items if not variation else (id in self.items and variation in self.variations)
+
+	def get_left (self):
+		return self.available_number
+	
+	def __repr__(self):
+		return f'Quota [items={self.items}, variations={self.variations}] [{self.available_number}/{self.size}]'
+
+	def __str__(self):
+		return f'Quota [items={self.items}, variations={self.variations}] [{self.available_number}/{self.size}]'
+
+def get_quota(item: int, variation: int = None) -> Quota:
+	for q in QUOTA_LIST:
+		if (q.has_item(item, variation)): return q
+	return None
+
+@dataclass
 class Quotas:
 	def __init__(self, data):
 		self.data = data
@@ -276,6 +302,21 @@ async def get_quotas(request: Request=None):
 	res = res.json()
 	
 	return Quotas(res)
+
+async def load_item_quotas() -> bool:
+	global QUOTA_LIST
+	QUOTA_LIST = []
+	logger.info ('[QUOTAS] Loading quotas...')
+	success = True
+	try:
+		res = await pretixClient.get('quotas/?order=id&with_availability=true')
+		res = res.json()
+		for quota_data in res['results']:
+			QUOTA_LIST.append (Quota(quota_data))
+	except Exception:
+		logger.warning(f"[QUOTAS] Error while loading quotas.\n{traceback.format_exc()}")
+		success = False
+	return success
 
 async def get_order(request: Request=None):
 	await request.receive_body()
@@ -340,6 +381,12 @@ class OrderManager:
 			logger.error("[CACHE] Questions were not loading correctly. Aborting filling cache...")
 			return False
 
+		# Load quotas
+		r = await load_item_quotas()
+		if(not r and check_itemsQuestions):
+			logger.error("[CACHE] Quotas were not loading correctly. Aborting filling cache...")
+			return False
+
 		cache = {}
 		orderList = []
 		success = True
@@ -375,7 +422,7 @@ class OrderManager:
 		asyncio.create_task(validate_rooms(None, rooms, self))
 
 		return success
-	
+
 	async def get_order(self, request=None, code=None, secret=None, nfc_id=None, cached=False):
 
 		# if it's a nfc id, just retorn it

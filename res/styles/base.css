@@ -27,6 +27,14 @@ summary:has(span.status) {
     100% { background-position:57.75% 0%; }
 }
 
+/* Popover */
+*[popover]:popover-open {
+    border-radius: var(--border-radius);
+    border: 1px solid #fff;
+    backdrop-filter: blur(10px);
+    padding: 1rem;
+}
+
 /* Dark theme */
 @media only screen and (prefers-color-scheme: dark) {
     .icon {filter: invert(1);}

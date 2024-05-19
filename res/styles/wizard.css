@@ -50,6 +50,14 @@ div.room:nth-child(2n) {
     float: right;
 }
 
+.status-success {
+    background-color: #2e9147aa;
+}
+
+.status-error {
+    background-color: #912e2eaa;
+}
+
 /* Dark theme */
 @media only screen and (prefers-color-scheme: dark) {
     div.drag-over {

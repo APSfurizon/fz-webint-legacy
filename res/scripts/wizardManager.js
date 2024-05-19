@@ -4,6 +4,8 @@ var draggingData = {
     parentRoomId: 0
 }
 
+var allowRedirect = false;
+
 function initObjects (){
     draggables = document.querySelectorAll("div.grid.people div.edit-drag");
     rooms = document.querySelectorAll("main.container>div.room");
@@ -117,7 +119,7 @@ function getData () { return draggingData; }
 
 // This default onbeforeunload event
 window.onbeforeunload = function(){
-    return "Any changes to the rooms will be discarded."
+    if (!allowRedirect) return "Any changes to the rooms will be discarded."
 }
 
 /* Model managing */
@@ -150,6 +152,46 @@ function onSave (){
     } else {
         document.getElementById('modalConfirmDialog').setAttribute('open', 'true');
     }
+}
+
+/**
+ * 
+ * @param {Element} element 
+ */
+function submitData (element){
+    if (element.ariaDisabled) return;
+    element.ariaDisabled = true;
+    element.setAttribute("aria-busy", true);
+    document.querySelector("#modalClose").setAttribute("disabled", true);
+    document.querySelector("#modalClose").style.display = 'none';
+    // Create request
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', '/manage/admin/room/wizard/submit', true);
+    xhr.withCredentials = true;
+    xhr.setRequestHeader('Content-Type', 'application/json');
+    xhr.onreadystatechange = function() {
+        if (xhr.readyState === XMLHttpRequest.DONE) {
+            let popoverText = document.querySelector("#popover-status-text");
+            let popoverStatus = document.querySelector("#popover-status");
+            popoverStatus.classList.remove('status-error');
+            popoverStatus.classList.remove('status-success');
+            if (xhr.status === 200) {
+                // Handle correct redirect
+                popoverText.innerText = "Changes applied successfully. Redirecting..."
+                popoverStatus.classList.add('status-success');
+            } else {
+                // Handle errors
+                let error = xhr.statusText;
+                popoverText.innerText = "Could not apply changes: " + error;
+                console.error('Error submitting data:', error);
+                popoverStatus.classList.add('status-error');
+            }
+            popoverStatus.showPopover();
+            allowRedirect = true;
+            setTimeout(()=>window.location.assign('/manage/admin'), 3000);
+        }
+    };
+    xhr.send(JSON.stringify(model));
 }
 
 initObjects ();
