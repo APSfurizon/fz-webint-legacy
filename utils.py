@@ -148,7 +148,7 @@ async def get_order_by_code(request, code, throwException=False):
 async def get_people_in_room_by_code(request, code, om=None):
 	if not om: om = request.app.ctx.om
 	await om.update_cache()
-	return filter(lambda rm: rm.room_id == code, om.cache.values())
+	return list(filter(lambda rm: rm.room_id == code, om.cache.values()))
 
 async def confirm_room_by_order(order, request):
 	bed_in_room = order.bed_in_room # Variation id of the ticket for that kind of room

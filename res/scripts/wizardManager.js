@@ -94,6 +94,14 @@ function drop(e) {
             newParent.setAttribute("current-size", newParentQty);
             oldParent.classList.remove('complete');
             if (newParentCapacity == newParentQty) newParent.classList.add('complete');
+            // if owner of room is being moved, assign a new owner
+            if (data.parentRoomId.replace('room-','') == data.id) {
+                // find first owner
+                if (model[data.id][toAdd] && model[data.id][toAdd].length <= 0) return;
+                newOwner = model[data.id][toAdd][0]
+                changeOwner (data.id, newOwner)
+                oldParent.id = "room-" + newOwner
+            }
         }
     }
 }
@@ -139,6 +147,14 @@ function moveToRoom (order, from, to){
     // Add it to the destination room
     model[to][toAdd].push (order);
     return true;
+}
+
+function changeOwner (from, to){
+    if (!model) { console.error("Model is null", from, to); return false; }
+    if (!model[from]) { console.error("Parent is null", from, to); return false; }
+    if (model[to]) { console.error("Destination already exist", from, to); return false; }
+    model[to] = {...model[from]}
+    delete model[from]
 }
 
 function onSave (){

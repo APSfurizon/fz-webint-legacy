@@ -1,5 +1,6 @@
 from sanic import response, redirect, Blueprint, exceptions
 from email_util import send_missing_propic_message
+from random import choice
 from room import unconfirm_room_by_order
 from config import *
 from utils import *
@@ -201,10 +202,79 @@ async def room_wizard(request, order:Order):
 	return html(tpl.render(order=order, all_orders=all_orders, unconfirmed_orders=orders, data=result_map, jsondata=json.dumps(result_map, skipkeys=True, ensure_ascii=False)))
 
 @bp.post('/room/wizard/submit')
-async def submin_from_room_wizard(request:Request, order:Order):
+async def submit_from_room_wizard(request:Request, order:Order):
 	'''Will apply changes to the rooms'''
-	print(request.body)
-	return text('Not implemented', status=500)
+	await request.app.ctx.om.fill_cache()
+
+	data = json.loads(request.body)
+
+	# Phase 1 - Delete all rooms in void
+	if 'void' in data:
+		for room_code in data['void']:
+			ppl = await get_people_in_room_by_code(request, room_code)
+			for p in ppl:
+				await p.edit_answer('room_id', None)
+				await p.edit_answer('room_confirmed', "False")
+				await p.edit_answer('room_name', None)
+				await p.edit_answer('pending_room', None)
+				await p.edit_answer('pending_roommates', None)
+				await p.edit_answer('room_members', None)
+				await p.edit_answer('room_owner', None)
+				await p.edit_answer('room_secret', None)
+				await p.send_answers()
+		logger.info(f"Deleted rooms {', '.join(data['void'])}")
+	
+	# Phase 2 - Join roomless to other rooms or add new rooms
+	for room_code, value in {key:value for key,value in data.items() if key.lower() not in ['void', 'infinite']}.items():
+		if not value['to_add'] or len(value['to_add']) == 0: continue
+		room_order = await request.app.ctx.om.get_order(code=room_code)
+		# Preconditions
+		if not room_order: raise exceptions.BadRequest(f"Order {room_code} does not exist.")
+		if room_order.daily == True: raise exceptions.BadRequest(f"Order {room_code} is daily.")
+		if room_order.status != 'paid': raise exceptions.BadRequest(f"Order {room_code} hasn't paid.")
+		if room_order.room_owner:
+			if room_order.room_person_no < len(room_order.room_members) + (len(value['to_add']) if value['to_add'] else 0):
+				raise exceptions.BadRequest(f"Input exceeds room {room_order.code} capacity.")
+		elif room_order.room_person_no < (len(value['to_add']) if value['to_add'] else 0):
+			raise exceptions.BadRequest(f"Input exceeds room {room_order.code} capacity.")
+		
+		# Adding roomless orders to existing rooms
+		if value['type'] == 'add_existing' or value['type'] == 'new':
+			if value['type'] == 'new':
+				if room_order.room_owner: exceptions.BadRequest(f"Order {room_code} is already a room owner.")
+				# Create room data
+				await room_order.edit_answer('room_name', value['room_name'])
+				await room_order.edit_answer('room_id', room_order.code)
+				await room_order.edit_answer('room_secret', ''.join(choice('0123456789') for _ in range(6)))
+			elif not room_order.room_owner:
+				raise exceptions.BadRequest(f"Order {room_code} is not a room owner.")
+			# Add members
+			for new_member_code in value['to_add']:
+				pending_member = await request.app.ctx.om.get_order(code=new_member_code)
+				# Preconditions
+				if pending_member.daily == True: raise exceptions.BadRequest(f"Order {pending_member.code} is daily.")
+				if pending_member.status != 'paid': raise exceptions.BadRequest(f"Order {new_member_code} hasn't paid.")
+				if pending_member.bed_in_room != room_order.bed_in_room: raise exceptions.BadRequest(f"Order {new_member_code} has a different room type than {room_code}.")
+				if pending_member.room_owner: exceptions.BadRequest(f"Order {new_member_code} is already a room owner.")
+				if pending_member.room_id and pending_member.room_id not in data['void']: exceptions.BadRequest(f"Order {new_member_code} is in another room.")
+				await pending_member.edit_answer('room_id', room_order.code)
+				await pending_member.edit_answer('room_confirmed', "True")
+				await pending_member.edit_answer('pending_room', None)
+				await pending_member.send_answers()
+			logger.info(f"{'Created' if value['type'] == 'new' else 'Edited'} {str(room_order)}")
+			# Confirm members that were already inside the room
+			if value['type'] == 'add_existing':
+				for already_member in list(filter(lambda rm: rm.code in room_order.room_members and rm.code != room_order.code, request.app.ctx.om.cache.values())):
+					await already_member.edit_answer('room_confirmed', "True")
+					await already_member.send_answers()
+		else: raise exceptions.BadRequest(f"Unexpected type ({value['type']})")
+		await room_order.edit_answer('pending_room', None)
+		await room_order.edit_answer('pending_roommates', None)
+		await room_order.edit_answer('room_confirmed', "True")
+		await room_order.edit_answer('room_members', ','.join(list(set([*room_order.room_members, room_order.code, *value['to_add']]))))
+		await room_order.send_answers()
+		await request.app.ctx.om.fill_cache()
+	return text('done', status=200)
 	
 
 @bp.get('/propic/remind')
