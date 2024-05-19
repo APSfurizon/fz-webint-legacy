@@ -128,19 +128,34 @@ async def room_wizard(request, order:Order):
 			'room_type': 5,
 			'room_name': 'generated 1',
 			'to_add': ['B', 'a', 'c']
-		}
+		},
+		'rooms_to_delete': []
 	}
 
 	result_map = {}
 
 	# Get room quotas
 	room_quota_map = {}
+	room_quota_overflow = {}
 	for key, value in ITEM_VARIATIONS_MAP['bed_in_room'].items():
 		capacity = ROOM_CAPACITY_MAP[key] if key in ROOM_CAPACITY_MAP else 1
 		room_quota_map[value] = math.ceil((len(list(filter(lambda y: y.bed_in_room == value, orders.values())))) / capacity)
+		current_quota = len(list(filter(lambda y: y.bed_in_room == value and y.room_owner == True, orders.values())))
+		room_quota_overflow[value] = current_quota - (room_quota_map[value] if value in room_quota_map else 0)
 
-	print('RMQ = ')
-	print(room_quota_map)
+	# Init rooms to remove
+	result_map["void"] = []
+
+	# Dismember rooms that are over quota
+	for room_type, overflow_qty in {key:value for key,value in room_quota_overflow.items() if value > 0}.items():
+		sorted_rooms = sorted(incomplete_orders.values(), key=lambda r: len(r.room_members))
+		for room_to_remove in sorted_rooms[:overflow_qty]:
+			# Room codes to remove
+			result_map["void"].append(room_to_remove.code)
+			# Move room members to the roomless list
+			for member_code in room_to_remove.room_members:
+				roomless_orders[member_code] = all_orders[member_code]
+			del incomplete_orders[room_to_remove.code]
 
 	# Fill already existing rooms
 	for room_order in incomplete_orders.items():

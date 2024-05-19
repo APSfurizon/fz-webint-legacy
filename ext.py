@@ -247,6 +247,18 @@ class Order:
 		
 	def get_language(self):
 		return self.country.lower() if self.country.lower() in AVAILABLE_LOCALES else 'en'
+	
+	def __str__(self):
+		to_return = f"{'Room' if self.room_owner else 'Order'} {self.code}"
+		if self.room_owner == True:
+			to_return = f"{to_return} [ members = {self.room_members} ]"
+		return to_return
+	
+	def __repr__(self):
+		to_return = f"{'Room' if self.room_owner == True else 'Order'} {self.code}"
+		if self.room_owner == True:
+			to_return = f"{to_return} [ members = {self.room_members} ]"
+		return to_return
 
 @dataclass
 class Quotas:
