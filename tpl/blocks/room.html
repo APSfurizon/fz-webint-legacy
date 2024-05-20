@@ -8,17 +8,24 @@
 	<p class="notice" style="background:#0881c0"><b><a href="/manage/nosecount?filter=capacity">Check here</a> for any fur who share your room type.</p>
 	{% endif %}
 
-	{# Show alert if room owner has wrong people inside #}
+	{% if time() > ROOM_DEADLINE %}
+		<p class="notice">⚠️ The deadline to edit your room has passed. If your room is not full it will be subject to changes by the staff as we optimize for hotel capacity.</p>
 	
-	{# {% if room_members and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %} #}
-		{# <p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}} rooms. You need to add or remove people until you reach the size of an available room if you want to confirm it.</p> #}
-	{# {% endif %} #}
+	{% else %}
 	
-	{# Show alert if room was not confirmed #}
-	{% if order.room_id and not order.room_confirmed %}
-		<p class="notice">⚠️ Your room hasn't been confirmed yet. Unconfirmed rooms are subject to changes by the staff as we optimize for hotel capacity.</p>
+		{# Show alert if room owner has wrong people inside #}
+		
+		{# {% if room_members and quota.get_left(len(room_members)) == 0 and (not order.room_confirmed) %} #}
+			{# <p class="notice">⚠️ Your room contains {{len(room_members)}} people inside, but sadly there are no more {{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}} rooms. You need to add or remove people until you reach the size of an available room if you want to confirm it.</p> #}
+		{# {% endif %} #}
+		
+		{# Show alert if room was not confirmed #}
+		{% if order.room_id and not order.room_confirmed %}
+			<p class="notice">⚠️ Your room hasn't been confirmed yet. Unconfirmed rooms are subject to changes by the staff as we optimize for hotel capacity.</p>
+		{% endif %}
+
 	{% endif %}
-	
+
 	{# Show notice if the room is confirmed #}
 	{% if order.room_confirmed %}
 		{# <p class="notice" style="background:#060">✅ Your <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room has been confirmed</p> #}
