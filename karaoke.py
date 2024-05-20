@@ -3,6 +3,7 @@ from sanic import Blueprint, exceptions, response
 from ext import *
 from urllib.parse import unquote
 from config import ADMINS
+from utils import isSessionAdmin
 import json
 
 bp = Blueprint("karaoke", url_prefix="/manage/karaoke")
@@ -10,7 +11,7 @@ bp = Blueprint("karaoke", url_prefix="/manage/karaoke")
 @bp.get("/admin")
 async def show_songs(request, order: Order):
 
-	if not order.isAdmin():
+	if not await isSessionAdmin(request, order):
 		raise exceptions.Forbidden("Birichino")
 
 	orders = [x for x in request.app.ctx.om.cache.values() if x.karaoke_songs]
@@ -28,7 +29,7 @@ async def show_songs(request, order: Order):
 @bp.post("/approve")
 async def approve_songs(request, order: Order):
 
-	if not order.isAdmin():
+	if not await isSessionAdmin(request, order):
 		raise exceptions.Forbidden("Birichino")
 	
 	for song in request.form:
@@ -44,7 +45,7 @@ async def sing_song(request, order: Order, songname):
 	
 	if not order: raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
 	
-	if not order.isAdmin():
+	if not await isSessionAdmin(request, order):
 		raise exceptions.Forbidden("Birichino")
 
 	songname = unquote(songname)

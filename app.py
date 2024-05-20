@@ -16,9 +16,11 @@ import requests
 import sys
 from sanic.log import logger, logging, access_logger
 from metrics import *
+from utils import isSessionAdmin
 from email_util import killSmptClient
 import pretixClient
 import traceback
+
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -156,7 +158,7 @@ async def welcome(request, order: Order, quota: Quotas):
 				room_members.append(await app.ctx.om.get_order(code=member_id, cached=True))
 
 	tpl = app.ctx.tpl.get_template('welcome.html')
-	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_TYPES))
+	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_TYPES, isSessionAdmin=await isSessionAdmin(request, order)))
 
 
 @app.route("/manage/download_ticket")

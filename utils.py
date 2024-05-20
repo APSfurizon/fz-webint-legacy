@@ -288,6 +288,19 @@ async def validate_rooms(request, rooms, om):
 		logger.info(f"[ROOM VALIDATION] Sent {sent_count} emails")
 		
 
+# Returns true if the logged used is an admin OR if it's an admin logged as another user
+async def isSessionAdmin(request, order):
+	if(order.isAdmin()): return True
+
+	orgCode = request.cookies.get("foxo_code_ORG")
+	orgSecret = request.cookies.get("foxo_secret_ORG")
+	if orgCode != None and orgSecret != None:
+
+		user = await request.app.ctx.om.get_order(code=orgCode)
+		if(user == None): return False
+		if(user.secret != orgSecret): raise exceptions.Forbidden("Birichino :)")
+		return user.isAdmin()
+
 async def check_room(request, order, om=None):
 	room_errors = []
 	room_members = []

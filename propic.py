@@ -6,6 +6,7 @@ from PIL import Image
 from io import BytesIO
 from hashlib import sha224
 from time import time
+from utils import isSessionAdmin
 import os
 
 bp = Blueprint("propic", url_prefix="/manage/propic")
@@ -38,7 +39,7 @@ async def upload_propic(request, order: Order):
 	if order.propic_locked:
 		raise exceptions.BadRequest("You have been limited from further editing the propic.")
 	
-	if request.form.get('submit') != 'Upload' and time() > PROPIC_DEADLINE:
+	if request.form.get('submit') != 'Upload' and (time() > PROPIC_DEADLINE and not await isSessionAdmin(request, order)):
 		raise exceptions.BadRequest("The deadline has passed. You cannot modify the badges at this moment.")
 		
 	if request.form.get('submit') == 'Delete main image':
