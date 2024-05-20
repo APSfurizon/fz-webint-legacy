@@ -19,7 +19,9 @@
 				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
 			</picture>
 		</header>
+				
 		<p>Welcome to the nosecount page! Here you can see all of the available rooms at the convention, as well as the occupants currently staying in each room. Use this page to find your friends and plan your meet-ups.</p>
+
 		{% if filtered and order %}
 			{% for person in filtered.values() %}
 			{% if loop.first %}
@@ -135,7 +137,7 @@
 		{% endfor %}
 
 		<form id="intentFormAction" method="GET" action="">
-			<dialog id="modalRoomconfirm">
+			<dialog id="modalOrderEditDialog">
 				<article>
 					<a href="#close" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
 					<h3 id="intentText">Confirm room edit</h3>
@@ -150,6 +152,5 @@
 				</article>
 			</dialog>
 		</form>
-
 	</main>
 {% endblock %}

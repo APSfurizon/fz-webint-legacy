@@ -1,0 +1,80 @@
+div.grid.people div.edit-disabled {
+    pointer-events: none;
+    filter: grayscale(1);
+    user-select: none;
+    cursor: not-allowed;
+}
+
+div.grid.people div.edit-drag>div.propic-container {
+    pointer-events: none;
+}
+
+div.drag-over {
+    border-color: #000;
+    border-style: dashed;
+}
+
+div.drag-forbidden {
+    border-color: #c92121aa;
+}
+
+div.interactless > * {
+    pointer-events: none;
+}
+
+div.room.complete {
+    border-color: #21c929aa;
+    border-style: solid;
+}
+
+div.room {
+    border-radius: var(--border-radius);
+    border: 1px solid transparent;
+    margin-bottom: var(--spacing);
+}
+
+div.room > h4 {
+    user-select: none;
+    margin-left: 1.6rem;
+}
+
+div.room:nth-child(2n) {
+    background-color: #ffffff55;
+}
+
+div.room:nth-child(2n) {
+    background-color: #cccccc55;
+}
+
+.align-right {
+    float: right;
+}
+
+.status-success {
+    background-color: #2e9147aa;
+}
+
+.status-error {
+    background-color: #912e2eaa;
+}
+
+/* Dark theme */
+@media only screen and (prefers-color-scheme: dark) {
+    div.drag-over {
+        border-color: #fff;
+        border-style: dashed;
+    }
+    
+    div.drag-forbidden {
+        border-color: #c92121aa;
+    }
+
+    div.room {
+        background-color: #16161655;
+    }
+    
+    div.room:nth-child(2n) {
+        background-color: #20202055;
+    }
+    
+}

@@ -51,7 +51,7 @@ async def handleException(request, exception):
 	statusCode = exception.status_code if hasattr(exception, 'status_code') else 500
 	try:
 		tpl = app.ctx.tpl.get_template('error.html')
-		r = html(tpl.render(exception=exception, status_code=statusCode))
+		r = html(tpl.render(exception=exception, status_code=statusCode), status=statusCode)
 	except:
 		traceback.print_exc()
 
@@ -100,6 +100,11 @@ async def gen_barcode(request, code):
 	aa.save(img, format='PNG')
 
 	return raw(img.getvalue(), content_type="image/png")
+
+@app.route("/manage/lol")
+async def lol(request: Request):
+	await get_quotas(request)
+	return text('hi')
 
 @app.route(f"/{ORGANIZER}/{EVENT_NAME}/order/<code>/<secret>/open/<secret2>")
 async def redirect_explore(request, code, secret, order: Order, secret2=None):

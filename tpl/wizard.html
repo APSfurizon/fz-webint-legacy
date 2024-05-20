@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Room Wizard{% endblock %}
+{% block head %}
+	<link rel="stylesheet" href="/res/styles/wizard.css">
+{% endblock %}
+{% block main %}
+	<main class="container">
+		<script src="/res/scripts/wizardManager.js" type="text/javascript" defer="defer"></script>
+		<header>
+			<picture>
+				<source srcset="/res/furizon.png" media="(prefers-color-scheme:dark)">
+				<img src="/res/furizon-light.png" style="height:4rem;text-align:center;">
+			</picture>
+		</header>
+		<!--order = current order login
+			unconfirmed_orders = all non confirmed rooms orders
+			all_orders = all orders
+			data = assigned rooms -->
+		<h2>Review rooms <a href="#popover-empty-room-tip" onclick="document.querySelector('#popover-wizard-tip').showPopover()">?</a></h2>
+		<div popover id="popover-wizard-tip">This is the preview page. Re-arrange users by dragging and dropping them in the rooms.<br>Once finished, scroll down to either <i>'Confirm'</i> changes or <i>'Undo'</i> them.</div>
+		<hr>
+		{% for room in data.items() %}
+			{% if room[0] in all_orders %}
+				{%with room_order = unconfirmed_orders[room[0]] %}
+				<div class="room" id="room-{{room_order.code}}" room-type="{{room_order.bed_in_room}}" room-size="{{room_order.room_person_no - len(room_order.room_members)}}" current-size="{{len(room[1]['to_add'])}}">
+					<h4 style="margin-top:1em;">
+						<span>{{room_order.room_name if room_order.room_name else room[1]['room_name'] if room[1] and room[1]['room_name'] else ''}}</span>
+					</h4>
+					<div class="grid people" style="padding-bottom:1em;">
+						{% for m in room_order.room_members %}
+							{% if m in all_orders %}
+								{% with person = all_orders[m] %}
+									<div class="edit-disabled" style="margin-bottom: 1em;">
+										{% with current=None, order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = false, flag = true %}
+											{% include 'blocks/propic.html' %}
+										{% endwith %}
+										<h5>{{person.ans('fursona_name')}}</h5>
+									</div>
+								{% endwith %}
+							{% endif %}
+						{% endfor %}
+						{% for m in room[1]['to_add'] %}
+							{% if m in unconfirmed_orders %}
+								{% with person = unconfirmed_orders[m] %}
+									<div class="edit-drag" id="{{person.code}}" room-type="{{person.bed_in_room}}" style="margin-bottom: 1em;" draggable="true">
+										{% with current=None, order=person, imgSrc='/res/propic/' + (person.ans('propic') or 'default.png'), effects = false, flag = true %}
+											{% include 'blocks/propic.html' %}
+										{% endwith %}
+										<h5>{{person.ans('fursona_name')}}</h5>
+									</div>
+								{% endwith %}
+							{% endif %}
+						{% endfor %}
+					</div>
+				</div>
+				{% endwith %}
+			{% endif %}
+		{% endfor %}
+		<div class="room" infinite="true" id="room-infinite" room-size="999999999" current-size="0">
+			<h4 style="margin-top:1em;">Empty room <a href="#popover-empty-room-tip" onclick="document.querySelector('#popover-empty-room-tip').showPopover()">?</a></button></h4>
+			<div popover id="popover-empty-room-tip">This is a placeholder room. Place users temporarily in order to free space and arrange rooms</div>
+			<div class="grid people" style="padding-bottom:1em;"></div>
+		</div>
+		<a href="/manage/admin" role="button" title="Discard all changes and go back to the admin page">Undo</a>
+		<a href="#" class="align-right" onclick="onSave()" role="button" title="Will try saving current changes.">Confirm changes</a>
+
+		<dialog id="modalConfirmDialog">
+			<article>
+				<a href="#close" id="modalClose" aria-label="Close" class="close" onClick="javascript:this.parentElement.parentElement.removeAttribute('open')"></a>
+				<h3 id="intentText">Confirm arrangement?</h3>
+				<p id="intentDescription">
+					Roomless guests will be moved around existing rooms and newly generated ones.<br>
+					This will also confirm all rooms.
+				</p>
+				<div popover id="popover-status"><span id="popover-status-text"></span></div>
+				<footer>
+					<button id="intentSend" onclick="submitData(this)">Confirm</button>
+				</footer>
+			</article>
+		</dialog>
+
+		<script type="text/javascript">
+			let saveData = JSON.parse('{{jsondata|safe}}');
+		</script>
+
+	</main>
+	
+{% endblock %}

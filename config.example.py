@@ -67,6 +67,9 @@ SPONSORSHIP_COLOR_MAP = {
     'normal': (142, 36, 170)
 }
 
+# Quotes
+QUOTES_LIST = []
+
 # Maps Products metadata name <--> ID
 ITEMS_ID_MAP = {
 	'early_bird_ticket': None,

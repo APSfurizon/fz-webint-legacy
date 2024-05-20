@@ -14,7 +14,8 @@ nav#topbar {
     top: 0rem;
     transition: top 300ms;
     line-height: 2em;
-    max-width:98vw;
+    max-width:100%;
+    overflow-x: hidden;
 }
 
 nav#topbar a {
