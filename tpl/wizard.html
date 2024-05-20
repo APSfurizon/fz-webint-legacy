@@ -24,7 +24,7 @@
 				{%with room_order = unconfirmed_orders[room[0]] %}
 				<div class="room" id="room-{{room_order.code}}" room-type="{{room_order.bed_in_room}}" room-size="{{room_order.room_person_no - len(room_order.room_members)}}" current-size="{{len(room[1]['to_add'])}}">
 					<h4 style="margin-top:1em;">
-						<span>{{room_order.room_name if room_order.room_name else room[1]['room_name'] if room[1] and room[1]['room_name'] else ''}}</span>
+						<span>{{room_order.room_name if room_order.room_name else room[1]['room_name'] if room[1] and room[1]['room_name'] else ''}} - {{room_order.room_person_no}} People max</span>
 					</h4>
 					<div class="grid people" style="padding-bottom:1em;">
 						{% for m in room_order.room_members %}

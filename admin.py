@@ -111,12 +111,12 @@ async def room_wizard(request, order:Order):
 	await clear_cache(request, order)
 
 	#Separate orders which have incomplete rooms and which have no rooms
-	all_orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: len(x[1].room_members), reverse=True) if value.status not in ['c', 'e'] and not value.daily}
+	all_orders = {key:value for key,value in sorted(request.app.ctx.om.cache.items(), key=lambda x: (x[1].room_person_no, len(x[1].room_members)), reverse=True) if (value.status not in ['canceled', 'expired'] and not value.daily and value.bed_in_room != ITEM_VARIATIONS_MAP["bed_in_room"]["bed_in_room_no_room"])}
 	orders = {key:value for key,value in sorted(all_orders.items(), key=lambda x: x[1].ans('fursona_name')) if not value.room_confirmed}
 	# Orders with incomplete rooms
 	incomplete_orders = {key:value for key,value in orders.items() if value.code == value.room_id and (value.room_person_no - len(value.room_members)) > 0}
 	# Roomless furs
-	roomless_orders = {key:value for key,value in orders.items() if not value.room_id and not value.daily}
+	roomless_orders = {key:value for key,value in orders.items() if(not value.room_id and not value.daily and value.bed_in_room != ITEM_VARIATIONS_MAP["bed_in_room"]["bed_in_room_no_room"])}
 
 	# Result map
 	result_map = {}
@@ -124,10 +124,13 @@ async def room_wizard(request, order:Order):
 	# Check overflows
 	room_quota_overflow = {}
 	for key, value in ITEM_VARIATIONS_MAP['bed_in_room'].items():
-		room_quota = get_quota(ITEMS_ID_MAP['bed_in_room'], value)
-		capacity = ROOM_CAPACITY_MAP[key] if key in ROOM_CAPACITY_MAP else 1
-		current_quota = len(list(filter(lambda y: y.bed_in_room == value and y.room_owner == True, orders.values())))
-		room_quota_overflow[value] = current_quota - int(room_quota.size / capacity) if room_quota else 0
+		if key != "bed_in_room_no_room":
+			room_quota = get_quota(ITEMS_ID_MAP['bed_in_room'], value)
+			capacity = ROOM_CAPACITY_MAP[key] if key in ROOM_CAPACITY_MAP else 1
+			current_quota = len(list(filter(lambda y: y.bed_in_room == value and y.room_owner == True, all_orders.values())))
+			room_quota_overflow[value] = current_quota - int(room_quota.size / capacity) if room_quota else 0
+			if DEV_MODE and EXTRA_PRINTS:
+				print(f"There are {current_quota} of room type {key} out of a total of ({room_quota.size} / {capacity})")
 
 	# Init rooms to remove
 	result_map["void"] = []
@@ -135,6 +138,7 @@ async def room_wizard(request, order:Order):
 	# Remove rooms that are over quota
 	for room_type, overflow_qty in {key:value for key,value in room_quota_overflow.items() if value > 0}.items():
 		sorted_rooms = sorted(incomplete_orders.values(), key=lambda r: len(r.room_members))
+		sorted_rooms = [r for r in sorted_rooms if r.bed_in_room == room_type]
 		for room_to_remove in sorted_rooms[:overflow_qty]:
 			# Room codes to remove
 			result_map["void"].append(room_to_remove.code)
@@ -147,8 +151,10 @@ async def room_wizard(request, order:Order):
 	for room_order in incomplete_orders.items():
 		room = room_order[1]
 		to_add = []
-		missing_slots = room.room_person_no - len(room.room_members)
-		for i in range(missing_slots):
+		count = room.room_person_no
+		alreadyPresent = len(room.room_members)
+		missing_slots = count - alreadyPresent
+		for _ in range(missing_slots):
 			compatible_roomates = {key:value for key,value in roomless_orders.items() if value.bed_in_room == room.bed_in_room}
 			if len(compatible_roomates.items()) == 0: break
 			# Try picking a roomate that's from the same country and room type
@@ -165,7 +171,9 @@ async def room_wizard(request, order:Order):
 				del roomless_orders[code_to_add]
 		result_map[room.code] = {
 			'type': 'add_existing',
-			'to_add': to_add
+			'to_add': to_add,
+			'count': count,
+			'previouslyPresent': alreadyPresent
 		}
 	
 	generated_counter = 0
@@ -173,8 +181,10 @@ async def room_wizard(request, order:Order):
 	while len(roomless_orders.items()) > 0:
 		room = list(roomless_orders.items())[0][1]
 		to_add = []
-		missing_slots = room.room_person_no - len(room.room_members)
-		for i in range(missing_slots):
+		count = room.room_person_no
+		alreadyPresent = len(room.room_members)
+		missing_slots = count - alreadyPresent
+		for _ in range(missing_slots):
 			compatible_roomates = {key:value for key,value in roomless_orders.items() if value.bed_in_room == room.bed_in_room}
 			if len(compatible_roomates.items()) == 0: break
 			# Try picking a roomate that's from the same country and room type
@@ -194,10 +204,13 @@ async def room_wizard(request, order:Order):
 			'type': 'new',
 			'room_name': f'Generated Room {generated_counter}',
 			'room_type': room.bed_in_room,
-			'to_add': to_add
+			'to_add': to_add,
+			'count': count,
+			'previouslyPresent': alreadyPresent
 		}
 	
 	result_map["infinite"] = { 'to_add': [] }
+	result_map = {k: v for k, v in sorted(result_map.items(), key=lambda x: ((x[1]["count"], x[1]["previouslyPresent"]) if("count" in x[1] and "previouslyPresent" in x[1]) else (4316, 0) ))}
 	tpl = request.app.ctx.tpl.get_template('wizard.html')
 	return html(tpl.render(order=order, all_orders=all_orders, unconfirmed_orders=orders, data=result_map, jsondata=json.dumps(result_map, skipkeys=True, ensure_ascii=False)))
 
@@ -270,7 +283,7 @@ async def submit_from_room_wizard(request:Request, order:Order):
 		else: raise exceptions.BadRequest(f"Unexpected type ({value['type']})")
 		await room_order.edit_answer('pending_room', None)
 		await room_order.edit_answer('pending_roommates', None)
-		await room_order.edit_answer('room_confirmed', "True")
+		# await room_order.edit_answer('room_confirmed', "True") Use the autoconfirm button in the admin panel
 		await room_order.edit_answer('room_members', ','.join(list(set([*room_order.room_members, room_order.code, *value['to_add']]))))
 		await room_order.send_answers()
 		await request.app.ctx.om.fill_cache()

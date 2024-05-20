@@ -282,9 +282,12 @@ class Quota:
 		return f'Quota [items={self.items}, variations={self.variations}] [{self.available_number}/{self.size}]'
 
 def get_quota(item: int, variation: int = None) -> Quota:
+	ret : Quota = None
 	for q in QUOTA_LIST:
-		if (q.has_item(item, variation)): return q
-	return None
+		if (q.has_item(item, variation)):
+			if(ret == None or (q.size != None and q.size < ret.size)):
+				ret = q
+	return ret
 
 @dataclass
 class Quotas:
