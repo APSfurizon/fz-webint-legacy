@@ -40,7 +40,7 @@
 					{% if person.status == 'pending' %}
 						<p><strong style="color:red;">UNPAID</strong></p>
 					{% endif %}
-					{% if order.room_owner and person.code != order.code and (not order.room_confirmed) %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
+					{% if order.room_owner and person.code != order.code and (not order.room_confirmed) and (time() <= ROOM_DEADLINE or isSessionAdmin) %}<a href="/manage/room/kick/{{person.code}}">KICK</a>{% endif %}
 				</div>
 				
 				{% if person.status != 'paid' %}
@@ -51,7 +51,7 @@
 			{# {% if order.room_id == order.code and not order.room_confirmed and len(room_members) < 5%} #}
 			{% if order.room_id == order.code and not order.room_confirmed and len(room_members) < order.room_person_no %}
 				<div>
-					<a href="javascript:document.getElementById('modal-roominvite').setAttribute('open', 'true');">
+					<a {% if time() <= ROOM_DEADLINE or isSessionAdmin %} href="javascript:document.getElementById('modal-roominvite').setAttribute('open', 'true');" {% else %} disabled {% endif %}>
 						<div class="propic-container">
 							<img class="propic" src="/res/new.png" />
 							<h3>Invite</h3>
@@ -63,13 +63,13 @@
 		</div>
 	{% elif order.pending_room %}
 		<p>You have have asked to join the room of another member. Wait for them to confirm or reject your request.</p>
-		<a role="button" href="/manage/room/cancel_request">Cancel pending join request</a>
+		<a role="button" href="/manage/room/cancel_request" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Cancel pending join request</a>
 	{% else %}
 		<p class="notice">🎲 If you don't join a room or create your one within the room deadline, we will randomly put you into a room with free spots.</p>
 		<p>To join a room, ask somebody to send you their room code.</p>
 		<p class="grid">
-			<a role="button" href="/manage/room/create">Create a room</a>
-			<a role="button" href="javascript:document.getElementById('modal-joinroom').setAttribute('open', 'true');">Join a room</a>
+			<a role="button" href="/manage/room/create" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Create a room</a>
+			<a role="button" href="javascript:document.getElementById('modal-joinroom').setAttribute('open', 'true');" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Join a room</a>
 		</p>
 	{% endif %}
 	
@@ -83,17 +83,17 @@
 		{% if order.room_owner %}
 			
 			{% if not order.room_confirmed %}
-				{# <a role="button" {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a> #}
+				{# <a role="button" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}} {% if not room.forbidden and quota.get_left(len(room_members)) > 0 %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][len(room_members)]}}</strong> room</a> #}
 
-				<a style="grid-area: 1 / 1 / 2 / 2;" role="button" href="javascript:document.getElementById('modal-roomrename').setAttribute('open', 'true');">Rename room</a>
-				<a style="grid-area: 1 / 2 / 2 / 3;" href="/manage/room/delete" role="button" {{'disabled' if (len(room_members) > 1) else ''}} >Delete room</a>	
-				<a style="grid-area: 2 / 1 / 3 / 3; display:block;" role="button" {% if not room.forbidden and len(room_members) == order.room_person_no %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}}</strong> room</a>
+				<a style="grid-area: 1 / 1 / 2 / 2;" role="button" href="javascript:document.getElementById('modal-roomrename').setAttribute('open', 'true');" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Rename room</a>
+				<a style="grid-area: 1 / 2 / 2 / 3;" href="/manage/room/delete" role="button" {{'disabled' if (len(room_members) > 1) or (time() > ROOM_DEADLINE and not isSessionAdmin) else ''}} >Delete room</a>	
+				<a style="grid-area: 2 / 1 / 3 / 3; display:block;" role="button" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}} {% if not room.forbidden and len(room_members) == order.room_person_no %}href="javascript:document.getElementById('modal-roomconfirm').setAttribute('open', 'true');"{% endif %}>Confirm <strong>{{[None,'single','double','triple','quadruple','quintuple'][order.room_person_no]}}</strong> room</a>
 			{% else %}
-				{# <a style="grid-area: 1 / 1 / 2 / 2;" role="button" href="javascript:navigator.share({title: 'Furizon room', text:'Viewing room {{order.room_name}}', url: `${window.location.protocol}//${window.location.host}/manage/room/view/{{order.code}}}`});">Share</a> #}
+				{# <a style="grid-area: 1 / 1 / 2 / 2;" role="button" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}} href="javascript:navigator.share({title: 'Furizon room', text:'Viewing room {{order.room_name}}', url: `${window.location.protocol}//${window.location.host}/manage/room/view/{{order.code}}}`});">Share</a> #}
 			{% endif %}
 		{% else %}
 			{% if order.room_id and not order.room_confirmed %}
-				<a href="/manage/room/leave" role="button">Leave room</a>	
+				<a href="/manage/room/leave" role="button" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Leave room</a>	
 			{% endif %}
 		{% endif %}	
 	</p>
@@ -111,8 +111,8 @@
 						<td><strong style="color:red;">UNPAID</strong></td>
 					{% endif %}
 					{% if order.room_owner %}
-						<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/approve/{{person.code}}">Approve</a></td>
-						<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/reject/{{person.code}}">Reject</a></td>
+						<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/approve/{{person.code}}" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Approve</a></td>
+						<td style="width:1%;white-space: nowrap;"><a role="button" href="/manage/room/reject/{{person.code}}" {{'disabled' if time() > ROOM_DEADLINE and not isSessionAdmin else ''}}>Reject</a></td>
 					{% endif %}
 				</tr>
 			</div>

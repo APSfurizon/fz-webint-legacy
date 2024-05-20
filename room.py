@@ -6,8 +6,17 @@ from config import headers
 import os
 from image_util import generate_room_preview, get_room
 from utils import confirm_room_by_order
+from time import time
 
 bp = Blueprint("room", url_prefix="/manage/room")
+
+@bp.middleware
+async def deadline_check(request: Request):
+	order = await get_order(request)
+	if not order:
+		raise exceptions.Forbidden("You have been logged out. Please access the link in your E-Mail to login again!")
+	if time() > ROOM_DEADLINE and not await isSessionAdmin(request, order):
+		raise exceptions.BadRequest("The deadline has passed. You cannot modify the room at this moment.")
 
 @bp.post("/create")
 async def room_create_post(request, order: Order):
@@ -304,7 +313,7 @@ async def confirm_room(request, order: Order, quotas: Quotas):
 	#if quotas.get_left(len(order.room_members)) == 0:
 	#	raise exceptions.BadRequest("There are no more rooms of this size to reserve.")
 
-	confirm_room_by_order(order, request)
+	await confirm_room_by_order(order, request)
 
 	return redirect('/manage/welcome')
 

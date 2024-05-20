@@ -82,6 +82,7 @@ async def main_start(*_):
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
+	app.ctx.tpl.globals.update(ROOM_DEADLINE=ROOM_DEADLINE)
 	app.ctx.tpl.globals.update(LOCALES=LOCALES)
 	app.ctx.tpl.globals.update(ITEMS_ID_MAP=ITEMS_ID_MAP)
 	app.ctx.tpl.globals.update(ITEM_VARIATIONS_MAP=ITEM_VARIATIONS_MAP)

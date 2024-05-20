@@ -17,6 +17,8 @@ PROPIC_MAX_FILE_SIZE = 5 * 1024 * 1024 # 5MB
 PROPIC_MAX_SIZE = (2048, 2048) # (Width, Height)
 PROPIC_MIN_SIZE = (125, 125) # (Width, Height)
 
+ROOM_DEADLINE = 9999999999
+
 # This is used for feedback sending inside of the app. Feedbacks will be sent to the specified chat using the bot api id.
 TG_BOT_API = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 TG_CHAT_ID = -1234567
