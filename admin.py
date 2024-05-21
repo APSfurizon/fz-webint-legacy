@@ -62,13 +62,14 @@ async def unconfirm_room(request, code, order:Order):
 	return redirect(f'/manage/nosecount')
 
 @bp.get('/room/autoconfirm')
-async def autoconfirm_room(request, code, order:Order):
+async def autoconfirm_room(request, order:Order):
 	await clear_cache(request, order)
 	orders = request.app.ctx.om.cache.values()
 	for order in orders:
 		if(order.code == order.room_id and not order.room_confirmed and len(order.room_members) == order.room_person_no):
 			logger.info(f"Auto-Confirming room {order.room_id}")
 			await confirm_room_by_order(order, request)
+	await clear_cache(request, order)
 	return redirect(f'/manage/admin')
 
 @bp.get('/room/delete/<code>')
@@ -217,7 +218,7 @@ async def room_wizard(request, order:Order):
 @bp.post('/room/wizard/submit')
 async def submit_from_room_wizard(request:Request, order:Order):
 	'''Will apply changes to the rooms'''
-	await request.app.ctx.om.fill_cache()
+	await clear_cache(request, order)
 
 	data = json.loads(request.body)
 
@@ -266,7 +267,7 @@ async def submit_from_room_wizard(request:Request, order:Order):
 				pending_member = await request.app.ctx.om.get_order(code=new_member_code)
 				# Preconditions
 				if pending_member.daily == True: raise exceptions.BadRequest(f"Order {pending_member.code} is daily.")
-				if pending_member.status != 'paid': raise exceptions.BadRequest(f"Order {new_member_code} hasn't paid.")
+				#if pending_member.status != 'paid': raise exceptions.BadRequest(f"Order {new_member_code} hasn't paid.") # Since we don't confirm rooms anymore, we don't need to check if they're paid or not
 				if pending_member.bed_in_room != room_order.bed_in_room: raise exceptions.BadRequest(f"Order {new_member_code} has a different room type than {room_code}.")
 				if pending_member.room_owner: exceptions.BadRequest(f"Order {new_member_code} is already a room owner.")
 				if pending_member.room_id and pending_member.room_id not in data['void']: exceptions.BadRequest(f"Order {new_member_code} is in another room.")
@@ -286,7 +287,7 @@ async def submit_from_room_wizard(request:Request, order:Order):
 		# await room_order.edit_answer('room_confirmed', "True") Use the autoconfirm button in the admin panel
 		await room_order.edit_answer('room_members', ','.join(list(set([*room_order.room_members, room_order.code, *value['to_add']]))))
 		await room_order.send_answers()
-		await request.app.ctx.om.fill_cache()
+	await clear_cache(request, order)
 	return text('done', status=200)
 	
 
