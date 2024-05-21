@@ -101,11 +101,6 @@ async def gen_barcode(request, code):
 
 	return raw(img.getvalue(), content_type="image/png")
 
-@app.route("/manage/lol")
-async def lol(request: Request):
-	await get_quotas(request)
-	return text('hi')
-
 @app.route(f"/{ORGANIZER}/{EVENT_NAME}/order/<code>/<secret>/open/<secret2>")
 async def redirect_explore(request, code, secret, order: Order, secret2=None):
 
