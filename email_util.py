@@ -15,30 +15,44 @@ def killSmptClient():
 	global sslLock
 	global sslTimer
 	global smptSender
+	logger.info(f"[SMPT] killSmptClient: Lock status: {self.updating.locked()}")
 	sslTimer.cancel()
 	sslLock.acquire()
+	exp = None
 	if(smptSender is not None):
 		logger.debug('[SMPT] Closing smpt client')
-		smptSender.quit() # it calls close() inside
+		try:
+			smptSender.quit() # it calls close() inside
+		except Exception as e:
+			exp = e
 		smptSender = None
 	sslLock.release()
+	if(exp != None):
+		raise exp
 
 async def openSmptClient():
 	global sslLock
 	global sslTimer
 	global sslContext
 	global smptSender
+	logger.info(f"[SMPT] openSmptClient: Lock status: {self.updating.locked()}")
 	sslTimer.cancel()
 	sslLock.acquire()
-	if(smptSender is None):
-		logger.debug('[SMPT] Opening smpt client')
-		client : smtplib.SMTP = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
-		client.starttls(context=sslContext)
-		client.login(SMTP_USER, SMTP_PASSWORD)
-		smptSender = client
+	exp = None
+	try:
+		if(smptSender is None):
+			logger.debug('[SMPT] Opening smpt client')
+			client : smtplib.SMTP = smtplib.SMTP(SMTP_HOST, SMTP_PORT)
+			client.starttls(context=sslContext)
+			client.login(SMTP_USER, SMTP_PASSWORD)
+			smptSender = client
+	except Exception as e:
+		exp = e
 	sslLock.release()
 	sslTimer = createTimer()
 	sslTimer.start()
+	if(exp != None):
+		raise exp
 
 def createTimer():
 	return Timer(SMPT_CLIENT_CLOSE_TIMEOUT, killSmptClient)
@@ -51,9 +65,16 @@ async def sendEmail(message : MIMEMultipart):
 	message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
 	await openSmptClient()
 	logger.debug(f"[SMPT] Sending mail {message['From']} -> {message['to']} '{message['Subject']}'")
+	logger.info(f"[SMPT] sendEmail: Lock status: {self.updating.locked()}")
+	exp = None
 	sslLock.acquire()
-	smptSender.sendmail(message['From'], message['to'], message.as_string())
+	try:
+		smptSender.sendmail(message['From'], message['to'], message.as_string())
+	except Exception as e:
+		exp = e
 	sslLock.release()
+	if(exp != None):
+		raise exp
 
 def render_email_template(title = "", body = ""):
 	tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=False).get_template('email/comunication.html')

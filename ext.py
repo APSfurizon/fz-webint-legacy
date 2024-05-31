@@ -367,9 +367,24 @@ class OrderManager:
 			del cache[code]
 			orderList.remove(code)
 	
+
 	async def fill_cache(self, check_itemsQuestions=False) -> bool:
 		# Check cache lock
+		logger.info(f"[CACHE] Lock status: {self.updating.locked()}")
 		self.updating.acquire()
+		ret = False
+		exp = None
+		try:
+			ret = await self.fill_cache_INTERNAL(check_itemsQuestions=check_itemsQuestions)
+		except Exception as e: 
+			exp = e
+		self.updating.release()
+		logger.info(f"[CACHE] Ret status: {ret}. Exp: {exp}")
+		if(exp != None):
+			raise exp
+		return ret
+
+	async def fill_cache_INTERNAL(self, check_itemsQuestions=False) -> bool:
 		start_time = time()
 		logger.info("[CACHE] Filling cache...")
 		# Index item's ids
@@ -412,8 +427,6 @@ class OrderManager:
 		except Exception:
 			logger.error(f"[CACHE] Error while refreshing cache.\n{traceback.format_exc()}")
 			success = False
-		finally:
-			self.updating.release()
 
 		# Apply new cache if there were no errors
 		if(success):
