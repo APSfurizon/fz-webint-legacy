@@ -112,6 +112,10 @@ async def token_test(request):
 		return response.json({'ok': False, 'error': 'The token you have provided is not correct.'}, status=401)
 	
 	return response.json({'ok': True, 'message': 'This token is valid :)'})
+
+@bp.get("/ping")
+async def ping(request):
+	return response.text("pong")
 	
 @bp.get("/welcome")
 async def welcome_app(request):
