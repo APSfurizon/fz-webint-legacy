@@ -15,7 +15,7 @@ def killSmptClient():
 	global sslLock
 	global sslTimer
 	global smptSender
-	logger.info(f"[SMPT] killSmptClient: Lock status: {self.updating.locked()}")
+	logger.info(f"[SMPT] killSmptClient: Lock status: {sslLock.locked()}")
 	sslTimer.cancel()
 	sslLock.acquire()
 	exp = None
@@ -35,7 +35,7 @@ async def openSmptClient():
 	global sslTimer
 	global sslContext
 	global smptSender
-	logger.info(f"[SMPT] openSmptClient: Lock status: {self.updating.locked()}")
+	logger.info(f"[SMPT] openSmptClient: Lock status: {sslLock.locked()}")
 	sslTimer.cancel()
 	sslLock.acquire()
 	exp = None
@@ -65,7 +65,7 @@ async def sendEmail(message : MIMEMultipart):
 	message['From'] = f'{EMAIL_SENDER_NAME} <{EMAIL_SENDER_MAIL}>'
 	await openSmptClient()
 	logger.debug(f"[SMPT] Sending mail {message['From']} -> {message['to']} '{message['Subject']}'")
-	logger.info(f"[SMPT] sendEmail: Lock status: {self.updating.locked()}")
+	logger.info(f"[SMPT] sendEmail: Lock status: {sslLock.locked()}")
 	exp = None
 	sslLock.acquire()
 	try:
