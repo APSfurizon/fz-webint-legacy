@@ -34,7 +34,8 @@ async def api_members(request):
 			'propic_fursuiter': o.ans('propic_fursuiter'),
 			'staff_role': o.ans('staff_role'),
 			'country': o.country,
-			'is_checked_in': False,
+			'room_id': o.room_id,
+			'is_checked_in': o.checked_in,
 			'points': random.randint(0,50) if random.random() > 0.3 else 0
 		})
 		
@@ -143,15 +144,18 @@ async def welcome_app(request):
 		'propic_fursuiter': o.ans('propic_fursuiter'),
 		'staff_role': o.ans('staff_role'),
 		'country': o.country,
-		'is_checked_in': False,
+		'is_checked_in': o.checked_in,
 		'points': random.randint(0,50) if random.random() > 0.3 else 0,
 		'can_scan_nfc': o.can_scan_nfc,
+		'room_id': o.room_id,
+		#'mail': o.email,
 		'actual_room_id': o.actual_room,
 		**ret
 	})
 	
 @bp.get("/scan/<nfc_id>")
 async def nfc_scan(request, nfc_id):
+	return response.text("Nope")
 	if not request.token:
 		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
 		
@@ -178,11 +182,12 @@ async def nfc_scan(request, nfc_id):
 			'propic_fursuiter': o.ans('propic_fursuiter'),
 			'staff_role': o.ans('staff_role'),
 			'country': o.country,
-			'is_checked_in': False,
+			'is_checked_in': o.checked_in,
 			'points': random.randint(0,50) if random.random() > 0.3 else 0,
 			'comment': o.comment,
 			'actual_room_id': o.actual_room,
 			'phone': o.phone,
+			'room_id': o.room_id,
 			'telegram_username': o.telegram_username,
 			'roommates': {x: (await request.app.ctx.om.get_order(code=x, cached=True)).name for x in room_owner.room_members if x != o.code}
 		})
