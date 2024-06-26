@@ -20,6 +20,10 @@ class Order:
 	
 		self.time = time()
 		self.data = data
+		if(len(self.data['positions']) == 0):
+			for fee in data['fees']:
+				if(fee['fee_type'] == "cancellation"):
+					self.data['status'] = 'c'
 		self.status = {'n': 'pending', 'p': 'paid', 'e': 'expired', 'c': 'canceled'}[self.data['status']]
 		self.secret = data['secret']
 
@@ -35,20 +39,25 @@ class Order:
 		self.sponsorship = None
 		self.has_early = False
 		self.has_late = False
-		self.first_name = None
-		self.last_name = None
+		self.first_name = "None"
+		self.last_name = "None"
 		self.country = 'xx'
 		self.address = None
 		self.checked_in = False
 		self.room_type = None
 		self.daily = False
 		self.dailyDays = []
-		self.room_person_no = 0
+		self.bed_in_room = -1
+		self.room_person_no = -1
 		self.answers = []
+		self.position_id = -1
+		self.position_positionid = -1
+		self.position_positiontypeid = -1
+		self.barcode = "None"
 		
 		idata = data['invoice_address']
 		if idata:
-			self.address = f"{idata['street']} - {idata['zipcode']} {idata['city']} - {idata['country']}"
+			self.address = f"{idata['street'].strip()} - {idata['zipcode'].strip()} {idata['city'].strip()} - {idata['country'].strip()}".replace("\n", "").replace("\r", "")
 			self.country = idata['country']
 		
 		for p in self.data['positions']:
@@ -88,7 +97,7 @@ class Order:
 				roomTypeLst = key_from_value(ITEM_VARIATIONS_MAP['bed_in_room'], p['variation'])
 				roomTypeId = roomTypeLst[0] if len(roomTypeLst) > 0 else None
 				self.bed_in_room = p['variation']
-				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else None
+				self.room_person_no = ROOM_CAPACITY_MAP[roomTypeId] if roomTypeId in ROOM_CAPACITY_MAP else self.room_person_no
 		
 		self.total = float(data['total'])
 		self.fees = 0
@@ -106,6 +115,9 @@ class Order:
 		self.phone = data['phone']
 		self.room_errors = []
 		self.loadAns()
+		
+		if(self.bed_in_room < 0 and not self.daily):
+			self.status = "canceled" # Must refer to the previous status assignment
 	def loadAns(self):
 		self.shirt_size = self.ans('shirt_size')
 		self.is_artist = True if self.ans('is_artist') != 'No' else False
@@ -210,13 +222,18 @@ class Order:
 			#if ans['question'] == 40:
 			#	del self.answers[i]['options']
 			#	del self.answers[i]['option_identifiers']
-		
-		res = await pretixClient.patch(f'orderpositions/{self.position_id}/', json={'answers': self.answers}, expectedStatusCodes=None)
+
+		ans = [] if self.status == "canceled" else self.answers 
+		res = await pretixClient.patch(f'orderpositions/{self.position_id}/', json={'answers': ans}, expectedStatusCodes=None)
 		
 		if res.status_code != 200:
-			for ans, err in zip(self.answers, res.json()['answers']):
-				if err:
-					logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
+			e = res.json()
+			if "answers" in e:
+				for ans, err in zip(self.answers, res.json()['answers']):
+					if err:
+						logger.error ('[ANSWERS SENDING] ERROR ON %s %s', ans, err)
+			else:
+				logger.error("[ANSWERS SENDING] GENERIC ERROR. Response: '%s'", str(e))
 
 			raise exceptions.ServerError('There has been an error while updating this answers.')
 		
@@ -230,6 +247,47 @@ class Order:
 		
 	def get_language(self):
 		return self.country.lower() if self.country.lower() in AVAILABLE_LOCALES else 'en'
+	
+	def __str__(self):
+		to_return = f"{'Room' if self.room_owner else 'Order'} {self.code}"
+		if self.room_owner == True:
+			to_return = f"{to_return} [ members = {self.room_members} ]"
+		return to_return
+	
+	def __repr__(self):
+		to_return = f"{'Room' if self.room_owner == True else 'Order'} {self.code}"
+		if self.room_owner == True:
+			to_return = f"{to_return} [ members = {self.room_members} ]"
+		return to_return
+
+@dataclass
+class Quota:
+	def __init__(self, data):
+		self.items = data['items'] if 'items' in data else []
+		self.variations = data['variations'] if 'variations' in data else []
+		self.available = data['available'] if 'available' in data else False
+		self.size = data['size'] if 'size' in data else 0
+		self.available_number = data['available_number'] if 'available_number' in data else 0
+
+	def has_item (self, id: int=-1, variation: int=None):
+		return id in self.items if not variation else (id in self.items and variation in self.variations)
+
+	def get_left (self):
+		return self.available_number
+	
+	def __repr__(self):
+		return f'Quota [items={self.items}, variations={self.variations}] [{self.available_number}/{self.size}]'
+
+	def __str__(self):
+		return f'Quota [items={self.items}, variations={self.variations}] [{self.available_number}/{self.size}]'
+
+def get_quota(item: int, variation: int = None) -> Quota:
+	ret : Quota = None
+	for q in QUOTA_LIST:
+		if (q.has_item(item, variation)):
+			if(ret == None or (q.size != None and q.size < ret.size)):
+				ret = q
+	return ret
 
 @dataclass
 class Quotas:
@@ -247,6 +305,21 @@ async def get_quotas(request: Request=None):
 	res = res.json()
 	
 	return Quotas(res)
+
+async def load_item_quotas() -> bool:
+	global QUOTA_LIST
+	QUOTA_LIST = []
+	logger.info ('[QUOTAS] Loading quotas...')
+	success = True
+	try:
+		res = await pretixClient.get('quotas/?order=id&with_availability=true')
+		res = res.json()
+		for quota_data in res['results']:
+			QUOTA_LIST.append (Quota(quota_data))
+	except Exception:
+		logger.warning(f"[QUOTAS] Error while loading quotas.\n{traceback.format_exc()}")
+		success = False
+	return success
 
 async def get_order(request: Request=None):
 	await request.receive_body()
@@ -294,9 +367,24 @@ class OrderManager:
 			del cache[code]
 			orderList.remove(code)
 	
+
 	async def fill_cache(self, check_itemsQuestions=False) -> bool:
 		# Check cache lock
+		logger.info(f"[CACHE] Lock status: {self.updating.locked()}")
 		self.updating.acquire()
+		ret = False
+		exp = None
+		try:
+			ret = await self.fill_cache_INTERNAL(check_itemsQuestions=check_itemsQuestions)
+		except Exception as e: 
+			exp = e
+		self.updating.release()
+		logger.info(f"[CACHE] Ret status: {ret}. Exp: {exp}")
+		if(exp != None):
+			raise exp
+		return ret
+
+	async def fill_cache_INTERNAL(self, check_itemsQuestions=False) -> bool:
 		start_time = time()
 		logger.info("[CACHE] Filling cache...")
 		# Index item's ids
@@ -309,6 +397,12 @@ class OrderManager:
 		r = await load_questions()
 		if(not r and check_itemsQuestions):
 			logger.error("[CACHE] Questions were not loading correctly. Aborting filling cache...")
+			return False
+
+		# Load quotas
+		r = await load_item_quotas()
+		if(not r and check_itemsQuestions):
+			logger.error("[CACHE] Quotas were not loading correctly. Aborting filling cache...")
 			return False
 
 		cache = {}
@@ -333,8 +427,6 @@ class OrderManager:
 		except Exception:
 			logger.error(f"[CACHE] Error while refreshing cache.\n{traceback.format_exc()}")
 			success = False
-		finally:
-			self.updating.release()
 
 		# Apply new cache if there were no errors
 		if(success):
@@ -346,7 +438,7 @@ class OrderManager:
 		asyncio.create_task(validate_rooms(None, rooms, self))
 
 		return success
-	
+
 	async def get_order(self, request=None, code=None, secret=None, nfc_id=None, cached=False):
 
 		# if it's a nfc id, just retorn it

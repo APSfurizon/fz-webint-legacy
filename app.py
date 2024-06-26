@@ -16,9 +16,11 @@ import requests
 import sys
 from sanic.log import logger, logging, access_logger
 from metrics import *
+from utils import isSessionAdmin
 from email_util import killSmptClient
 import pretixClient
 import traceback
+
 
 app = Sanic(__name__)
 app.static("/res", "res/")
@@ -29,14 +31,13 @@ app.ext.add_dependency(Quotas, get_quotas)
 from room import bp as room_bp
 from propic import bp as propic_bp
 from karaoke import bp as karaoke_bp
-from export import bp as export_bp
 from stats import bp as stats_bp
 from api import bp as api_bp
 from carpooling import bp as carpooling_bp
 from checkin import bp as checkin_bp
 from admin import bp as admin_bp
 
-app.blueprint([room_bp, karaoke_bp, propic_bp, export_bp, stats_bp, api_bp, carpooling_bp, checkin_bp, admin_bp])
+app.blueprint([room_bp, karaoke_bp, propic_bp, stats_bp, api_bp, carpooling_bp, checkin_bp, admin_bp])
 
 
 async def clear_session(response):
@@ -50,12 +51,12 @@ async def handleException(request, exception):
 	statusCode = exception.status_code if hasattr(exception, 'status_code') else 500
 	try:
 		tpl = app.ctx.tpl.get_template('error.html')
-		r = html(tpl.render(exception=exception, status_code=statusCode))
+		r = html(tpl.render(exception=exception, status_code=statusCode), status=statusCode)
 	except:
 		traceback.print_exc()
 
 	if statusCode == 403:
-		clear_session(r)
+		await clear_session(r)
 	return r
 
 
@@ -81,6 +82,7 @@ async def main_start(*_):
 	app.ctx.tpl = Environment(loader=FileSystemLoader("tpl"), autoescape=True)
 	app.ctx.tpl.globals.update(time=time)
 	app.ctx.tpl.globals.update(PROPIC_DEADLINE=PROPIC_DEADLINE)
+	app.ctx.tpl.globals.update(ROOM_DEADLINE=ROOM_DEADLINE)
 	app.ctx.tpl.globals.update(LOCALES=LOCALES)
 	app.ctx.tpl.globals.update(ITEMS_ID_MAP=ITEMS_ID_MAP)
 	app.ctx.tpl.globals.update(ITEM_VARIATIONS_MAP=ITEM_VARIATIONS_MAP)
@@ -157,7 +159,7 @@ async def welcome(request, order: Order, quota: Quotas):
 				room_members.append(await app.ctx.om.get_order(code=member_id, cached=True))
 
 	tpl = app.ctx.tpl.get_template('welcome.html')
-	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_TYPES))
+	return html(tpl.render(order=order, quota=quota, room_members=room_members, pending_roommates=pending_roommates, ROOM_ERROR_MESSAGES=ROOM_ERROR_TYPES, isSessionAdmin=await isSessionAdmin(request, order)))
 
 
 @app.route("/manage/download_ticket")

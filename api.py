@@ -9,7 +9,9 @@ import random
 import string
 import httpx
 import json
+import traceback
 from sanic.log import logger
+from email_util import send_app_login_attempt
 
 bp = Blueprint("api", url_prefix="/manage/api")
 
@@ -32,7 +34,8 @@ async def api_members(request):
 			'propic_fursuiter': o.ans('propic_fursuiter'),
 			'staff_role': o.ans('staff_role'),
 			'country': o.country,
-			'is_checked_in': False,
+			'room_id': o.room_id,
+			'is_checked_in': o.checked_in,
 			'points': random.randint(0,50) if random.random() > 0.3 else 0
 		})
 		
@@ -110,6 +113,10 @@ async def token_test(request):
 		return response.json({'ok': False, 'error': 'The token you have provided is not correct.'}, status=401)
 	
 	return response.json({'ok': True, 'message': 'This token is valid :)'})
+
+@bp.get("/ping")
+async def ping(request):
+	return response.text("pong")
 	
 @bp.get("/welcome")
 async def welcome_app(request):
@@ -137,15 +144,18 @@ async def welcome_app(request):
 		'propic_fursuiter': o.ans('propic_fursuiter'),
 		'staff_role': o.ans('staff_role'),
 		'country': o.country,
-		'is_checked_in': False,
+		'is_checked_in': o.checked_in,
 		'points': random.randint(0,50) if random.random() > 0.3 else 0,
 		'can_scan_nfc': o.can_scan_nfc,
+		'room_id': o.room_id,
+		#'mail': o.email,
 		'actual_room_id': o.actual_room,
 		**ret
 	})
 	
 @bp.get("/scan/<nfc_id>")
 async def nfc_scan(request, nfc_id):
+	return response.text("Nope")
 	if not request.token:
 		return response.json({'ok': False, 'error': 'You need to provide a token.'}, status=401)
 		
@@ -172,11 +182,12 @@ async def nfc_scan(request, nfc_id):
 			'propic_fursuiter': o.ans('propic_fursuiter'),
 			'staff_role': o.ans('staff_role'),
 			'country': o.country,
-			'is_checked_in': False,
+			'is_checked_in': o.checked_in,
 			'points': random.randint(0,50) if random.random() > 0.3 else 0,
 			'comment': o.comment,
 			'actual_room_id': o.actual_room,
 			'phone': o.phone,
+			'room_id': o.room_id,
 			'telegram_username': o.telegram_username,
 			'roommates': {x: (await request.app.ctx.om.get_order(code=x, cached=True)).name for x in room_owner.room_members if x != o.code}
 		})
@@ -221,16 +232,9 @@ async def get_token(request, code):
 	request.app.ctx.login_codes[code] = [''.join(random.choice(string.digits) for _ in range(6)), 3]
 
 	try:
-		msg = MIMEText(f"Hello {user.name}!\n\nWe have received a request to login in the app. If you didn't do this, please ignore this email. Somebody is probably playing with you.\n\nYour login code is: {request.app.ctx.login_codes[code][0]}\n\nPlease do not tell this to anybody!")
-		msg['Subject'] = '[Furizon] Your login code'
-		msg['From'] = 'Furizon <no-reply@furizon.net>'
-		msg['To'] = f"{user.name} <{user.email}>"
-
-		s = smtplib.SMTP_SSL(SMTP_HOST)
-		s.login(SMTP_USER, SMTP_PASSWORD)
-		s.sendmail(msg['From'], msg['to'], msg.as_string())
-		s.quit()
-	except:
+		await send_app_login_attempt(user, request.app.ctx.login_codes[code][0])
+	except Exception:
+		logger.error(f"[API] [GET_TOKEN] Error while sending email.\n{traceback.format_exc()}")
 		return response.json({'ok': False, 'error': 'There has been an issue sending your e-mail. Please try again later or report to an admin.'}, status=500)
 	
 	return response.json({'ok': True, 'message': 'A login code has been sent to your email.'})

@@ -3,6 +3,18 @@ div.room-actions {
     float: right;
 }
 
+div.admin-actions-header {
+    container-name: room-actions;
+    float: unset !important;
+    max-height: 2rem;
+    margin: 1rem 0px;
+}
+
+div.admin-actions-header img {
+    max-height: 1.5rem;
+}
+
+
 div.room-actions > a {
     background-color: var(--card-background-color);
     font-size: 12pt;
@@ -16,4 +28,26 @@ div.room-actions > a:hover {
 
 div.room-actions > a.act-del:hover {
     background-color: var(--del-color);
+}
+
+/* Spinning animation */
+@keyframes spin {
+    from {
+        transform:rotate(0deg);
+    }
+    to {
+        transform:rotate(360deg);
+    }
+}
+
+h3:has(.spin) {
+    overflow: hidden;
+}
+
+.spin {
+  animation-name: spin;
+  animation-duration: 500ms;
+  animation-iteration-count: infinite;
+  animation-timing-function: linear;
+  max-height: 32px;
 }

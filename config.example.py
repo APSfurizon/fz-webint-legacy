@@ -17,6 +17,8 @@ PROPIC_MAX_FILE_SIZE = 5 * 1024 * 1024 # 5MB
 PROPIC_MAX_SIZE = (2048, 2048) # (Width, Height)
 PROPIC_MIN_SIZE = (125, 125) # (Width, Height)
 
+ROOM_DEADLINE = 9999999999
+
 # This is used for feedback sending inside of the app. Feedbacks will be sent to the specified chat using the bot api id.
 TG_BOT_API = '123456789:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA'
 TG_CHAT_ID = -1234567
@@ -46,6 +48,8 @@ DEV_MODE = True
 ACCESS_LOG = True
 EXTRA_PRINTS = True
 
+UNCONFIRM_ROOMS_ENABLE = True
+
 METRICS_PATH = "/welcome/metrics"
 
 # Additional configured locales.
@@ -63,53 +67,58 @@ SPONSORSHIP_COLOR_MAP = {
     'normal': (142, 36, 170)
 }
 
+# Quotes
+QUOTES_LIST = []
+
 # Maps Products metadata name <--> ID
 ITEMS_ID_MAP = {
-	'early_bird_ticket': 126,
-	'regular_ticket': 127,
-	'staff_ticket': 155,
-    'daily_ticket': 162,
-    'sponsorship_item': 129,
-    'early_arrival_admission': 133,
-    'late_departure_admission': 134,
-    'membership_card_item': 128,
-    'bed_in_room': 153,
-    'room_type': 135,
-    'room_guest': 136,
-    'daily_1': 163,
-    'daily_2': 164,
-    'daily_3': 165,
-    'daily_4': 166,
+	'early_bird_ticket': None,
+	'regular_ticket': None,
+	'staff_ticket': None,
+    'daily_ticket': None,
+	'regular_bundle_sponsor_ticket': None,
+    'sponsorship_item': None,
+    'early_arrival_admission': None,
+    'late_departure_admission': None,
+    'membership_card_item': None,
+    'bed_in_room': None,
+    'room_type': None,
+    'room_guest': None,
+    'daily_1': None,
+    'daily_2': None,
+    'daily_3': None,
+    'daily_4': None,
     'daily_5': None
 }
 
 # Maps Products' variants metadata name <--> ID
 ITEM_VARIATIONS_MAP = {
     'sponsorship_item': {
-        'sponsorship_item_normal': 55,
-        'sponsorship_item_super': 56
+        'sponsorship_item_normal': None,
+        'sponsorship_item_super': None
     },
     'bed_in_room': {
-        'bed_in_room_main_1': 83,
-        'bed_in_room_main_2': 67,
-        'bed_in_room_main_3': 68,
-        'bed_in_room_main_4': 69,
-        'bed_in_room_main_5': 70,
-        'bed_in_room_overflow1_2': 75,
+		'bed_in_room_no_room': None,
+        'bed_in_room_main_1': None,
+        'bed_in_room_main_2': None,
+        'bed_in_room_main_3': None,
+        'bed_in_room_main_4': None,
+        'bed_in_room_main_5': None,
+        'bed_in_room_overflow1_2': None,
     },
     'room_type': {
-        'single': 57,
-        'double': 58,
-        'triple': 59,
-        'quadruple': 60,
-        'quintuple': 61
+        'single': None,
+        'double': None,
+        'triple': None,
+        'quadruple': None,
+        'quintuple': None
     },
     'room_guest': {
-        'single': 57,
-        'double': 58,
-        'triple': 59,
-        'quadruple': 60,
-        'quintuple': 61
+        'single': None,
+        'double': None,
+        'triple': None,
+        'quadruple': None,
+        'quintuple': None
     }
 }
 
@@ -129,6 +138,9 @@ CATEGORIES_LIST_MAP = {
 # Create a bunch of "room" items which will get added to the order once somebody gets a room.
 # Map item_name -> room capacity
 ROOM_CAPACITY_MAP = {
+	# Default
+	'bed_in_room_no_room': 0,
+
 	# SACRO CUORE
     'bed_in_room_main_1': 1,
     'bed_in_room_main_2': 2,
